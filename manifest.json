@@ -1,0 +1,11 @@
+{
+  "name": "moodle  マイコースを時間割でアクセス",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "マイコースを時間割形式でアクセスする",
+  "content_scripts": [{
+    "matches": ["https://*.kyutech.ac.jp/my/courses.php"],
+    "js": ["src/content.js"],
+    "css": ["src/style_cheet.css"]
+  }]
+}
