@@ -6,6 +6,6 @@
   "content_scripts": [{
     "matches": ["https://*.kyutech.ac.jp/my/courses.php"],
     "js": ["src/content.js"],
-    "css": ["src/style_cheet.css"]
+    "css": ["src/style_sheet.css"]
   }]
 }
