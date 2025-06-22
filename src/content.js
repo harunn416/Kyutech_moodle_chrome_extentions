@@ -108,11 +108,19 @@ function create_timetable(time_table_json) {
     return div_TT;
 }
 
+function add_custon_timeschedule_button (){
+    let course_ul = document.querySelector('#page-container-2');
+    console.log(course_ul);
+    course_ul.style = "display:none";
+}
+
 async function main(e) {
     add_css()
     //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
     let timetable_json = await loadTimetableFromStorage();
     let div_TT = create_timetable(timetable_json)
     document.getElementById("instance-5-header").appendChild(div_TT);
+
+    add_custon_timeschedule_button();
 
 }
