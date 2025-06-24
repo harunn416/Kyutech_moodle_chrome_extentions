@@ -1,0 +1,29 @@
+#div_TT .class_time{
+    font-size: 14px;
+}
+
+#div_TT table {
+    width: 90%;
+    margin: 10px 5%;
+}
+
+/*border*/
+#div_TT table th, td {
+    border: 1px solid black;
+}
+#div_TT table {
+    text-align: center;
+    vertical-align: middle; /* 垂直方向の中央揃え */
+}
+#div_TT th, td{
+    padding:0 10px;
+}
+
+#div_TT th{
+    width: 0;
+    white-space:nowrap;
+}
+
+#div_tt td {
+    word-wrap: break-word; /* テキストがセルからはみ出るときに改行 */
+}

@@ -5,9 +5,8 @@
   "description": "マイコースを時間割形式でアクセスする",
   "content_scripts": [{
     "matches": ["https://*.kyutech.ac.jp/my/courses.php*"],
-    "js": ["src/content.js"],
-    "css": ["src/style_sheet.css"],
-    "run_at": "document_idle"
+    "js": ["src/content.js", "src/fun.js"],
+    "css": ["src/content.css"]
   }],
   "permissions":[
     "storage"

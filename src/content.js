@@ -1,37 +1,24 @@
-window.addEventListener("load", main, false);
-
-function add_css(){
-    var head = document.head;
-    var linkElement = document.createElement("link");
-
-    linkElement.type = "text/css";
-    linkElement.rel = "stylesheet";
-    linkElement.href = chrome.runtime.getURL("src/style_sheet.css");
-
-    head.appendChild(linkElement);
-}
-
 // 初期状態の空の時間割データ構造を定義
 const initialTimetableData = {
     "mon": {
-        "1": { "name": "", "link": "" }, "2": { "name": "", "link": "" }, "3": { "name": "", "link": "" },
-        "4": { "name": "", "link": "" }, "5": { "name": "", "link": "" }, "6": { "name": "", "link": "" }
+        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
+        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
     },
     "tue": {
-        "1": { "name": "", "link": "" }, "2": { "name": "", "link": "" }, "3": { "name": "", "link": "" },
-        "4": { "name": "", "link": "" }, "5": { "name": "", "link": "" }, "6": { "name": "", "link": "" }
+        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
+        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
     },
     "wed": {
-        "1": { "name": "", "link": "" }, "2": { "name": "", "link": "" }, "3": { "name": "", "link": "" },
-        "4": { "name": "", "link": "" }, "5": { "name": "", "link": "" }, "6": { "name": "", "link": "" }
+        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
+        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
     },
     "thu": {
-        "1": { "name": "", "link": "" }, "2": { "name": "", "link": "" }, "3": { "name": "", "link": "" },
-        "4": { "name": "", "link": "" }, "5": { "name": "", "link": "" }, "6": { "name": "", "link": "" }
+        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
+        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
     },
     "fri": {
-        "1": { "name": "", "link": "" }, "2": { "name": "", "link": "" }, "3": { "name": "", "link": "" },
-        "4": { "name": "", "link": "" }, "5": { "name": "", "link": "" }, "6": { "name": "", "link": "" }
+        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
+        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
     }
 };
 
@@ -63,6 +50,20 @@ async function loadTimetableFromStorage() {
     }
 }
 
+/* 時間割データ削除関数 */
+async function resetTimetableFromStorage() {
+    let result = window.confirm(
+        "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
+    if (result) {
+        try {
+            await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
+            console.log('新規データが保存されました');
+        } catch (error) {
+            console.log("時間割削除中にエラーが発生しました。", error);
+        }
+    }
+}
+
 //retuen html_table
 function create_timetable(time_table_json) {
     let div_TT = document.createElement("div");
@@ -87,11 +88,11 @@ function create_timetable(time_table_json) {
     tr_6.innerHTML = '<th>6限<br><span class="class_time">18:00~19:30</span></th>';
 
     //時間割を挿入(一日ごとに挿入)
-    let day = ["mon","tue","wed","thu","fri"]
-    let trs = [tr_1,tr_2,tr_3,tr_4,tr_5,tr_6]
-    for (let i=0; i<5; i++) { //日付
-        for(let j=0; j<6; j++){ //時限
-            let date_class_data = time_table_json[day[i]][j+1]
+    let day = ["mon", "tue", "wed", "thu", "fri"]
+    let trs = [tr_1, tr_2, tr_3, tr_4, tr_5, tr_6]
+    for (let i = 0; i < 5; i++) { //日付
+        for (let j = 0; j < 6; j++) { //時限
+            let date_class_data = time_table_json[day[i]][j + 1]
             let date_class_element = `<td><a href="${date_class_data.link}">${date_class_data.name}</a></td>`
             trs[j].innerHTML += date_class_element;
         }
@@ -99,7 +100,7 @@ function create_timetable(time_table_json) {
 
     //最後の仕上げ　いろいろ挿入
     time_table.appendChild(tr_day);
-    for(let i=0; i<6; i++){
+    for (let i = 0; i < 6; i++) {
         time_table.appendChild(trs[i]);
     }
 
@@ -115,12 +116,49 @@ function add_custon_timeschedule_button (){
 }
 
 async function main(e) {
-    add_css()
     //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
     let timetable_json = await loadTimetableFromStorage();
     let div_TT = create_timetable(timetable_json)
     document.getElementById("instance-5-header").appendChild(div_TT);
 
-    add_custon_timeschedule_button();
+}
 
+main();
+
+/* 待機して挿入 ------------------------------------------------ */
+
+let intervalID = setInterval(searchElement, 100)
+
+function searchElement() {
+    let target = document.querySelector("#page-container-2 ul.list-group");
+
+    if (target) {
+        console.log("コースリストが見つかりました。");
+        clearInterval(intervalID);
+        create_custombutton();
+    }
+}
+
+function create_custombutton() {
+    let course_ul = document.querySelectorAll("#page-container-2 ul.list-group li");
+    course_ul.forEach((course_li) => {
+        const courseNameSrOnlySpan = course_li.querySelector('a.coursename span.sr-only');
+
+        let courseName = '';
+
+        if (courseNameSrOnlySpan) {
+            // sr-only spanの次の兄弟ノードが目的のテキストノードです
+            let nextNode = courseNameSrOnlySpan.nextSibling;
+
+            // nextNode が存在し、それがテキストノードであることを確認
+            if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+                courseName = nextNode.textContent; // 前後の空白を削除
+                console.log('取得したコース名:', courseName);
+            } else {
+                console.log('目的のコース名テキストノードが見つかりませんでした。');
+            }
+        } else {
+            console.log('セレクタに一致する要素が見つかりませんでした。');
+        }
+    })
 }
