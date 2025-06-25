@@ -34,8 +34,10 @@ async function loadTimetableFromStorage() {
                 // { '保存キー': 保存したい値 }
                 await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
                 console.log('新規データが保存されました');
+                timetableData = initialTimetableData;
             } catch (error) {
                 console.error('新規データの保存に失敗しました:', error);
+                timetableData = initialTimetableData;
             }
             // 初回読み込み時に初期データを保存しておくことも可能 (任意)
             // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
@@ -109,7 +111,7 @@ function create_timetable(time_table_json) {
     return div_TT;
 }
 
-function add_custon_timeschedule_button (){
+function add_custon_timeschedule_button() {
     let course_ul = document.querySelector('#page-container-2');
     console.log(course_ul);
     course_ul.style = "display:none";
@@ -128,37 +130,66 @@ main();
 /* 待機して挿入 ------------------------------------------------ */
 
 let intervalID = setInterval(searchElement, 100)
+let intervalCount = 0;
 
 function searchElement() {
-    let target = document.querySelector("#page-container-2 ul.list-group");
+    let target = document.querySelector("[id^='page-container-'] ul.list-group");
 
     if (target) {
         console.log("コースリストが見つかりました。");
         clearInterval(intervalID);
         create_custombutton();
     }
+
+    if (intervalCount > 300) { /* 30秒たっても見つからない場合はタイムアウトする */
+        console.log("コースリスト発見関数がタイムアウトしました。");
+        clearInterval(intervalID);
+    }
+    intervalCount++;
 }
 
 function create_custombutton() {
-    let course_ul = document.querySelectorAll("#page-container-2 ul.list-group li");
+    let course_ul = document.querySelectorAll("[id^='page-container-'] ul.list-group li");
     course_ul.forEach((course_li) => {
-        const courseNameSrOnlySpan = course_li.querySelector('a.coursename span.sr-only');
 
+        /* コース名検索 */
         let courseName = '';
-
+        const courseNameSrOnlySpan = course_li.querySelector('span[data-region="favourite-icon"] + span.sr-only');
         if (courseNameSrOnlySpan) {
             // sr-only spanの次の兄弟ノードが目的のテキストノードです
             let nextNode = courseNameSrOnlySpan.nextSibling;
-
+            //console.log(nextNode);
             // nextNode が存在し、それがテキストノードであることを確認
             if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
-                courseName = nextNode.textContent; // 前後の空白を削除
-                console.log('取得したコース名:', courseName);
+                courseName = nextNode.textContent.trim(); // 前後の空白を削除
             } else {
                 console.log('目的のコース名テキストノードが見つかりませんでした。');
             }
         } else {
             console.log('セレクタに一致する要素が見つかりませんでした。');
         }
+
+        /* コースid検索 */
+        let courseID = course_li.getAttribute("data-course-id");
+        //console.log(`コース名: ${courseName}\nコースid :${courseID}`);
+
+
+        let courseButtonLi = course_li.querySelector(".ml-auto .dropdown-menu");
+        /* 追加ボタン作成 */
+        let setTimetableButton = document.createElement("button");
+        setTimetableButton.setAttribute("class", "dropdown-item ");
+        setTimetableButton.setAttribute("data-action", "set-course-timetable");
+        setTimetableButton.setAttribute("data-course-id", courseID);
+        setTimetableButton.setAttribute("data-course-name", courseName);
+        setTimetableButton.innerHTML = "時間割に登録";
+        courseButtonLi.appendChild(setTimetableButton);
+        /* ボタン作成 */
+        let deleteTimetableButton = document.createElement("button");
+        deleteTimetableButton.setAttribute("class", "dropdown-item ");
+        deleteTimetableButton.setAttribute("data-action", "delete-course-timetable");
+        deleteTimetableButton.setAttribute("data-course-id", courseID);
+        deleteTimetableButton.setAttribute("data-course-name", courseName);
+        deleteTimetableButton.innerHTML = "時間割から削除";
+        courseButtonLi.appendChild(deleteTimetableButton);
     })
 }
