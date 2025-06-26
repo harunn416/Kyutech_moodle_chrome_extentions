@@ -48,6 +48,16 @@ function createPagePopup(courseInformationJson) {
     const courseInformationDiv = document.createElement("div");
     courseInformationDiv.style.margin = "10px 5%";
     courseInformationDiv.style.width = "90%";
+    
+    //コースネームタイトル, ID
+    const courseNameIDDiv = document.createElement("div");
+    courseNameIDDiv.style.display = "flex";
+    courseNameIDDiv.style
+    courseNameIDDiv.style
+    const courseNameInputTitle = document.createElement("span");
+    courseNameInputTitle.style.fontSize = "20px";
+    courseNameInputTitle.innerHTML = "<label for='courseNameInput'>コースネーム<span style='font-size: 15px'> (短いほうがおすすめ)</span></label>"
+    courseInformationDiv.appendChild(courseNameInputTitle);
 
     //コースネーム(編集可)
     const courseNameInput = document.createElement("input");
@@ -56,10 +66,6 @@ function createPagePopup(courseInformationJson) {
     courseNameInput.setAttribute("name", "courseNameInput");
     courseNameInput.style.width = "100%";
     courseNameInput.value = courseInformationJson.courseName;
-    //コースネームタイトル
-    const courseNameInputTitle = document.createElement("span");
-    courseNameInputTitle.style.fontSize = "20px";
-    courseNameInputTitle.innerHTML = "コースネーム<span style='font-size: 15px'>短いほうがおすすめ</span>"
     courseInformationDiv.appendChild(courseNameInput);
 
     popup.appendChild(courseInformationDiv);
