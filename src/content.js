@@ -1,3 +1,12 @@
+/* main function */
+async function main(e) {
+    //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
+    let timetable_json = await loadTimetableFromStorage();
+    let div_TT = create_timetable(timetable_json)
+    document.getElementById("instance-5-header").appendChild(div_TT);
+    createPagePopup()
+}
+
 // 初期状態の空の時間割データ構造を定義
 const initialTimetableData = {
     "mon": {
@@ -71,6 +80,8 @@ function create_timetable(time_table_json) {
     let div_TT = document.createElement("div");
     div_TT.setAttribute("id", "div_TT");
     let time_table = document.createElement("table");
+    time_table.setAttribute("class", "customiseTimetable")
+
 
     //曜日作成
     let tr_day = document.createElement("tr");
@@ -117,13 +128,6 @@ function add_custon_timeschedule_button() {
     course_ul.style = "display:none";
 }
 
-async function main(e) {
-    //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
-    let timetable_json = await loadTimetableFromStorage();
-    let div_TT = create_timetable(timetable_json)
-    document.getElementById("instance-5-header").appendChild(div_TT);
-
-}
 
 main();
 
