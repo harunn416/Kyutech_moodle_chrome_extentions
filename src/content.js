@@ -2,7 +2,10 @@
 async function main(e) {
     //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
     let timetable_json = await loadTimetableFromStorage();
-    let div_TT = create_timetable(timetable_json)
+
+    let div_TT = document.createElement("div");
+    div_TT.setAttribute("id", "div_TT");
+    div_TT.appendChild(create_timetable(timetable_json));
     document.getElementById("instance-5-header").appendChild(div_TT);
     createPagePopup()
 }
@@ -77,8 +80,7 @@ async function resetTimetableFromStorage() {
 
 //retuen html_table
 function create_timetable(time_table_json) {
-    let div_TT = document.createElement("div");
-    div_TT.setAttribute("id", "div_TT");
+    
     let time_table = document.createElement("table");
     time_table.setAttribute("class", "customiseTimetable")
 
@@ -106,8 +108,10 @@ function create_timetable(time_table_json) {
     for (let i = 0; i < 5; i++) { //日付
         for (let j = 0; j < 6; j++) { //時限
             let date_class_data = time_table_json[day[i]][j + 1]
-            let date_class_element = `<td><a href="${date_class_data.link}">${date_class_data.name}</a></td>`
-            trs[j].innerHTML += date_class_element;
+            if(date_class_data){
+                let date_class_element = `<td><a href="${date_class_data.link}">${date_class_data.name}</a></td>`;
+                trs[j].innerHTML += date_class_element;
+            }
         }
     }
 
@@ -117,15 +121,17 @@ function create_timetable(time_table_json) {
         time_table.appendChild(trs[i]);
     }
 
-    div_TT.appendChild(time_table)
-    //document.querySelector('[id^="block-myoverview-"]').insertBefore(div_TT, document.getElementById(""))
-    return div_TT;
+    return time_table;
 }
 
-function add_custon_timeschedule_button() {
-    let course_ul = document.querySelector('#page-container-2');
-    console.log(course_ul);
-    course_ul.style = "display:none";
+async function updateTimetable(){
+    let timetable_json = await loadTimetableFromStorage();
+    let timetable = document.querySelector("#div_TT .customiseTimetable");
+    if(timetable){timetable.remove();}
+
+    let div_TT = document.querySelector("#div_TT");
+    div_TT.appendChild(create_timetable(timetable_json));
+    console.log("時間割表を更新しました")
 }
 
 

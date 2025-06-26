@@ -7,7 +7,7 @@
     }*/
 
 function createPagePopup(courseInformationJson) {
-    courseInformationJson={"courseName":"コースネームだよ","courseID":"0120"};
+    courseInformationJson = { "courseName": "コースネームだよ", "courseID": "0120" };
     // オーバーレイ（背景の暗い部分）
     const overlay = document.createElement('div');
     overlay.id = 'extension-popup-overlay';
@@ -36,7 +36,6 @@ function createPagePopup(courseInformationJson) {
     popup.style.zIndex = '10001'; // オーバーレイよりさらに上
     popup.style.display = 'none'; // 初期状態では非表示
     popup.style.minWidth = '400px'; // 最小幅
-    popup.style.maxWidth = '800px'; // 最大幅
     popup.style.boxSizing = 'border-box'; // paddingを幅に含める
 
     // ポップアップのタイトル
@@ -46,18 +45,29 @@ function createPagePopup(courseInformationJson) {
 
     //コース情報を入れるdiv
     const courseInformationDiv = document.createElement("div");
-    courseInformationDiv.style.margin = "10px 5%";
+    courseInformationDiv.style.margin = "20px 5% 10px 5%";
     courseInformationDiv.style.width = "90%";
-    
+
     //コースネームタイトル, ID
     const courseNameIDDiv = document.createElement("div");
     courseNameIDDiv.style.display = "flex";
-    courseNameIDDiv.style
-    courseNameIDDiv.style
+    courseNameIDDiv.style.flexDirection = "row";
+    courseNameIDDiv.style.justifyContent = "space-between";
+    courseNameIDDiv.style.alignItems = "center";
+
     const courseNameInputTitle = document.createElement("span");
     courseNameInputTitle.style.fontSize = "20px";
-    courseNameInputTitle.innerHTML = "<label for='courseNameInput'>コースネーム<span style='font-size: 15px'> (短いほうがおすすめ)</span></label>"
-    courseInformationDiv.appendChild(courseNameInputTitle);
+    courseNameInputTitle.innerHTML = "<label for='courseNameInput'>コースネーム<span style='font-size: 15px'> (短いほうがおすすめ)</span></label>";
+
+    const courseNameInputID = document.createElement("span");
+    courseNameInputID.style.fontSize = "15px";
+    courseNameInputID.style.color = "#666";
+    courseNameInputID.innerHTML = `<span>コースID: ${courseInformationJson.courseID}</span>`;
+
+    courseNameIDDiv.appendChild(courseNameInputTitle);
+    courseNameIDDiv.appendChild(courseNameInputID);
+
+    courseInformationDiv.appendChild(courseNameIDDiv);
 
     //コースネーム(編集可)
     const courseNameInput = document.createElement("input");
@@ -69,6 +79,13 @@ function createPagePopup(courseInformationJson) {
     courseInformationDiv.appendChild(courseNameInput);
 
     popup.appendChild(courseInformationDiv);
+
+    //テーブル説明
+    const tableDescripsion = document.createElement("div");
+    tableDescripsion.innerHTML = "<span>追加したい場所にチェックを入れてね！</span>";
+    tableDescripsion.style.margin = "20px 5% 5px 5%";
+    tableDescripsion.style.width = "90%";
+    popup.appendChild(tableDescripsion);
 
 
     //テーブルのはいる場所

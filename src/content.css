@@ -1,8 +1,9 @@
-#div_TT .class_time{
+.customiseTimetable .class_time{
     font-size: 14px;
 }
 
 .customiseTimetable {
+    font-size: 19px;
     width: 90%;
     margin: 10px 5%;
 }
@@ -24,6 +25,14 @@
 
 .customiseTimetable td {
     word-wrap: break-word; /* テキストがセルからはみ出るときに改行 */
+}
+
+input.checkboxTimeschedule {
+  display: inline-block;
+  transform: scale(1.5);
+  accent-color: rgb(13, 255, 25);
+  width: 20px;
+  height: 20px;
 }
 
 
