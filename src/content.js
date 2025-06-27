@@ -78,6 +78,36 @@ async function resetTimetableFromStorage() {
     }
 }
 
+/* 時間割変更関数  */
+async function appdateTimetableFromStorage(courseInformationJson) {
+    try {
+        const result = await chrome.storage.sync.get('myUniversityTimetable');
+        let timetableData = result.myUniversityTimetable;
+        if (!timetableData) {
+            console.log("localStorageに時間割データがないため、新規作成します。");
+            try {
+                // オブジェクトのキーと値のペアで保存
+                // { '保存キー': 保存したい値 }
+                await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
+                console.log('新規データが保存されました');
+                timetableData = initialTimetableData;
+            } catch (error) {
+                console.error('新規データの保存に失敗しました:', error);
+                timetableData = initialTimetableData;
+            }
+            // 初回読み込み時に初期データを保存しておくことも可能 (任意)
+            // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+        } else {
+            console.log("localStorageから時間割データを読み込みました:", timetableData);
+        }
+        return timetableData;
+    } catch (error) {
+        console.error('時間割の読み込み中にエラーが発生しました:', error);
+        // エラー時は初期データを返すなど、安全策をとる
+        return initialTimetableData;
+    }
+}
+
 //retuen html_table
 function create_timetable(time_table_json) {
     
@@ -149,6 +179,8 @@ function searchElement() {
         console.log("コースリストが見つかりました。");
         clearInterval(intervalID);
         create_custombutton();
+        //ボタンにイベントを設定
+        setEventTimetableCustomiseButton();
     }
 
     if (intervalCount > 300) { /* 30秒たっても見つからない場合はタイムアウトする */
@@ -183,22 +215,27 @@ function create_custombutton() {
         let courseID = course_li.getAttribute("data-course-id");
         //console.log(`コース名: ${courseName}\nコースid :${courseID}`);
 
+        /* リンク検索 */
+        let courseLink = course_li.querySelector("a").getAttribute("href");
+
 
         let courseButtonLi = course_li.querySelector(".ml-auto .dropdown-menu");
         /* 追加ボタン作成 */
         let setTimetableButton = document.createElement("button");
-        setTimetableButton.setAttribute("class", "dropdown-item ");
+        setTimetableButton.setAttribute("class", "dropdown-item addCourseToTimetable");
         setTimetableButton.setAttribute("data-action", "set-course-timetable");
         setTimetableButton.setAttribute("data-course-id", courseID);
         setTimetableButton.setAttribute("data-course-name", courseName);
+        setTimetableButton.setAttribute("data-course-link", courseLink);
         setTimetableButton.innerHTML = "時間割に登録";
         courseButtonLi.appendChild(setTimetableButton);
         /* ボタン作成 */
         let deleteTimetableButton = document.createElement("button");
-        deleteTimetableButton.setAttribute("class", "dropdown-item ");
+        deleteTimetableButton.setAttribute("class", "dropdown-item deleteCourseToTimetable");
         deleteTimetableButton.setAttribute("data-action", "delete-course-timetable");
         deleteTimetableButton.setAttribute("data-course-id", courseID);
         deleteTimetableButton.setAttribute("data-course-name", courseName);
+        deleteTimetableButton.setAttribute("data-course-link", courseLink);
         deleteTimetableButton.innerHTML = "時間割から削除";
         courseButtonLi.appendChild(deleteTimetableButton);
     })
