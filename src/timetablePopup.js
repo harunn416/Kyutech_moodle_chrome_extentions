@@ -1,6 +1,6 @@
 // content.js
 
-const { memo } = require("react");
+//const { memo } = require("react");
 
 // --- 1. ポップアップのHTML構造を作成する関数 ---
 
@@ -106,6 +106,9 @@ function createPagePopup() {
     saveButton.style.borderRadius = '4px';
     saveButton.style.cursor = 'pointer';
     buttonContainer.appendChild(saveButton);
+    saveButton.addEventListener("click", (e) => {
+        appdateCourseJsonFromTimetable()
+    });
 
     // 閉じるボタン
     const closeButton = document.createElement('button');
@@ -132,7 +135,7 @@ function createPagePopup() {
     closeButton.addEventListener('click', hidePopup);
     overlay.addEventListener('click', hidePopup); // オーバーレイをクリックしても閉じる
 
-    
+
 
     // ポップアップを非表示にする関数
     function hidePopup() {
@@ -144,15 +147,16 @@ function createPagePopup() {
 }
 
 // ポップアップを表示する関数
-    function showPopup(courseInformationJson) {
-        document.querySelector("#extension-popup-overlay").style.display = 'block';
-        document.querySelector("#divPop_TT").style.display = 'block';
+function showPopup(courseInformationJson) {
+    document.querySelector("#extension-popup-overlay").style.display = 'block';
+    document.querySelector("#divPop_TT").style.display = 'block';
 
-        document.querySelector("#courseNameInput").value = courseInformationJson.courseName;
-        document.querySelector("#inputCourseId").innerHTML = courseInformationJson.courseID;
+    document.querySelector("#courseNameInput").value = courseInformationJson.courseName;
+    document.querySelector("#inputCourseId").innerHTML = courseInformationJson.courseID;
+    document.querySelector("#divPop_TT").setAttribute("data-course-Link", courseInformationJson.courseLink);
 
-        insertCoursesInTimetable();
-    }
+    insertCoursesInTimetable();
+}
 
 
 async function insertCoursesInTimetable() {
@@ -193,7 +197,7 @@ async function insertCoursesInTimetable() {
                 let date_class_element = `<td>${date_class_data.name}</td>`;
                 trs[j].innerHTML += date_class_element;
             } else {
-                let date_class_element = `<td><input type="checkbox" data-day=${day[i]} data-period=${j} class="checkboxTimeschedule"></td>`
+                let date_class_element = `<td><input type="checkbox" data-day=${day[i]} data-period=${j+1} class="checkboxTimeschedule"></td>`
                 trs[j].innerHTML += date_class_element;
             }
         }
@@ -210,11 +214,11 @@ async function insertCoursesInTimetable() {
 }
 
 /* 時間割変更ボタンのイベント作成 */
-function setEventTimetableCustomiseButton(){
+function setEventTimetableCustomiseButton() {
     const allTimetableCustomiseButton = document.querySelectorAll("button.addCourseToTimetable");
 
-    allTimetableCustomiseButton.forEach(addButton =>{
-        addButton.addEventListener("click", (e) =>{
+    allTimetableCustomiseButton.forEach(addButton => {
+        addButton.addEventListener("click", (e) => {
             const clickButtonElem = e.target;
             const courseName = clickButtonElem.dataset.courseName;
             const courseID = clickButtonElem.dataset.courseId;
@@ -227,4 +231,31 @@ function setEventTimetableCustomiseButton(){
             showPopup(courseInformationJson);
         });
     });
+}
+
+function appdateCourseJsonFromTimetable() {
+    console.log("じっこぉ");
+    let times = [];
+
+    const courseName = document.querySelector("#courseNameInput").value;
+    const courseID = document.querySelector("#inputCourseId").innerHTML;
+    const courseLink = document.querySelector("#divPop_TT").getAttribute("data-course-Link");
+
+    const courseSelectCheckboxes = document.querySelectorAll("input.checkboxTimeschedule[type='checkbox']");
+    courseSelectCheckboxes.forEach((checkbox) => {
+        if (checkbox.checked) {
+            let day = checkbox.dataset.day;
+            let period = checkbox.dataset.period;
+            times.push({"day":day,"period":period});
+        }
+    });
+    let courseInformationIncludeTimeJson = {
+        "times": times,
+        "classInformation": {
+            "name": courseName,
+            "courseID": courseID,
+            "link": courseLink
+        }
+    }
+    appdateTimetableFromStorage(courseInformationIncludeTimeJson);
 }

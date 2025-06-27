@@ -79,38 +79,42 @@ async function resetTimetableFromStorage() {
 }
 
 /* 時間割変更関数  */
-async function appdateTimetableFromStorage(courseInformationJson) {
+/*let courseInformationIncludeTimeJson = {
+**    "times": [{"day": ,"period": }<array>],
+**    "classInformation": {
+**        "name": courseName,
+**        "courseID": courseID,
+**        "link": courseLink
+**    }
+}*/
+async function appdateTimetableFromStorage(courseInformationIncludeTimeJson) {
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');
         let timetableData = result.myUniversityTimetable;
         if (!timetableData) {
-            console.log("localStorageに時間割データがないため、新規作成します。");
-            try {
-                // オブジェクトのキーと値のペアで保存
-                // { '保存キー': 保存したい値 }
-                await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
-                console.log('新規データが保存されました');
-                timetableData = initialTimetableData;
-            } catch (error) {
-                console.error('新規データの保存に失敗しました:', error);
-                timetableData = initialTimetableData;
-            }
+            console.log("時間割データを読み込めませんでした。");
+            return false;
             // 初回読み込み時に初期データを保存しておくことも可能 (任意)
             // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         } else {
             console.log("localStorageから時間割データを読み込みました:", timetableData);
+            courseInformationIncludeTimeJson.times.forEach((timeJson) => {
+                timetableData[timeJson.day][timeJson.period] = courseInformationIncludeTimeJson.courseInformation;
+            });
+            // オブジェクトのキーと値のペアで保存
+            // { '保存キー': 保存したい値 }
+            console.log(timetableData);
+            await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         }
-        return timetableData;
     } catch (error) {
         console.error('時間割の読み込み中にエラーが発生しました:', error);
         // エラー時は初期データを返すなど、安全策をとる
-        return initialTimetableData;
+        return false;
     }
 }
 
 //retuen html_table
 function create_timetable(time_table_json) {
-    
     let time_table = document.createElement("table");
     time_table.setAttribute("class", "customiseTimetable")
 
