@@ -1,38 +1,51 @@
-.customiseTimetable .class_time{
+.customiseTimetable .class_time {
     font-size: 14px;
 }
 
 .customiseTimetable {
+    table-layout: fixed;
+    border-collapse: collapse; /* セルの境界線を単一にする */
     font-size: 19px;
     width: 90%;
     margin: 10px 5%;
 }
 
-/*border*/
-.customiseTimetable {
+.customiseTimetable th,
+.customiseTimetable td {
+    /*border*/
+    border: 1px solid rgb(88, 88, 88);
+    padding: 0 10px;
+
     text-align: center;
-    vertical-align: middle; /* 垂直方向の中央揃え */
-}
-.customiseTimetable th, td{
-    border: 1px solid black;
-    padding:0 10px;
+    vertical-align: middle;
 }
 
-.customiseTimetable th{
-    width: 0;
-    white-space:nowrap;
+.customiseTimetable th {
+    width: 110px;
+    white-space: nowrap;
 }
 
 .customiseTimetable td {
-    word-wrap: break-word; /* テキストがセルからはみ出るときに改行 */
+    /* テキストがセルからはみ出るときに改行 */
+    word-wrap: break-word;
+}
+
+.customiseTimetable span.courseLink {
+    font-size: 13px;
+    /* 複数行の省略設定 */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 表示する行数を2行に指定 */
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 input.checkboxTimeschedule {
-  display: inline-block;
-  transform: scale(1.5);
-  accent-color: rgb(13, 255, 25);
-  width: 20px;
-  height: 20px;
+    display: inline-block;
+    transform: scale(1.5);
+    accent-color: rgb(13, 255, 25);
+    width: 20px;
+    height: 20px;
 }
 
 

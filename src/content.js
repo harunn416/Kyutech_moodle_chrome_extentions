@@ -6,6 +6,7 @@ async function main(e) {
     let div_TT = document.createElement("div");
     div_TT.setAttribute("id", "div_TT");
     div_TT.appendChild(create_timetable(timetable_json));
+    div_TT.appendChild(createManualEditDiscription());
     document.getElementById("instance-5-header").appendChild(div_TT);
     createPagePopup()
 }
@@ -52,7 +53,7 @@ async function loadTimetableFromStorage() {
                 timetableData = initialTimetableData;
             }
             // 初回読み込み時に初期データを保存しておくことも可能 (任意)
-            // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+            //await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         } else {
             console.log("localStorageから時間割データを読み込みました:", timetableData);
         }
@@ -81,13 +82,14 @@ async function resetTimetableFromStorage() {
 /* 時間割変更関数  */
 /*let courseInformationIncludeTimeJson = {
 **    "times": [{"day": ,"period": }<array>],
-**    "classInformation": {
+**    "courseInformation": {
 **        "name": courseName,
 **        "courseID": courseID,
 **        "link": courseLink
 **    }
 }*/
 async function appdateTimetableFromStorage(courseInformationIncludeTimeJson) {
+    console.log(courseInformationIncludeTimeJson);
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');
         let timetableData = result.myUniversityTimetable;
@@ -99,11 +101,14 @@ async function appdateTimetableFromStorage(courseInformationIncludeTimeJson) {
         } else {
             console.log("localStorageから時間割データを読み込みました:", timetableData);
             courseInformationIncludeTimeJson.times.forEach((timeJson) => {
-                timetableData[timeJson.day][timeJson.period] = courseInformationIncludeTimeJson.courseInformation;
+                let courseInformationJson = timetableData[timeJson.day][timeJson.period];
+
+                timetableData[timeJson.day][timeJson.period]["name"] = courseInformationIncludeTimeJson["courseInformation"]["name"];
+                timetableData[timeJson.day][timeJson.period]["link"] = courseInformationIncludeTimeJson["courseInformation"]["link"];
+                timetableData[timeJson.day][timeJson.period]["courseID"] = courseInformationIncludeTimeJson["courseInformation"]["courseID"];
             });
             // オブジェクトのキーと値のペアで保存
             // { '保存キー': 保存したい値 }
-            console.log(timetableData);
             await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         }
     } catch (error) {
@@ -143,7 +148,7 @@ function create_timetable(time_table_json) {
         for (let j = 0; j < 6; j++) { //時限
             let date_class_data = time_table_json[day[i]][j + 1]
             if(date_class_data){
-                let date_class_element = `<td><a href="${date_class_data.link}">${date_class_data.name}</a></td>`;
+                let date_class_element = `<td><a href="${date_class_data.link}"><span class="courseLink">${date_class_data.name}</span></a></td>`;
                 trs[j].innerHTML += date_class_element;
             }
         }
@@ -166,6 +171,13 @@ async function updateTimetable(){
     let div_TT = document.querySelector("#div_TT");
     div_TT.appendChild(create_timetable(timetable_json));
     console.log("時間割表を更新しました")
+}
+
+function createManualEditDiscription(){
+    let div = document.createElement("div");
+    div.style.display = "flex";
+
+    return div;
 }
 
 
