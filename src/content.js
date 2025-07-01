@@ -8,7 +8,8 @@ async function main(e) {
     div_TT.appendChild(create_timetable(timetable_json));
     div_TT.appendChild(createManualEditDiscription());
     document.getElementById("instance-5-header").appendChild(div_TT);
-    createPagePopup()
+    createPageAddPopup();
+    createPageEditPopup();
 }
 
 // 初期状態の空の時間割データ構造を定義
@@ -174,9 +175,27 @@ async function updateTimetable(){
 }
 
 function createManualEditDiscription(){
-    let div = document.createElement("div");
-    div.style.display = "flex";
+    const div = document.createElement("div");
+    div.setAttribute("class", "timetableEditButtonDiv");
 
+    /* リセット */
+    const resetButton = document.createElement("button");
+    resetButton.innerHTML = "リセット";
+    resetButton.setAttribute("class", "timetable-edit-button timetable-edit-button--reset");
+    div.appendChild(resetButton);
+    resetButton.addEventListener("click", (e) => {
+        resetTimetableFromStorage();
+    });
+
+    /* 編集ボタン */
+    const editButton = document.createElement("button");
+    editButton.innerHTML = "コース名編集";
+    editButton.setAttribute("class", "timetable-edit-button timetable-edit-button--edit");
+    div.appendChild(editButton);
+    editButton.addEventListener("click", (e) => {
+        showEditPopup();
+    })
+    
     return div;
 }
 

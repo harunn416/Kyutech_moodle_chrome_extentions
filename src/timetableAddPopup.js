@@ -1,14 +1,40 @@
 // content.js
+/* 保存関数 */
+async function appdateCourseJsonFromTimetable() {
+    let times = [];
 
-//const { memo } = require("react");
+    const courseName = document.querySelector("#courseNameInput").value;
+    const courseID = document.querySelector("#inputCourseId").innerHTML;
+    const courseLink = document.querySelector("#divAddPop_TT").getAttribute("data-course-Link");
+
+    const courseSelectCheckboxes = document.querySelectorAll("input.checkboxTimeschedule[type='checkbox']");
+    courseSelectCheckboxes.forEach((checkbox) => {
+        if (checkbox.checked) {
+            let day = checkbox.dataset.day;
+            let period = checkbox.dataset.period;
+            times.push({"day":day,"period":period});
+        }
+    });
+    let courseInformationIncludeTimeJson = {
+        "times": times,
+        "courseInformation": {
+            "name": courseName,
+            "courseID": courseID,
+            "link": courseLink
+        }
+    }
+    await appdateTimetableFromStorage(courseInformationIncludeTimeJson);
+    hideAddPopup()
+    updateTimetable()
+}
 
 // --- 1. ポップアップのHTML構造を作成する関数 ---
 
-function createPagePopup() {
+function createPageAddPopup() {
     //courseInformationJson = { "courseName": "コースネームだよ", "courseID": "0120" };
     // オーバーレイ（背景の暗い部分）
     const overlay = document.createElement('div');
-    overlay.id = 'extension-popup-overlay';
+    overlay.id = 'extension-add-popup-overlay';
     overlay.style.position = 'fixed';
     overlay.style.top = '0';
     overlay.style.left = '0';
@@ -20,7 +46,7 @@ function createPagePopup() {
 
     // ポップアップ本体
     const popup = document.createElement('div');
-    popup.id = 'divPop_TT';
+    popup.id = 'divAddPop_TT';
     popup.style.position = 'fixed';
     popup.style.width = '70%';
     popup.style.top = '50%';
@@ -38,7 +64,7 @@ function createPagePopup() {
 
     // ポップアップのタイトル
     const title = document.createElement('h3');
-    title.textContent = '時間割を編集';
+    title.textContent = '時間割を追加';
     popup.appendChild(title);
 
     //コース情報を入れるdiv
@@ -87,7 +113,7 @@ function createPagePopup() {
 
     //テーブルのはいる場所
     let timetableDiv = document.createElement("div");
-    timetableDiv.setAttribute("id", "timetableDivPopup");
+    timetableDiv.setAttribute("id", "timetableDivAddPopup");
     popup.appendChild(timetableDiv);
 
     // ボタンコンテナ
@@ -97,7 +123,6 @@ function createPagePopup() {
 
     // 保存ボタン
     const saveButton = document.createElement('button');
-    saveButton.id = 'extension-popup-save-btn';
     saveButton.textContent = '保存';
     saveButton.style.padding = '8px 15px';
     saveButton.style.backgroundColor = '#007bff';
@@ -112,7 +137,6 @@ function createPagePopup() {
 
     // 閉じるボタン
     const closeButton = document.createElement('button');
-    closeButton.id = 'extension-popup-close-btn';
     closeButton.textContent = '閉じる';
     closeButton.style.marginLeft = '10px';
     closeButton.style.padding = '8px 15px';
@@ -130,32 +154,32 @@ function createPagePopup() {
     document.body.appendChild(popup);
 
     // 閉じるボタンとオーバーレイのクリックイベント
-    closeButton.addEventListener('click', hidePopup);
-    overlay.addEventListener('click', hidePopup); // オーバーレイをクリックしても閉じる
-}
-
-// ポップアップを非表示にする関数
-function hidePopup() {
-    document.querySelector("#extension-popup-overlay").style.display = 'none';
-    document.querySelector("#divPop_TT").style.display = 'none';
+    closeButton.addEventListener('click', hideAddPopup);
+    overlay.addEventListener('click', hideAddPopup); // オーバーレイをクリックしても閉じる
 }
 
 // ポップアップを表示する関数
-function showPopup(courseInformationJson) {
-    document.querySelector("#extension-popup-overlay").style.display = 'block';
-    document.querySelector("#divPop_TT").style.display = 'block';
+function showAddPopup(courseInformationJson) {
+    document.querySelector("#extension-add-popup-overlay").style.display = 'block';
+    document.querySelector("#divAddPop_TT").style.display = 'block';
 
     document.querySelector("#courseNameInput").value = courseInformationJson.courseName;
     document.querySelector("#inputCourseId").innerHTML = courseInformationJson.courseID;
-    document.querySelector("#divPop_TT").setAttribute("data-course-Link", courseInformationJson.courseLink);
+    document.querySelector("#divAddPop_TT").setAttribute("data-course-Link", courseInformationJson.courseLink);
 
     insertCoursesInTimetable();
+}
+
+// ポップアップを非表示にする関数
+function hideAddPopup() {
+    document.querySelector("#extension-add-popup-overlay").style.display = 'none';
+    document.querySelector("#divAddPop_TT").style.display = 'none';
 }
 
 
 async function insertCoursesInTimetable() {
     //初期化
-    let customiseTable = document.querySelector("#divPop_TT table");
+    let customiseTable = document.querySelector("#divAddPop_TT table");
     if (customiseTable) {
         customiseTable.remove();
     }
@@ -203,7 +227,7 @@ async function insertCoursesInTimetable() {
         time_table.appendChild(trs[i]);
     }
 
-    document.querySelector("#timetableDivPopup").appendChild(time_table);
+    document.querySelector("#timetableDivAddPopup").appendChild(time_table);
     //document.querySelector('[id^="block-myoverview-"]').insertBefore(div_TT, document.getElementById(""))
 }
 
@@ -222,35 +246,7 @@ function setEventTimetableCustomiseButton() {
                 "courseID": courseID,
                 "courseLink": courseLink
             }
-            showPopup(courseInformationJson);
+            showAddPopup(courseInformationJson);
         });
     });
-}
-
-async function appdateCourseJsonFromTimetable() {
-    let times = [];
-
-    const courseName = document.querySelector("#courseNameInput").value;
-    const courseID = document.querySelector("#inputCourseId").innerHTML;
-    const courseLink = document.querySelector("#divPop_TT").getAttribute("data-course-Link");
-
-    const courseSelectCheckboxes = document.querySelectorAll("input.checkboxTimeschedule[type='checkbox']");
-    courseSelectCheckboxes.forEach((checkbox) => {
-        if (checkbox.checked) {
-            let day = checkbox.dataset.day;
-            let period = checkbox.dataset.period;
-            times.push({"day":day,"period":period});
-        }
-    });
-    let courseInformationIncludeTimeJson = {
-        "times": times,
-        "courseInformation": {
-            "name": courseName,
-            "courseID": courseID,
-            "link": courseLink
-        }
-    }
-    await appdateTimetableFromStorage(courseInformationIncludeTimeJson);
-    hidePopup()
-    updateTimetable()
 }

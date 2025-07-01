@@ -49,6 +49,31 @@ input.checkboxTimeschedule {
 }
 
 
+
+#div_TT .timetableEditButtonDiv{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#div_TT .timetableEditButtonDiv button{
+    margin: 0 13px;
+    border-radius: 30px;
+    padding: 5px 20px;
+}
+
+#div_TT .timetableEditButtonDiv .timetable-edit-button--reset{
+    border: 2px solid #434343;
+    background-color: #d5443d;
+    color: #FFF;
+}
+
+#div_TT .timetableEditButtonDiv .timetable-edit-button--edit{
+    background-color: #5cb92d;
+    color: white;
+}
+
 /* popup用 ------------------------------------------------ */
 #extension-popup-overlay {
     position: fixed;
