@@ -82,6 +82,12 @@ function createPageEditPopup() {
     const courseEditDayAndTitleDiv = document.createElement("div");
     courseEditDayAndTitleDiv.style.margin = "20px 5% 10px 5%";
     courseEditDayAndTitleDiv.style.width = "90%";
+    
+    /* //曜日は変更しなかったので、没！
+    const courseEditDayAndTitleDiv_title = document.createElement("span");
+    courseEditDayAndTitleDiv_title.style.fontSize = "20px";
+    courseEditDayAndTitleDiv_title.innerHTML = "曜日を選択してね！";
+    courseEditDayAndTitleDiv.appendChild(courseEditDayAndTitleDiv_title);
 
     const courseEditDayAndTitleDiv_day = document.createElement("div");
     courseEditDayAndTitleDiv_day.style.display = "flex";
@@ -89,13 +95,9 @@ function createPageEditPopup() {
     courseEditDayAndTitleDiv_day.style.justifyContent = "space-between";
     courseEditDayAndTitleDiv_day.style.alignItems = "center";
 
-    const courseEditDayAndTitleDiv_title = document.createElement("span");
-    courseEditDayAndTitleDiv_title.style.fontSize = "20px";
-    courseEditDayAndTitleDiv_title.innerHTML = "曜日を選択してね！";
-    courseEditDayAndTitleDiv.appendChild(courseEditDayAndTitleDiv_title);
 
     let dayArr = ["mon", "tue", "wed", "thu", "fri"];
-    for (let i; i < 5; i++) {
+    for (let i=0; i < 5; i++) {
         let dayRadioDiv = document.createElement("div");
         dayRadioDiv.style.display = "flex";
 
@@ -108,12 +110,13 @@ function createPageEditPopup() {
         dayRadioDiv.appendChild(dayRadio);
         
         let dayRadioLabel = document.createElement("label");
+        dayRadioLabel.style.marginbottom = "0px";
         dayRadioLabel.setAttribute("for", dayArr[i]);
         dayRadioLabel.innerHTML = dayArr[i].toUpperCase();
         dayRadioDiv.appendChild(dayRadioLabel);
         
         courseEditDayAndTitleDiv_day.appendChild(dayRadioDiv);
-    }
+    }*/
     
     courseEditDayAndTitleDiv.appendChild(courseEditDayAndTitleDiv_day);
 
