@@ -1,6 +1,5 @@
 /** main function */
-async function main(e) {
-    //document.getElementById("instance-5-header").innerHTML = "コース概要ううううう～～～～↑"
+async function main() {
     let timetable_json = await loadTimetableFromStorage();
 
     let div_TT = document.createElement("div");
@@ -41,7 +40,10 @@ const initialTimetableData = {
     }
 };
 
-//データを取得
+/**
+ * 時間割データを読み込み、存在しない場合は初期データを保存する関数
+ * @returns {Promise<Object>} 時間割データのオブジェクト(エラー時は初期データ)
+ */
 async function loadTimetableFromStorage() {
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');
@@ -71,7 +73,7 @@ async function loadTimetableFromStorage() {
     }
 }
 
-/* 時間割データ削除関数 */
+/** 時間割データをリセットする */
 async function resetTimetableFromStorage() {
     let result = window.confirm(
         "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
@@ -85,15 +87,11 @@ async function resetTimetableFromStorage() {
     }
 }
 
-/* 時間割変更関数  */
-/*let courseInformationIncludeTimeJson = {
-**    "times": [{"day": ,"period": }<array>],
-**    "courseInformation": {
-**        "name": courseName,
-**        "courseID": courseID,
-**        "link": courseLink
-**    }
-}*/
+/**
+ * 時間割データを更新する関数
+ * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
+ * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
+ */
 async function appdateTimetableFromStorage(courseInformationIncludeTimeJson) {
     console.log(courseInformationIncludeTimeJson);
     try {
@@ -169,6 +167,7 @@ function create_timetable(time_table_json) {
     return time_table;
 }
 
+/** コースページ上の時間割を更新する関数 */
 async function updateTimetable() {
     let timetable_json = await loadTimetableFromStorage();
     let timetable = document.querySelector("#div_TT .customiseTimetable");

@@ -1,0 +1,20 @@
+{
+  "name": "chrome_extensionis_moodle_kit",
+  "version": "1.0.0",
+  "description": "九州工業大学のmoodle専用の拡張機能です。便利機能を随時追加していく予定です。",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}

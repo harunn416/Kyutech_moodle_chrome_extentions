@@ -1,0 +1,17 @@
+# Node.js modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# build outputs
+dist/
+build/
+*.zip # 拡張機能のzipファイルなど
+
+# Editor and OS specific files
+.vscode/ # VS Codeの設定（個人の好みによるが、共有しない方が無難な場合が多い）
+.DS_Store # macOS
+Thumbs.db # Windows
