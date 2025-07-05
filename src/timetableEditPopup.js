@@ -4,7 +4,7 @@ async function customiseCourseJsonFromTimetable() {
 
     const courseName = document.querySelector("#courseNameInput").value;
     const courseID = document.querySelector("#inputCourseId").innerHTML;
-    const courseLink = document.querySelector("#divAddPop_TT").getAttribute("data-course-Link");
+    const courseLink = document.querySelector("#divEditPop_TT").getAttribute("data-course-Link");
 
     const courseSelectCheckboxes = document.querySelectorAll("input.checkboxTimeschedule[type='checkbox']");
     courseSelectCheckboxes.forEach((checkbox) => {
@@ -79,48 +79,29 @@ function createPageEditPopup() {
     popup.appendChild(timetableDiv);
 
     //コース編集
-    const courseEditDayAndTitleDiv = document.createElement("div");
-    courseEditDayAndTitleDiv.style.margin = "20px 5% 10px 5%";
-    courseEditDayAndTitleDiv.style.width = "90%";
-    
-    /* //曜日は変更しなかったので、没！
-    const courseEditDayAndTitleDiv_title = document.createElement("span");
-    courseEditDayAndTitleDiv_title.style.fontSize = "20px";
-    courseEditDayAndTitleDiv_title.innerHTML = "曜日を選択してね！";
-    courseEditDayAndTitleDiv.appendChild(courseEditDayAndTitleDiv_title);
+    const courseEditNameDiv = document.createElement("div");
+    courseEditNameDiv.setAttribute("id", "courseEditNameDiv");
+    courseEditNameDiv.style.display = "none"; // 初期状態では非表示
+    courseEditNameDiv.style.margin = "20px 5% 10px 5%";
+    courseEditNameDiv.style.width = "90%";
 
-    const courseEditDayAndTitleDiv_day = document.createElement("div");
-    courseEditDayAndTitleDiv_day.style.display = "flex";
-    courseEditDayAndTitleDiv_day.style.flexDirection = "row";
-    courseEditDayAndTitleDiv_day.style.justifyContent = "space-between";
-    courseEditDayAndTitleDiv_day.style.alignItems = "center";
+    const courseEditNameTitle = document.createElement("h5");
+    courseEditNameTitle.textContent = "コースネームを編集できるよ！";
+    courseEditNameTitle.style.marginBottom = "10px";
+    courseEditNameDiv.appendChild(courseEditNameTitle);
 
+    const courseEditNameDayAndPeriod = document.createElement("div");
+    courseEditNameDayAndPeriod.style.display = "flex";
+    courseEditNameDayAndPeriod.style.justifyContent = "flex-start";
+    courseEditNameDayAndPeriod.innerHTML = "<span><span id='courseEditDay' style='margin-right: 10px';>曜日</span></span><span><span id='courseEditPeriod'></span>限目</span>";
+    courseEditNameDiv.appendChild(courseEditNameDayAndPeriod);
 
-    let dayArr = ["mon", "tue", "wed", "thu", "fri"];
-    for (let i=0; i < 5; i++) {
-        let dayRadioDiv = document.createElement("div");
-        dayRadioDiv.style.display = "flex";
-
-        let dayRadio = document.createElement("input");
-        dayRadio.setAttribute("class", "course-edit-day-radio");
-        dayRadio.setAttribute("type", "radio");
-        dayRadio.setAttribute("name", "courseEditDay");
-        dayRadio.setAttribute("value", dayArr[i]);
-        dayRadio.setAttribute("id", dayArr[i]);
-        dayRadioDiv.appendChild(dayRadio);
-        
-        let dayRadioLabel = document.createElement("label");
-        dayRadioLabel.style.marginbottom = "0px";
-        dayRadioLabel.setAttribute("for", dayArr[i]);
-        dayRadioLabel.innerHTML = dayArr[i].toUpperCase();
-        dayRadioDiv.appendChild(dayRadioLabel);
-        
-        courseEditDayAndTitleDiv_day.appendChild(dayRadioDiv);
-    }*/
-    
-    courseEditDayAndTitleDiv.appendChild(courseEditDayAndTitleDiv_day);
-
-    popup.appendChild(courseEditDayAndTitleDiv);
+    const courseEditNameInput = document.createElement("input");
+    courseEditNameInput.setAttribute("type", "input");
+    courseEditNameInput.setAttribute("id", "courseNameInput");
+    courseEditNameInput.style.width = "100%";
+    courseEditNameDiv.appendChild(courseEditNameInput);
+    popup.appendChild(courseEditNameDiv);
 
 
     // ボタンコンテナ
@@ -238,10 +219,13 @@ async function insertCoursesInTimetableEdit() {
                     const courseID = clickButtonElem.dataset.courseId;
                     const courseLink = clickButtonElem.dataset.courseLink;
                     const courseInformationJson = {
+                        "day": day[i],
+                        "period": j + 1,
                         "courseName": courseName,
                         "courseID": courseID,
                         "courseLink": courseLink
                     }
+                    apeardNameEditPopup(courseInformationJson); //ポップアップを表示
                 });
             } else {
                 let date_class_element = document.createElement("td");
@@ -258,4 +242,20 @@ async function insertCoursesInTimetableEdit() {
 
     document.querySelector("#timetableDivEditPopup").appendChild(time_table);
     //document.querySelector('[id^="block-myoverview-"]').insertBefore(div_TT, document.getElementById(""))
+}
+
+function apeardNameEditPopup(courseInformationJson) {
+    //コース情報をポップアップに挿入
+    document.querySelector("#courseEditNameDiv").style.display = "block";
+    document.querySelector("#courseNameInput").value = courseInformationJson.courseName;
+    document.querySelector("#inputCourseId").innerHTML = courseInformationJson.courseID;
+    document.querySelector("#courseEditNameDiv").setAttribute("data-course-Link", courseInformationJson.courseLink);
+    document.querySelector("#courseEditNameDiv").setAttribute("data-course-id", courseInformationJson.courseID);
+    document.querySelector("#courseEditNameDiv").setAttribute("data-day", courseInformationJson.day);
+    document.querySelector("#courseEditNameDiv").setAttribute("data-period", courseInformationJson.period);
+
+    //曜日と時限の情報を挿入
+    document.querySelector("#courseEditDay").innerHTML = courseInformationJson.day;
+    document.querySelector("#courseEditPeriod").innerHTML = courseInformationJson.period;
+    
 }

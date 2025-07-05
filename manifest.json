@@ -1,5 +1,5 @@
 {
-  "name": "moodle tools KIT",
+  "name": "moodle Extentions KIT",
   "version": "1.0.0",
   "manifest_version": 3,
   "description": "moodle の便利機能を作っています。現在は「コース時間割表アクセス」が使えます。",
