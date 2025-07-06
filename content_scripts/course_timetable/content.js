@@ -1,3 +1,8 @@
+// 外部ファイルで定義されている関数をインポート
+// 実際のファイルパスに合わせて修正してください
+import { createPageAddPopup, setEventTimetableCustomiseButton } from './timetableAddPopup.js'; // 仮のパスとファイル名
+import { createPageEditPopup, showEditPopup } from './timetableEditPopup.js'; // 仮のパスとファイル名
+
 /** main function */
 async function main() {
     let timetable_json = await loadTimetableFromStorage();

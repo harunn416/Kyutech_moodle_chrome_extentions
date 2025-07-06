@@ -4,8 +4,7 @@
   "description": "九州工業大学のmoodle専用の拡張機能です。便利機能を随時追加していく予定です。",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "webpack --mode development --watch"
+    "build": "npx webpack --mode production"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +15,8 @@
     "style-loader": "^4.0.0",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "sass": "^1.89.2"
   }
 }

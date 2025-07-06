@@ -5,8 +5,8 @@
   "description": "moodle の便利機能を作っています。現在は「コース時間割表アクセス」が使えます。",
   "content_scripts": [{
     "matches": ["https://*.kyutech.ac.jp/my/courses.php*"],
-    "js": ["src/content.js", "src/fun.js", "src/timetableAddPopup.js", "src/timetableEditPopup.js"],
-    "css": ["src/content.css"]
+    "js": ["dist/bundle.js"],
+    "css": ["content_scripts/course_timetable/content.css"]
   }],
   "permissions":[
     "storage"

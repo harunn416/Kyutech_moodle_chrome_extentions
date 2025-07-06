@@ -30,7 +30,7 @@ async function addCourseJsonFromTimetable() {
 
 // --- 1. ポップアップのHTML構造を作成する関数 ---
 
-function createPageAddPopup() {
+export function createPageAddPopup() {
     //courseInformationJson = { "courseName": "コースネームだよ", "courseID": "0120" };
     // オーバーレイ（背景の暗い部分）
     const overlay = document.createElement('div');
@@ -232,7 +232,7 @@ async function insertCoursesInTimetable() {
 }
 
 /* 時間割変更ボタンのイベント作成 */
-function setEventTimetableCustomiseButton() {
+export function setEventTimetableCustomiseButton() {
     const allTimetableCustomiseButton = document.querySelectorAll("button.addCourseToTimetable");
 
     allTimetableCustomiseButton.forEach(addButton => {

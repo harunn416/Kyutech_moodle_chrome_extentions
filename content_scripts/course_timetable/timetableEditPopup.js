@@ -9,7 +9,7 @@ async function customiseCourseJsonFromTimetable() {
         const period = document.querySelector("#courseEditNameDiv").dataset.period;
 
         let courseInformationIncludeTimeJson = {
-            "times": [{"day": day, "period": period}],
+            "times": [{ "day": day, "period": period }],
             "courseInformation": {
                 "name": courseName,
                 "courseID": courseID,
@@ -20,12 +20,12 @@ async function customiseCourseJsonFromTimetable() {
         updateTimetable()
         document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名編集divを閉じる
         document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア
-    }else{
+    } else {
         alert("コースを選択してください！");
     }
 }
 
-function createPageEditPopup() {
+export function createPageEditPopup() {
     //courseInformationJson = { "courseName": "コースネームだよ", "courseID": "0120" };
     // オーバーレイ（背景の暗い部分）
     const overlay = document.createElement('div');
@@ -160,7 +160,7 @@ function hideEditPopup() {
 }
 
 // ポップアップを表示する関数
-function showEditPopup() {
+export function showEditPopup() {
     document.querySelector("#extension-edit-popup-overlay").style.display = 'block';
     document.querySelector("#divEditPop_TT").style.display = 'block';
 
@@ -259,12 +259,12 @@ function apeardNameEditPopup(courseInformationJson) {
     document.querySelector("#courseEditNameDiv").setAttribute("data-course-id", courseInformationJson.courseID);
     document.querySelector("#courseEditNameDiv").setAttribute("data-day", courseInformationJson.day);
     document.querySelector("#courseEditNameDiv").setAttribute("data-period", courseInformationJson.period);
-    
+
     //曜日と時限とコース名の情報を挿入
     document.querySelector("#courseEditDay").innerHTML = convertDayToJapanese(courseInformationJson.day);
     document.querySelector("#courseEditPeriod").innerHTML = courseInformationJson.period;
     document.querySelector("#courseChangeNameInput").value = courseInformationJson.courseName;
-    
+
 }
 
 function convertDayToJapanese(day) {

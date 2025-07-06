@@ -40,6 +40,10 @@ Moodle Helper Extensionに実装してほしい機能のアイデアがありま
 ## 開発者向け
 > [!IMPORTANT]  
 > ``Webpack``を使っています。``Node.js/npm``のインストールを推奨します。
+
+> [!WARNING]  
+> webpackでバンドルする際は``developmet``ではなく``production``を使用してください。拡張機能では``eval``が使用できないからです。コンソールで``npm run build``を実行すればいいようになってます。
+
 ### ファイル構造
 ```
 chrome_Extensionis_moodle_KIT
