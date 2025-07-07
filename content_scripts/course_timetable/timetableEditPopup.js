@@ -1,6 +1,4 @@
-import { loadTimetableFromStorage } from './content.js';
-import { updateTimetableFromStorage } from './content.js';
-
+import { loadTimetableFromStorage, updateTimetableFromStorage, updateTimetable } from './content.js';
 
 
 /* 保存関数 */

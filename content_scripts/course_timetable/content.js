@@ -175,7 +175,7 @@ function create_timetable(time_table_json) {
 }
 
 /** コースページ上の時間割を更新する関数 */
-async function updateTimetable() {
+export async function updateTimetable() {
     let timetable_json = await loadTimetableFromStorage();
     let timetable = document.querySelector("#div_TT .customiseTimetable");
     if (timetable) { timetable.remove(); }

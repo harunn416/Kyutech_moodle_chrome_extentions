@@ -37,7 +37,9 @@ module.exports = {
     // 出力ファイル名:
     // `[name]` は `entry` で指定したキー名 (例: 'course_timetable' -> 'course_timetable.bundle.js')
     // `[contenthash]` はファイル内容のハッシュ (キャッシュ busting に便利ですが、開発中はシンプルに)
-    filename: '[name].bundle.js',
+    //jsファイルは 'js' フォルダに出力されます
+    // 例: 'js/course_timetable.bundle.js'
+    filename: 'js/[name].bundle.js',
 
     // アセット（画像など）の出力先ディレクトリ（オプション）
     // assetModuleFilename: 'assets/[name][ext][query]',

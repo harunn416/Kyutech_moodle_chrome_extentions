@@ -1,4 +1,5 @@
-// content.js
+import { loadTimetableFromStorage, updateTimetableFromStorage, updateTimetable } from './content.js';
+
 /* 保存関数 */
 async function addCourseJsonFromTimetable() {
     let times = [];
