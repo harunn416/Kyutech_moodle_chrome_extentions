@@ -1,3 +1,5 @@
+import './content.css'; // 追加: CSSファイルのインポート
+
 // 外部ファイルで定義されている関数をインポート
 // 実際のファイルパスに合わせて修正してください
 import { createPageAddPopup, setEventTimetableCustomiseButton } from './timetableAddPopup.js'; // 仮のパスとファイル名
@@ -49,7 +51,7 @@ const initialTimetableData = {
  * 時間割データを読み込み、存在しない場合は初期データを保存する関数
  * @returns {Promise<Object>} 時間割データのオブジェクト(エラー時は初期データ)
  */
-async function loadTimetableFromStorage() {
+export async function loadTimetableFromStorage() {
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');
         let timetableData = result.myUniversityTimetable;
@@ -97,7 +99,7 @@ async function resetTimetableFromStorage() {
  * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
  * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
  */
-async function appdateTimetableFromStorage(courseInformationIncludeTimeJson) {
+export async function updateTimetableFromStorage(courseInformationIncludeTimeJson) {
     console.log(courseInformationIncludeTimeJson);
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');

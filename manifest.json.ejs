@@ -1,0 +1,19 @@
+{
+  "name": "<%= packageName %> Extentions KIT",
+  "version": "<%= packageVersion %>",
+  "manifest_version": 3,
+  "description": "<%= packageDescription %>",
+  "content_scripts": [
+    {
+      "matches": ["https://*.kyutech.ac.jp/my/courses.php*"],
+      "js": ["js/course_timetable.bundle.js"]
+    },
+    {
+      "matches": ["https://*.kyutech.ac.jp/*"],
+      "js": ["js/fun.bundle.js"]
+    }
+  ],
+  "permissions":[
+    "storage"
+  ]
+}

@@ -1,3 +1,8 @@
+import { loadTimetableFromStorage } from './content.js';
+import { updateTimetableFromStorage } from './content.js';
+
+
+
 /* 保存関数 */
 async function customiseCourseJsonFromTimetable() {
     // ポップアップの入力からコース情報を取得
@@ -16,7 +21,7 @@ async function customiseCourseJsonFromTimetable() {
                 "link": courseLink
             }
         }
-        await appdateTimetableFromStorage(courseInformationIncludeTimeJson);
+        await updateTimetableFromStorage(courseInformationIncludeTimeJson);
         updateTimetable()
         document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名編集divを閉じる
         document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア

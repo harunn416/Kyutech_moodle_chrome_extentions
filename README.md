@@ -37,39 +37,56 @@ Moodle Helper Extensionに実装してほしい機能のアイデアがありま
 このプロジェクトは、MITライセンスの下で公開されています。
 詳細については、[LICENSE](LICENSE) ファイルを参照してください。
 
-## 開発者向け
+# 開発者向け
 > [!IMPORTANT]  
-> ``Webpack``を使っています。``Node.js/npm``のインストールを推奨します。
+> ``Webpack``を使っています。``Node.js`` ``npm``のインストールを推奨します。
 
 > [!WARNING]  
-> webpackでバンドルする際は``developmet``ではなく``production``を使用してください。拡張機能では``eval``が使用できないからです。コンソールで``npm run build``を実行すればいいようになってます。
+> ~~webpackでバンドルする際は``developmet``ではなく``production``を使用してください。拡張機能では``eval``が使用できないからです。コンソールで``npm run build``を実行すればいいようになってます。~~  
+> 現在は``development``でも読み込むようになっています。``npm run dev``でもビルド(バンドル)可能です。
 
-### ファイル構造
+## 導入
+1. gitファイルのコピー
+1. npm で必要なライブラリを取得。``npm i``をターミナルで実行。
+1. distファイルを出力しビルド(バンドル)する。``npm run dev``をターミナルで実行。本命の出力は``npm run build``を実行。
+1. ブラウザの拡張機能タブの``パッケージ化されていない拡張機能を読み込む``から``dist``フォルダを読み込む。
+> [!important]
+> 拡張機能はルートディレクトリを読み込むのではなく、必ず``dist``フォルダを読み込んでください。``manifest.json``が読み込まれません。
+
+## 機能実装
+
+機能を実装する際は、``content_scripts``フォルダの中に機能に適した名前のフォルダを作ってください。
+
+### JavaScript
+JavaScriptファイルは``content.js``という名前にし、他のJavaScriptファイルは必要な関数を``content.js``でimportしてください。
+
+### css
+``content.js``ファイルにインポートしてください。
+
+### アセット
+アセット(jpg,png,json,etc...)は、``assets``の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は``assets/[機能名]/[ファイル名]``で取得できます。ブラウザは``dist``ファオルダ内のjsファイルを起点に参照するので。
+
+### manifest.json
+1. ``webpack.config.js``の``entry``の中に以下の内容を追加してください。[機能名]の部分はJSファイルを入れたフォルダ名になります。
 ```
-chrome_Extensionis_moodle_KIT
-│  README.md
-│  LICENSE
-│  manifest.json
-│
-├─.github (省略)
-│
-├─content_scripts
-│  ├─course_timetable
-│  │      content.css
-│  │      content.js
-│  │      timetableAddPopup.js
-│  │      timetableEditPopup.js
-│  │
-│  └─fun
-│  │      fun.js
-└─icon
+'[機能名]':'./content_scripts/[機能名]/content.js',
 ```
-
-### contents_scripts
-ここにそれぞれ機能ごとにディレクトリを分けてスクリプトを書いてください。  
-
-### contents_scripts/ course_timetable
-「時間割表でアクセス」機能のコードが書いてあります。
-
-### contents_scripts/ fun
+2. ``manifest.json.ejs``の``"content_scripts"``の中に以下の要素を追加してください。[機能名]の部分はJSファイルを入れたフォルダ名になります。
+```
+{
+    "matches": ["https://*.kyutech.ac.jp/*"],
+    "js": ["js/[機能名].bundle.js"]
+},
+```
+> [!TIP]
+> ``matches``の部分はJSファイルが動いてほしいURLを記述する部分です。``*``は任意の文字列となっています。なので、
+> ```
+> https://*.kyutech.ac.jp/*
+> ```
+> はmoodleのすべてのサイトで実行され、
+> ```
+> https://*.kyutech.ac.jp/my/courses.php*
+> ```
+> は``マイコース``タブでしか実行されません。
+## contents_scripts/ fun
 ちょっとした遊び心です。隠し機能みたいな？

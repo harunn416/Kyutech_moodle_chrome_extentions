@@ -23,7 +23,7 @@ async function addCourseJsonFromTimetable() {
             "link": courseLink
         }
     }
-    await appdateTimetableFromStorage(courseInformationIncludeTimeJson);
+    await updateTimetableFromStorage(courseInformationIncludeTimeJson);
     hideAddPopup()
     updateTimetable()
 }
