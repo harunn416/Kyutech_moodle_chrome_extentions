@@ -88,5 +88,6 @@ JavaScriptファイルは``content.js``という名前にし、他のJavaScript�
 > https://*.kyutech.ac.jp/my/courses.php*
 > ```
 > は``マイコース``タブでしか実行されません。
+> 最後に``*``がついているのはプレースホルダに対応するためです。(``?=``みたいなやつ)
 ## contents_scripts/ fun
 ちょっとした遊び心です。隠し機能みたいな？
