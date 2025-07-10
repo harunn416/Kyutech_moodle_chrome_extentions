@@ -1,7 +1,7 @@
-import { loadTimetableFromStorage, updateTimetableFromStorage, updateTimetable } from './content.js';
+import { loadTimetableFromStorage, updateTimetableAtStorage, updateTimetable, deleteTimetableAtStorage } from './content.js';
 
 
-/* 保存関数 */
+/** ポップアップの保存ボタンが押された時実行 */
 async function customiseCourseJsonFromTimetable() {
     // ポップアップの入力からコース情報を取得
     if (document.querySelector("#courseChangeNameInput").value !== "") {
@@ -19,13 +19,37 @@ async function customiseCourseJsonFromTimetable() {
                 "link": courseLink
             }
         }
-        await updateTimetableFromStorage(courseInformationIncludeTimeJson);
-        updateTimetable()
-        document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名編集divを閉じる
+        await updateTimetableAtStorage(courseInformationIncludeTimeJson);
+
+        // ポップアップの時間割を更新
+        insertCoursesInTimetableEdit();
+        // 時間割の更新を反映
+        updateTimetable();
+        document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名を編集する部分のdivを閉じる(ポップアップは閉じない)
         document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア
     } else {
         alert("コースを選択してください！");
     }
+}
+
+/** コース削除
+ * @returns {Promise<void>}
+ */
+async function deleteCourse(){
+    const courseInformationIncludeTimeJson = {
+        "times": [{
+            "day": document.querySelector("#courseEditNameDiv").dataset.day,
+            "period": document.querySelector("#courseEditNameDiv").dataset.period
+        }],
+    }
+    console.log("コース削除の処理が実行されました。", courseInformationIncludeTimeJson);
+    await deleteTimetableAtStorage(courseInformationIncludeTimeJson);
+    // ポップアップの時間割を更新
+    insertCoursesInTimetableEdit();
+    // 時間割の更新を反映
+    updateTimetable();
+    document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名を編集する部分のdivを閉じる(ポップアップは閉じない)
+    document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア
 }
 
 export function createPageEditPopup() {
@@ -96,7 +120,7 @@ export function createPageEditPopup() {
     courseEditNameDayAndPeriod.style.justifyContent = "flex-start";
     courseEditNameDayAndPeriod.fontSize = "18px";
     courseEditNameDayAndPeriod.style.marginLeft = "10px";
-    courseEditNameDayAndPeriod.innerHTML = "<span>◎<span id='courseEditDay'></span>曜日</span><span><span id='courseEditPeriod'></span>限目</span>";
+    courseEditNameDayAndPeriod.innerHTML = "<span><span id='courseEditDay'></span>曜日</span><span> <span id='courseEditPeriod'></span>限目</span>";
     courseEditNameDiv.appendChild(courseEditNameDayAndPeriod);
 
     const courseEditNameInputLabel = document.createElement("label");
@@ -112,6 +136,25 @@ export function createPageEditPopup() {
     courseEditNameInput.style.width = "100%";
     courseEditNameInputLabel.appendChild(courseEditNameInput);
     courseEditNameDiv.appendChild(courseEditNameInputLabel);
+
+    const courseEditNameDeleteButtonDiv = document.createElement("div");
+    courseEditNameDeleteButtonDiv.style.display = "flex";
+    courseEditNameDeleteButtonDiv.style.justifyContent = "flex-end";
+
+    const courseEditNameDeleteButton = document.createElement("button");
+    courseEditNameDeleteButton.textContent = "コースを削除";
+    courseEditNameDeleteButton.style.marginTop = "10px";
+    courseEditNameDeleteButton.style.padding = "8px 15px";
+    courseEditNameDeleteButton.style.backgroundColor = '#dc3545';
+    courseEditNameDeleteButton.style.color = 'white';
+    courseEditNameDeleteButton.style.border = 'none';
+    courseEditNameDeleteButton.style.borderRadius = '4px';
+    courseEditNameDeleteButton.addEventListener("click", (e) => {
+        deleteCourse();
+    });
+    courseEditNameDeleteButtonDiv.appendChild(courseEditNameDeleteButton);
+    courseEditNameDiv.appendChild(courseEditNameDeleteButtonDiv);
+
     popup.appendChild(courseEditNameDiv);
 
 
@@ -158,6 +201,8 @@ export function createPageEditPopup() {
 }
 
 function hideEditPopup() {
+    document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名を編集する部分のdivを閉じる(ポップアップは閉じない)
+    document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア
     document.querySelector("#extension-edit-popup-overlay").style.display = 'none';
     document.querySelector("#divEditPop_TT").style.display = 'none';
 }

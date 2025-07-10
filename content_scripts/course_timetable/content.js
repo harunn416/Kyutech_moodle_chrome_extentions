@@ -1,24 +1,31 @@
 import './content.css'; // 追加: CSSファイルのインポート
 
 // 外部ファイルで定義されている関数をインポート
-// 実際のファイルパスに合わせて修正してください
 import { createPageAddPopup, setEventTimetableCustomiseButton } from './timetableAddPopup.js'; // 仮のパスとファイル名
 import { createPageEditPopup, showEditPopup } from './timetableEditPopup.js'; // 仮のパスとファイル名
 
 /** main function */
 async function main() {
+    // ストレージから時間割データを読み込む
     let timetable_json = await loadTimetableFromStorage();
 
+    // 時間割の表示エリアを作成
     let div_TT = document.createElement("div");
     div_TT.setAttribute("id", "div_TT");
 
+    // 時間割のテーブル作成
     let tableDiv = document.createElement("div");
     tableDiv.setAttribute("id", "div_TT_TableDiv");
     tableDiv.appendChild(create_timetable(timetable_json));
     div_TT.appendChild(tableDiv);
 
+    // 時間割の編集ボタンを作成
     div_TT.appendChild(createManualEditDiscription());
-    document.getElementById("instance-5-header").appendChild(div_TT);
+
+    // ページのヘッダーに時間割の表示エリアを追加
+    document.querySelector("#instance-5-header").appendChild(div_TT);
+
+    // ページのヘッダーに時間割の編集ポップアップを display: none で追加
     createPageAddPopup();
     createPageEditPopup();
 }
@@ -92,6 +99,8 @@ async function resetTimetableFromStorage() {
             console.log("時間割削除中にエラーが発生しました。", error);
         }
     }
+    updateTimetable(); // 時間割を更新
+    console.log("時間割表をリセットしました");
 }
 
 /**
@@ -99,7 +108,7 @@ async function resetTimetableFromStorage() {
  * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
  * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
  */
-export async function updateTimetableFromStorage(courseInformationIncludeTimeJson) {
+export async function updateTimetableAtStorage(courseInformationIncludeTimeJson) {
     console.log(courseInformationIncludeTimeJson);
     try {
         const result = await chrome.storage.sync.get('myUniversityTimetable');
@@ -112,8 +121,6 @@ export async function updateTimetableFromStorage(courseInformationIncludeTimeJso
         } else {
             console.log("localStorageから時間割データを読み込みました:", timetableData);
             courseInformationIncludeTimeJson.times.forEach((timeJson) => {
-                let courseInformationJson = timetableData[timeJson.day][timeJson.period];
-
                 timetableData[timeJson.day][timeJson.period]["name"] = courseInformationIncludeTimeJson["courseInformation"]["name"];
                 timetableData[timeJson.day][timeJson.period]["link"] = courseInformationIncludeTimeJson["courseInformation"]["link"];
                 timetableData[timeJson.day][timeJson.period]["courseID"] = courseInformationIncludeTimeJson["courseInformation"]["courseID"];
@@ -129,7 +136,50 @@ export async function updateTimetableFromStorage(courseInformationIncludeTimeJso
     }
 }
 
-//retuen html_table
+/**
+ * 時間割データを更新する関数
+ * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
+ * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
+ */
+export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson) {
+    let result = window.confirm(
+        "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
+    if (result) {
+        console.log(courseInformationIncludeTimeJson);
+        try {
+            const result = await chrome.storage.sync.get('myUniversityTimetable');
+            let timetableData = result.myUniversityTimetable;
+            if (!timetableData) {
+                console.log("時間割データを読み込めませんでした。");
+                return false;
+                // 初回読み込み時に初期データを保存しておくことも可能 (任意)
+                // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+            } else {
+                console.log("localStorageから時間割データを読み込みました:", timetableData);
+                courseInformationIncludeTimeJson.times.forEach((timeJson) => {
+                    timetableData[timeJson.day][timeJson.period]["name"] = "";
+                    timetableData[timeJson.day][timeJson.period]["link"] = "";
+                    timetableData[timeJson.day][timeJson.period]["courseID"] = null;
+                });
+                // オブジェクトのキーと値のペアで保存
+                // { '保存キー': 保存したい値 }
+                await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+            }
+        } catch (error) {
+            console.error('時間割の読み込み中にエラーが発生しました:', error);
+            // エラー時は初期データを返すなど、安全策をとる
+            return false;
+        }
+    }else{
+        console.log("時間割の削除がキャンセルされました。");
+    }
+}
+
+/**
+ * timetable_jsonを元に時間割のHTML要素を作成する関数
+ * @param {*} time_table_json tableのデータを含むJSONオブジェクト
+ * @returns table要素
+ */
 function create_timetable(time_table_json) {
     let time_table = document.createElement("table");
     time_table.setAttribute("class", "customiseTimetable")
@@ -177,14 +227,18 @@ function create_timetable(time_table_json) {
 /** コースページ上の時間割を更新する関数 */
 export async function updateTimetable() {
     let timetable_json = await loadTimetableFromStorage();
-    let timetable = document.querySelector("#div_TT .customiseTimetable");
+    let timetable = document.querySelector("#div_TT_TableDiv .customiseTimetable");
     if (timetable) { timetable.remove(); }
 
-    let div_TT = document.querySelector("#div_TT");
-    div_TT.appendChild(create_timetable(timetable_json));
+    let tableDiv = document.querySelector("#div_TT_TableDiv");
+    tableDiv.appendChild(create_timetable(timetable_json));
     console.log("時間割表を更新しました")
 }
 
+/**
+ * 時間割の編集ボタンを含むdiv要素を作成する関数
+ * @returns 時間割の編集ボタンを含むdiv要素
+ */
 function createManualEditDiscription() {
     const div = document.createElement("div");
     div.setAttribute("class", "timetableEditButtonDiv");
@@ -275,7 +329,7 @@ function create_custombutton() {
         setTimetableButton.setAttribute("data-course-link", courseLink);
         setTimetableButton.innerHTML = "時間割に登録";
         courseButtonLi.appendChild(setTimetableButton);
-        /* ボタン作成 */
+        /* 削除ボタン作成 
         let deleteTimetableButton = document.createElement("button");
         deleteTimetableButton.setAttribute("class", "dropdown-item deleteCourseToTimetable");
         deleteTimetableButton.setAttribute("data-action", "delete-course-timetable");
@@ -284,5 +338,6 @@ function create_custombutton() {
         deleteTimetableButton.setAttribute("data-course-link", courseLink);
         deleteTimetableButton.innerHTML = "時間割から削除";
         courseButtonLi.appendChild(deleteTimetableButton);
+        削除はコース名編集から行うのでボツ */
     })
 }

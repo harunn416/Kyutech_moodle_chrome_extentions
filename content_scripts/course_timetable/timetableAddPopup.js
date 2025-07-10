@@ -1,4 +1,4 @@
-import { loadTimetableFromStorage, updateTimetableFromStorage, updateTimetable } from './content.js';
+import { loadTimetableFromStorage, updateTimetableAtStorage, updateTimetable } from './content.js';
 
 /* 保存関数 */
 async function addCourseJsonFromTimetable() {
@@ -24,7 +24,7 @@ async function addCourseJsonFromTimetable() {
             "link": courseLink
         }
     }
-    await updateTimetableFromStorage(courseInformationIncludeTimeJson);
+    await updateTimetableAtStorage(courseInformationIncludeTimeJson);
     hideAddPopup()
     updateTimetable()
 }
@@ -177,7 +177,7 @@ function hideAddPopup() {
     document.querySelector("#divAddPop_TT").style.display = 'none';
 }
 
-
+/** 編集ボタンがクリックされたときに、ポップアップした時間割編集画面に、コース情報を挿入していく関数 */
 async function insertCoursesInTimetable() {
     //初期化
     let customiseTable = document.querySelector("#divAddPop_TT table");
@@ -232,7 +232,7 @@ async function insertCoursesInTimetable() {
     //document.querySelector('[id^="block-myoverview-"]').insertBefore(div_TT, document.getElementById(""))
 }
 
-/* 時間割変更ボタンのイベント作成 */
+/** 時間割変更ボタンのイベント作成 */
 export function setEventTimetableCustomiseButton() {
     const allTimetableCustomiseButton = document.querySelectorAll("button.addCourseToTimetable");
 
