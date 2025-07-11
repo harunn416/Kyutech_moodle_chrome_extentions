@@ -61,6 +61,7 @@ export function createPageAddPopup() {
     popup.style.zIndex = '10001'; // オーバーレイよりさらに上
     popup.style.display = 'none'; // 初期状態では非表示
     popup.style.minWidth = '400px'; // 最小幅
+    popup.style.maxWidth = '800px'; // 最大幅
     popup.style.boxSizing = 'border-box'; // paddingを幅に含める
 
     // ポップアップのタイトル
