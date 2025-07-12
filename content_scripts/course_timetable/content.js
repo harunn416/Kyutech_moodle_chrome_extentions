@@ -4,6 +4,7 @@ import './content.css'; // 追加: CSSファイルのインポート
 import { createPageAddPopup, setEventTimetableCustomiseButton } from './timetableAddPopup.js'; // 仮のパスとファイル名
 import { createPageEditPopup, showEditPopup } from './timetableEditPopup.js'; // 仮のパスとファイル名
 
+
 /** main function */
 async function main() {
     // ストレージから時間割データを読み込む
@@ -19,6 +20,11 @@ async function main() {
     tableDiv.appendChild(create_timetable(timetable_json));
     div_TT.appendChild(tableDiv);
 
+    // 時間割挿入方法を記述するp要素を作成
+    let addCourseDescription = document.createElement("p");
+    addCourseDescription.setAttribute("id", "addCourseDescription");
+    insertAddCourseDiscription();
+
     // 時間割の編集ボタンを作成
     div_TT.appendChild(createManualEditDiscription());
 
@@ -28,6 +34,20 @@ async function main() {
     // ページのヘッダーに時間割の編集ポップアップを display: none で追加
     createPageAddPopup();
     createPageEditPopup();
+}
+
+function insertAddCourseDiscription() {
+    //時間割が何もなかったらコース追加方法を記述
+    let isInitial = Object.values(timetable_json).every(daySchedule => {
+        // daySchedule (各曜日のオブジェクト) のいずれかのコースに名前があれば false (初期状態ではない)
+        return Object.values(daySchedule).every(course => course["name"] === "");
+    });
+    if (isInitial) {
+        let noDataDescription = document.createElement("p");
+        noDataDescription.setAttribute("id", "noDataDescription");
+        noDataDescription.innerHTML = "時間割が登録されていません。<br>コースの時間割を登録するには、コース名の右側にある三点リーダーを押して「時間割に登録」ボタンを押してください。";
+        document.querySelector("#addCourseDescription").appendChild(noDataDescription);
+    }
 }
 
 // 初期状態の空の時間割データ構造を定義
@@ -170,7 +190,7 @@ export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson)
             // エラー時は初期データを返すなど、安全策をとる
             return false;
         }
-    }else{
+    } else {
         console.log("時間割の削除がキャンセルされました。");
     }
 }
