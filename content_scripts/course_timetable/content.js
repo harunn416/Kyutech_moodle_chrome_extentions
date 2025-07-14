@@ -23,20 +23,24 @@ async function main() {
     // 時間割挿入方法を記述するp要素を作成
     let addCourseDescription = document.createElement("p");
     addCourseDescription.setAttribute("id", "addCourseDescription");
-    insertAddCourseDiscription();
-
+    div_TT.appendChild(addCourseDescription);
+    
     // 時間割の編集ボタンを作成
     div_TT.appendChild(createManualEditDiscription());
-
+    
     // ページのヘッダーに時間割の表示エリアを追加
     document.querySelector("#instance-5-header").appendChild(div_TT);
+
+    // 時間割の説明を挿入
+    insertAddCourseDiscription(timetable_json);
 
     // ページのヘッダーに時間割の編集ポップアップを display: none で追加
     createPageAddPopup();
     createPageEditPopup();
 }
 
-function insertAddCourseDiscription() {
+/** 時間割の説明を挿入する関数 */
+function insertAddCourseDiscription(timetable_json) {
     //時間割が何もなかったらコース追加方法を記述
     let isInitial = Object.values(timetable_json).every(daySchedule => {
         // daySchedule (各曜日のオブジェクト) のいずれかのコースに名前があれば false (初期状態ではない)
@@ -274,7 +278,7 @@ function createManualEditDiscription() {
 
     /* 編集ボタン */
     const editButton = document.createElement("button");
-    editButton.innerHTML = "コース名編集";
+    editButton.innerHTML = "編集";
     editButton.setAttribute("class", "timetable-edit-button timetable-edit-button--edit");
     div.appendChild(editButton);
     editButton.addEventListener("click", (e) => {

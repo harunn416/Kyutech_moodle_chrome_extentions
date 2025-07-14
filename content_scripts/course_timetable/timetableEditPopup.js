@@ -165,7 +165,7 @@ export function createPageEditPopup() {
 
     // 保存ボタン
     const saveButton = document.createElement('button');
-    saveButton.textContent = '保存';
+    saveButton.textContent = 'コース名変更';
     saveButton.style.padding = '8px 15px';
     saveButton.style.backgroundColor = '#007bff';
     saveButton.style.color = 'white';
