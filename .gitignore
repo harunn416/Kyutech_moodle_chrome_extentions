@@ -15,3 +15,6 @@ build/
 .vscode/ # VS Codeの設定（個人の好みによるが、共有しない方が無難な場合が多い）
 .DS_Store # macOS
 Thumbs.db # Windows
+
+# アップロード用の圧縮ファイル
+.zip
