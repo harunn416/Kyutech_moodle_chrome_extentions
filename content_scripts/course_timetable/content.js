@@ -449,7 +449,7 @@ waitForElement();
 
 addEventListenerToChangeCourseDisplayType(); // コース表示タイプ変更時のイベントリスナーを追加
 function addEventListenerToChangeCourseDisplayType(){
-    const listElements = document.querySelectorAll("div[id^='block-myoverview-'] div.dropdown ul.dropdown-menu li");
+    const listElements = document.querySelectorAll("div[id^='block-myoverview-'] div.dropdown ul.dropdown-menu[aria-labelledby='displaydropdown'] li");
     listElements.forEach((listElement) => {
         listElement.addEventListener("click", (e) => {
             setTimeout(() => {
