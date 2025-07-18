@@ -1,0 +1,8 @@
+div.pb-2[data-region='event-list-wrapper'] {
+    div.timeLimitDivCustomise {
+        margin: 0 -4px 0 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}

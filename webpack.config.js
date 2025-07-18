@@ -23,6 +23,7 @@ module.exports = {
     // あなたのコンテンツスクリプトのエントリポイント
     // ここで 'course_timetable' は出力されるバンドルファイルの名前になります (例: course_timetable.bundle.js)
     'course_timetable': './content_scripts/course_timetable/content.js',
+    'add_time_limit': '/content_scripts/add_time_limit/content.js',
     'fun': './content_scripts/fun/fun.js',
 
     // 他にも独立したコンテンツスクリプトや機能があれば、ここに追加していく
