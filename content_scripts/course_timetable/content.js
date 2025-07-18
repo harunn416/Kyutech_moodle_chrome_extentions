@@ -293,21 +293,16 @@ main();
 
 /* 待機して挿入 ------------------------------------------------ */
 
-
-let intervalIDList;
-let intervalCountList;
-let intervalIDCard;
-let intervalCountCard;
-let intervalIDOverview;
-let intervalCountOverview;
-/** 要素が見つかるまで待機する関数 */
-function waitForElement(){
-    intervalCountList = 0;
-    intervalCountCard = 0;
-    intervalCountOverview = 0;
-    intervalIDList = setInterval(searchElementList, 100);
-    intervalIDCard = setInterval(searchElementCard, 100);
-    intervalIDOverview = setInterval(searchElementOverview, 100);
+// 要素が途中で追加される場合があるので、定期的に要素を検索して時間割登録ボタンを追加する
+let intervalInterval
+intervalInterval = setInterval(searchElement, 1000);
+function searchElement() {
+    if (!document.querySelector("div[id^='page-container-'] div.ml-auto div.dropdown-menu button.addCourseToTimetable")) {
+        // 要素が見つかったら時間割登録ボタンを追加
+        searchElementList();
+        searchElementCard();
+        searchElementOverview();
+    }
 }
 
 /** コースリストの要素を検索して時間割登録ボタンを追加する関数 */
@@ -316,19 +311,10 @@ function searchElementList() {
 
     if (target) {
         console.log("コースリストが見つかりました。");
-        clearInterval(intervalIDList);
-        clearInterval(intervalIDCard);
-        clearInterval(intervalIDOverview);
         create_custombutton(target.querySelectorAll("li.list-group-item"), "list"); // コースリストの各コースに時間割登録ボタンを追加
         //ボタンにイベントを設定
         setEventTimetableCustomiseButton();
     }
-
-    if (intervalCountList > 300) { /* 30秒たっても見つからない場合はタイムアウトする */
-        console.log("コースリスト発見関数がタイムアウトしました。");
-        clearInterval(intervalIDList);
-    }
-    intervalCountList++;
 }
 
 /** コースカードの要素を検索して時間割登録ボタンを追加する関数 */
@@ -337,40 +323,22 @@ function searchElementCard() {
 
     if (target) {
         console.log("コースカードが見つかりました。");
-        clearInterval(intervalIDList);
-        clearInterval(intervalIDCard);
-        clearInterval(intervalIDOverview);
         create_custombutton(target.querySelectorAll("div.card"), "card"); // コースカードの各コースに時間割登録ボタンを追加
         //ボタンにイベントを設定
         setEventTimetableCustomiseButton();
     }
-
-    if (intervalCountCard > 300) { /* 30秒たっても見つからない場合はタイムアウトする */
-        console.log("コースカード発見関数がタイムアウトしました。");
-        clearInterval(intervalIDCard);
-    }
-    intervalCountCard++;
 }
 
 /** コース概要の要素を検索して時間割登録ボタンを追加する関数 */
 function searchElementOverview() {
-    let target = document.querySelector("[id^='page-container-'] div[data-region='paged-content-page'] div[role='list']");
+    let target = document.querySelector("[id^='page-container-'] div[data-region='paged-content-page'] div[role='list']:not(.card-deck)");
 
     if (target) {
         console.log("コース概要が見つかりました。");
-        clearInterval(intervalIDList);
-        clearInterval(intervalIDCard);
-        clearInterval(intervalIDOverview);
         create_custombutton(target.querySelectorAll("div.course-summaryitem"), "overview"); // コース概要の各コースに時間割登録ボタンを追加
         //ボタンにイベントを設定
         setEventTimetableCustomiseButton();
     }
-
-    if (intervalCountOverview > 300) { /* 30秒たっても見つからない場合はタイムアウトする */
-        console.log("コース概要発見関数がタイムアウトしました。");
-        clearInterval(intervalIDOverview);
-    }
-    intervalCountOverview++;
 }
 
 /** * コースリストの各コースに時間割登録ボタンを追加する関数
@@ -400,7 +368,7 @@ function create_custombutton(targetElements, domType) {
             } else {
                 console.log('セレクタに一致する要素が見つかりませんでした。');
             }
-        }else if (domType === "card") { // カードの場合
+        } else if (domType === "card") { // カードの場合
             courseName = courseElem.querySelector("span.multiline").getAttribute("title").trim();
             if (!courseName) {
                 courseName = courseElem.querySelector("span.st-only").textContent.trim();
@@ -432,7 +400,11 @@ function create_custombutton(targetElements, domType) {
         setTimetableButton.setAttribute("data-course-name", courseName);
         setTimetableButton.setAttribute("data-course-link", courseLink);
         setTimetableButton.innerHTML = "時間割に登録";
-        courseButtonLi.appendChild(setTimetableButton);
+        if (courseButtonLi.querySelector(".addCourseToTimetable")) {
+            console.log("すでに追加ボタンははあります。");
+        } else {
+            courseButtonLi.appendChild(setTimetableButton);
+        }
         /* 削除ボタン作成
         let deleteTimetableButton = document.createElement("button");
         deleteTimetableButton.setAttribute("class", "dropdown-item deleteCourseToTimetable");
@@ -444,17 +416,4 @@ function create_custombutton(targetElements, domType) {
         courseButtonLi.appendChild(deleteTimetableButton);
         削除はコース名編集から行うのでボツ */
     })
-}
-waitForElement();
-
-addEventListenerToChangeCourseDisplayType(); // コース表示タイプ変更時のイベントリスナーを追加
-function addEventListenerToChangeCourseDisplayType(){
-    const listElements = document.querySelectorAll("div[id^='block-myoverview-'] div.dropdown ul.dropdown-menu[aria-labelledby='displaydropdown'] li");
-    listElements.forEach((listElement) => {
-        listElement.addEventListener("click", (e) => {
-            setTimeout(() => {
-                waitForElement(); // コース表示タイプが変更されたら再度要素を検索
-            }, 1000); // 1秒後に再度要素を検索
-        });
-    });
 }
