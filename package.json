@@ -1,6 +1,6 @@
 {
   "name": "chrome_extensionis_moodle_kit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "九州工業大学のmoodle専用の拡張機能です。便利機能を随時追加していく予定です。",
   "main": "index.js",
   "scripts": {
