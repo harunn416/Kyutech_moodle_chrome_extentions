@@ -55,14 +55,16 @@ function addTimeLimit(SubmitsDivElement) {
                     // 残り
                     const timeLimitNokoriDiv = document.createElement("div");
                     if (timeDefference.positiveNegative == -1) { // 期限過ぎてるときは文字を赤色に
-                        timeLimitDiv.style.color = "#c52400";
+                        timeLimitDiv.style.color = "#570000ff";
                         timeLimitNokoriDiv.innerHTML = "超過"; // 「残り」ではなく「超過」に
                     } else {
                         timeLimitNokoriDiv.innerHTML = "残り";
-                        if (timeDefference.days >= 1) { // まあ安全圏かな
+                        if (timeDefference.days >= 1) { // 1日以上余裕あり
                             timeLimitDiv.style.color = "#269900";
-                        } else {
+                        } else if (timeDefference.hours >= 6) { // 6時間以上
                             timeLimitDiv.style.color = "#998f00";
+                        } else { // 6時間位内 危険！
+                            timeLimitDiv.style.color = "#990a00ff";
                         }
                     }
 
