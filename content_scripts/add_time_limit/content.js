@@ -12,10 +12,10 @@ let intarvalSearchSubmittion = setInterval(searchSubmittionElement, 1000);
 function searchSubmittionElement() {
     let SubmitsDivElement = document.querySelector("div.pb-2[data-region='event-list-wrapper']");
     if (SubmitsDivElement) {
-        console.log("要素が見つかりました。");
+        //console.log("要素が見つかりました。");
         addTimeLimit(SubmitsDivElement);
     } else {
-        console.log("要素が見つかりません。");
+        //console.log("要素が見つかりません。");
     }
 }
 
@@ -34,34 +34,72 @@ function addTimeLimit(SubmitsDivElement) {
             let dayString = divElement.querySelector("h5").innerHTML;
             timeLimitDate = parseJapaneseDateString(dayString);
         } else { // 提出物要素
-            const submitDiv = divElement.querySelector("div.timeline-name");
-            const timeLimit = submitDiv.querySelector("small").innerHTML;
-            const timeMatch = timeLimit.match(/(\d{2}):(\d{2})/);
-            if (timeMatch) {
-                const hours = parseInt(timeMatch[1], 10);
-                const minutes = parseInt(timeMatch[2], 10);
-                // 既存の Date オブジェクトに時間を設定
-                timeLimitDate.setHours(hours);
-                timeLimitDate.setMinutes(minutes);
+            Array.from(divElement.children).forEach(divSubmission => {
+                const submitDiv = divSubmission.querySelector("div.timeline-name");
+                const timeLimit = submitDiv.querySelector("small").innerHTML;
+                const timeMatch = timeLimit.match(/(\d{2}):(\d{2})/);
+                if (timeMatch) { // 提出時間が取得できたかどうか。
+                    const hours = parseInt(timeMatch[1], 10);
+                    const minutes = parseInt(timeMatch[2], 10);
+                    // 既存の Date オブジェクトに時間を設定
+                    timeLimitDate.setHours(hours);
+                    timeLimitDate.setMinutes(minutes);
 
-                // 残り時間のdiv要素作成
-                const timeLimitDiv = document.createElement("div");
-                timeLimitDiv.setAttribute("class", "timeLimitDivCustomise");
+                    // 残り時間のdiv要素作成
+                    const timeLimitDiv = document.createElement("div");
+                    timeLimitDiv.setAttribute("class", "timeLimitDivCustomise");
 
-                // 残り
-                const timeLimitNokoriDiv = document.createElement("div");
-                timeLimitNokoriDiv.innerHTML = "残り";
-                timeLimitDiv.appendChild(timeLimitNokoriDiv);
+                    // 現在時刻との差を出す。
+                    let timeDefference = findDifferenceBetweenTwoTimes(timeLimitDate, new Date());
 
-                //現在時刻との差を出す。
-                let timeDefference = findDifferenceBetweenTwoTimes(timeLimitDate, new Date());
-                
+                    // 残り
+                    const timeLimitNokoriDiv = document.createElement("div");
+                    if (timeDefference.positiveNegative == -1) { // 期限過ぎてるときは文字を赤色に
+                        timeLimitDiv.style.color = "#c52400";
+                        timeLimitNokoriDiv.innerHTML = "超過"; // 「残り」ではなく「超過」に
+                    } else {
+                        timeLimitNokoriDiv.innerHTML = "残り";
+                        if (timeDefference.days >= 1) { // まあ安全圏かな
+                            timeLimitDiv.style.color = "#269900";
+                        } else {
+                            timeLimitDiv.style.color = "#998f00";
+                        }
+                    }
 
-                // 月要素
-                if(timeDefference.positiveNegative==1){
+                    timeLimitDiv.appendChild(timeLimitNokoriDiv);
 
+                    // 残り時間要素の作成
+                    if (timeDefference.months !== 0) { // 月要素
+                        const monthDiv = document.createElement("div");
+                        monthDiv.style.fontSize = "13px";
+                        monthDiv.setAttribute("class", "timeLimit_extention");
+                        monthDiv.innerHTML = timeDefference.months + "ヶ月";
+                        timeLimitDiv.appendChild(monthDiv);
+                    }
+                    if (timeDefference.days !== 0 || timeDefference.hours !== 0) {
+                        const daysAndHoursDiv = document.createElement("div");
+                        daysAndHoursDiv.style.fontSize = "13px";
+                        daysAndHoursDiv.setAttribute("class", "timeLimit_extention");
+                        if (timeDefference.days !== 0) { daysAndHoursDiv.innerHTML += timeDefference.days + "日 "; }
+                        if (timeDefference.hours !== 0) { daysAndHoursDiv.innerHTML += timeDefference.hours + "時間"; }
+                        timeLimitDiv.appendChild(daysAndHoursDiv);
+                    }
+                    const minutesAndSecondsDiv = document.createElement("div");
+                    minutesAndSecondsDiv.style.fontSize = "13px";
+                    minutesAndSecondsDiv.setAttribute("class", "timeLimit_extention");
+                    minutesAndSecondsDiv.innerHTML = timeDefference.minutes + "分 " + timeDefference.seconds + "秒";
+                    timeLimitDiv.appendChild(minutesAndSecondsDiv);
+
+                    // 残り時間追加
+                    const insertLimittimeDiv = divSubmission.querySelector("div.d-flex.timeline-name");
+                    if (insertLimittimeDiv.querySelector("div.timeLimitDivCustomise")) { // 既存の残り時間は消して更新
+                        insertLimittimeDiv.querySelector("div.timeLimitDivCustomise").remove();
+                    }
+                    insertLimittimeDiv.insertBefore(timeLimitDiv, insertLimittimeDiv.querySelector("small").nextElementSibling);
+                } else {
+                    console.log("提出時間が見つかりませんでした。");
                 }
-            }
+            });
         }
     });
 }
@@ -135,5 +173,5 @@ function findDifferenceBetweenTwoTimes(timeA, timeB) {
         minutes: minutes,
         seconds: seconds
     }
-    console.log(`目標時刻まで残り: ${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`);
+    //console.log(`目標時刻まで残り: ${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`);
 }
