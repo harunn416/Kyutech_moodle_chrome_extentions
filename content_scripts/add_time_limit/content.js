@@ -61,10 +61,10 @@ function addTimeLimit(SubmitsDivElement) {
                         timeLimitNokoriDiv.innerHTML = "残り";
                         if (timeDefference.days >= 1) { // 1日以上余裕あり
                             timeLimitDiv.style.color = "#269900";
-                        } else if (timeDefference.hours >= 6) { // 6時間以上
+                        } else if (timeDefference.hours >= 6) { // 24 ~ 6時間
                             timeLimitDiv.style.color = "#998f00";
                         } else { // 6時間位内 危険！
-                            timeLimitDiv.style.color = "#990a00ff";
+                            timeLimitDiv.style.color = "#990a00";
                         }
                     }
 
@@ -135,7 +135,7 @@ function parseJapaneseDateString(dateString) {
  * timeA - timeB
  * @param {dateObject} timeA
  * @param {dateObject} timeB
- * @returns {unixTimestamp} unixTimestamp Unixタイムスタンプ
+ * @returns {json} defferenceInformation
  */
 function findDifferenceBetweenTwoTimes(timeA, timeB) {
     let timeDifference = timeA.getTime() - timeB.getTime();
