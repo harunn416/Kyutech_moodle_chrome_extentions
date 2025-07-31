@@ -17,4 +17,4 @@ build/
 Thumbs.db # Windows
 
 # アップロード用の圧縮ファイル
-.zip
+dist.zip

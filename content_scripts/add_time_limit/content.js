@@ -109,7 +109,8 @@ function addTimeLimit(SubmitsDivElement) {
 function parseJapaneseDateString(dateString) {
     // 正規表現を使って、年、月、日を抽出
     // 例: "2025年 07月 20日(日曜日)" から "2025", "07", "20" を抽出
-    const match = dateString.match(/(\d{4})年\s*(\d{2})月\s*(\d{2})日/);
+    const match = dateString.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/);
+    //console.log(match);
 
     if (match) {
         // match[0] は全体のマッチ、match[1]は年、match[2]は月、match[3]は日
