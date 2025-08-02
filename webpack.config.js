@@ -10,6 +10,7 @@ console.log('packageJson', packageJson);
 // ★ここからentryポイントの自動生成ロジックを追加★
 const contentScriptsPath = path.resolve(__dirname, 'content_scripts');
 const entryPoints = {};
+let contentScriptManifestEntries = [];
 
 try {
     // content_scripts ディレクトリ内のサブディレクトリを読み込む
@@ -21,6 +22,38 @@ try {
         const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
         // content.js ファイルが存在するか確認
         if (fs.existsSync(entryFilePath)) {
+            // config.jsonを読み込み、manifest.jsonのcontent_scriptsエントリを生成
+            if (fs.existsSync(configFilePath)) {
+                try {
+                    const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+
+                    if (config.matches && Array.isArray(config.matches)) {
+                        const manifestEntry = {
+                            matches: config.matches,
+                            js: [`js/${folderName}.bundle.js`] // Webpackの出力パスに合わせる
+                        };
+                        // もしconfig.jsonにCSSが定義されていれば追加
+                        if (config.css && Array.isArray(config.css) && config.css.length > 0) {
+                           manifestEntry.css = config.css.map(cssFile => `css/${folderName}/${cssFile}`);
+                           // 必要であれば、ここでCopyWebpackPluginに追加のパターンも生成できます
+                           // 現状のCSSローダーでJSに埋め込んでいるなら、別途コピーは不要です
+                           // もしcontent.jsのCSSをmanifest.jsonに独立して記述するなら、
+                           // そのCSSファイルをdist/css/機能名/ファイル名.cssにコピーする設定をCopyWebpackPluginに追加する必要があります。
+                           // 現状のCSSローダー（style-loader, css-loader）であれば、CSSはJSバンドルに含まれるため、
+                           // manifestEntry.css の行は不要または別の処理が必要です。
+                           // ここでは一旦、独立したCSSファイルがある場合のプレースホルダーとして残しておきます。
+                           // (JSにCSSをバンドルしている場合は、manifest.jsonにCSSは記述しません)
+                        }
+                        contentScriptManifestEntries.push(manifestEntry);
+                    } else {
+                        console.warn(`警告: ${configFilePath} に 'matches' 配列が見つからないか無効です。`);
+                    }
+                } catch (parseError) {
+                    console.error(`エラー: ${configFilePath} のパースに失敗しました: ${parseError.message}`);
+                }
+            } else {
+                console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
+            }
             entryPoints[folderName] = entryFilePath;
         } else {
             console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。`);
@@ -127,6 +160,7 @@ module.exports = {
         packageName: packageJson.name,
         packageVersion: packageJson.version,
         packageDescription: packageJson.description,
+        ontentScripts: contentScriptManifestEntries, // content_scriptsデータをテンプレートに渡す
       },
     }),
 
