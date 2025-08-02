@@ -2,9 +2,37 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const fs = require('fs'); // Node.jsのファイルシステムモジュールを使用してディレクトリやファイルを操作
 
 const packageJson = require('./package.json');
 console.log('packageJson', packageJson);
+
+// ★ここからentryポイントの自動生成ロジックを追加★
+const contentScriptsPath = path.resolve(__dirname, 'content_scripts');
+const entryPoints = {};
+
+try {
+    // content_scripts ディレクトリ内のサブディレクトリを読み込む
+    const featureFolders = fs.readdirSync(contentScriptsPath, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory()) // ディレクトリのみをフィルタリング
+        .map(dirent => dirent.name); // ディレクトリ名（機能名）を取得
+
+    featureFolders.forEach(folderName => {
+        const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
+        // content.js ファイルが存在するか確認
+        if (fs.existsSync(entryFilePath)) {
+            entryPoints[folderName] = entryFilePath;
+        } else {
+            console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。`);
+        }
+    });
+} catch (error) {
+    console.error(`content_scripts ディレクトリの読み込み中にエラーが発生しました: ${error.message}`);
+    // エラーが発生した場合でも、空のentryオブジェクトでWebpackが起動できるようにする
+    // または、ここで process.exit(1) などでビルドを中断することも検討
+}
+// ★ここまでentryポイントの自動生成ロジック★
+
 module.exports = {
   // ビルドモードを設定:
   // 'development' は開発用 (デバッグしやすい、ソースマップ生成)
@@ -13,21 +41,8 @@ module.exports = {
 
   // エントリポイント: Webpackがビルドを開始するJavaScriptファイル
   // 各エントリポイントは、独自のバンドルファイルとして出力されます。
-  entry: {
-    // 例: background.js が存在するなら追加
-    // background: './background.js',
-
-    // 例: popup.js が存在するなら追加
-    // popup: './popup.js',
-
-    // あなたのコンテンツスクリプトのエントリポイント
-    // ここで 'course_timetable' は出力されるバンドルファイルの名前になります (例: course_timetable.bundle.js)
-    'course_timetable': './content_scripts/course_timetable/content.js',
-    'add_time_limit': '/content_scripts/add_time_limit/content.js',
-    'fun': './content_scripts/fun/fun.js',
-
-    // 他にも独立したコンテンツスクリプトや機能があれば、ここに追加していく
-  },
+  // ここでは、content_scripts ディレクトリ内の各機能の content.js をエントリポイントとして自動で設定
+  entry: entryPoints,
 
   // 出力設定: バンドルされたファイルをどこに出力するか
   output: {
