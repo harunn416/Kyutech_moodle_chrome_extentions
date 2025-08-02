@@ -19,72 +19,72 @@ const entryPoints = {};
 let contentScriptManifestEntries = []; // 初期値を空の配列で宣言（letを使用）
 
 try {
-    // content_scripts ディレクトリ内の全エントリ（ファイルとディレクトリ）を読み込む
-    // { withFileTypes: true } で fs.Dirent オブジェクトとして取得し、種類を判別可能にする
-    const featureFolders = fs.readdirSync(contentScriptsPath, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory()) // ディレクトリのみをフィルタリング（各機能のフォルダ）
-        .map(dirent => dirent.name); // ディレクトリ名（例: 'course_timetable', 'add_time_limit'）を取得
+  // content_scripts ディレクトリ内の全エントリ（ファイルとディレクトリ）を読み込む
+  // { withFileTypes: true } で fs.Dirent オブジェクトとして取得し、種類を判別可能にする
+  const featureFolders = fs.readdirSync(contentScriptsPath, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory()) // ディレクトリのみをフィルタリング（各機能のフォルダ）
+    .map(dirent => dirent.name); // ディレクトリ名（例: 'course_timetable', 'add_time_limit'）を取得
 
-    // 各機能フォルダに対して処理を実行
-    featureFolders.forEach(folderName => {
-        // 各機能のエントリポイントとなる content.js ファイルのパスを構築
-        const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
-        // 各機能の設定が記述された config.json ファイルのパスを構築
-        const configFilePath = path.join(contentScriptsPath, folderName, 'config.json'); // ★修正：forEachループ内で定義
+  // 各機能フォルダに対して処理を実行
+  featureFolders.forEach(folderName => {
+    // 各機能のエントリポイントとなる content.js ファイルのパスを構築
+    const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
+    // 各機能の設定が記述された config.json ファイルのパスを構築
+    const configFilePath = path.join(contentScriptsPath, folderName, 'config.json'); // ★修正：forEachループ内で定義
 
-        // content.js ファイルが存在するか確認
-        if (fs.existsSync(entryFilePath)) {
-            // Webpackのエントリポイントとして追加
-            // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.js' }
-            entryPoints[folderName] = entryFilePath;
+    // content.js ファイルが存在するか確認
+    if (fs.existsSync(entryFilePath)) {
+      // Webpackのエントリポイントとして追加
+      // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.js' }
+      entryPoints[folderName] = entryFilePath;
 
-            // config.json ファイルが存在するか確認
-            if (fs.existsSync(configFilePath)) {
-                try {
-                    // config.json を読み込み、JSONとしてパースする
-                    const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+      // config.json ファイルが存在するか確認
+      if (fs.existsSync(configFilePath)) {
+        try {
+          // config.json を読み込み、JSONとしてパースする
+          const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
 
-                    // config.json に matches プロパティがあり、それが配列であることを確認
-                    if (config.matches && Array.isArray(config.matches)) {
-                        // manifest.json の content_scripts 部分に記述するエントリを作成
-                        const manifestEntry = {
-                            matches: config.matches,
-                            js: [`js/${folderName}.bundle.js`] // Webpackが出力するJSバンドルのパスに合わせる
-                        };
-                        // もしconfig.jsonにCSSが定義されており、それが配列で空でない場合
-                        if (config.css && Array.isArray(config.css) && config.css.length > 0) {
-                           // CSSファイルのパスをマップして追加
-                           manifestEntry.css = config.css.map(cssFile => `css/${folderName}/${cssFile}`);
-                           // 重要: 現在のWebpack設定（style-loader, css-loader）ではCSSはJSにバンドルされます。
-                           // そのため、manifest.jsonにCSSファイルを別途記述する必要は通常ありません。
-                           // もしmanifest.jsonにCSSを記述し、独立したCSSファイルとして出力したい場合は、
-                           // MiniCssExtractPlugin の導入と、CopyWebpackPlugin でのCSSファイルのコピー設定も追加で必要になります。
-                           // このコメントアウトされた行は、独立したCSSファイルを扱う場合のプレースホルダーです。
-                        }
-                        // 生成したmanifestエントリを配列に追加
-                        contentScriptManifestEntries.push(manifestEntry);
-                    } else {
-                        // matches プロパティが不正な場合の警告
-                        console.warn(`警告: ${configFilePath} に 'matches' 配列が見つからないか無効です。`);
-                    }
-                } catch (parseError) {
-                    // config.json のJSONパースエラーが発生した場合の処理
-                    console.error(`エラー: ${configFilePath} のパースに失敗しました: ${parseError.message}`);
-                }
-            } else {
-                // config.json が見つからない場合の警告
-                console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
+          // config.json に matches プロパティがあり、それが配列であることを確認
+          if (config.matches && Array.isArray(config.matches)) {
+            // manifest.json の content_scripts 部分に記述するエントリを作成
+            const manifestEntry = {
+              matches: config.matches,
+              js: [`js/${folderName}.bundle.js`] // Webpackが出力するJSバンドルのパスに合わせる
+            };
+            // もしconfig.jsonにCSSが定義されており、それが配列で空でない場合
+            if (config.css && Array.isArray(config.css) && config.css.length > 0) {
+              // CSSファイルのパスをマップして追加
+              manifestEntry.css = config.css.map(cssFile => `css/${folderName}/${cssFile}`);
+              // 重要: 現在のWebpack設定（style-loader, css-loader）ではCSSはJSにバンドルされます。
+              // そのため、manifest.jsonにCSSファイルを別途記述する必要は通常ありません。
+              // もしmanifest.jsonにCSSを記述し、独立したCSSファイルとして出力したい場合は、
+              // MiniCssExtractPlugin の導入と、CopyWebpackPlugin でのCSSファイルのコピー設定も追加で必要になります。
+              // このコメントアウトされた行は、独立したCSSファイルを扱う場合のプレースホルダーです。
             }
-        } else {
-            // content.js が見つからない場合の警告
-            console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。エントリポイントは生成されません。`);
+            // 生成したmanifestエントリを配列に追加
+            contentScriptManifestEntries.push(manifestEntry);
+          } else {
+            // matches プロパティが不正な場合の警告
+            console.warn(`警告: ${configFilePath} に 'matches' 配列が見つからないか無効です。`);
+          }
+        } catch (parseError) {
+          // config.json のJSONパースエラーが発生した場合の処理
+          console.error(`エラー: ${configFilePath} のパースに失敗しました: ${parseError.message}`);
         }
-    });
+      } else {
+        // config.json が見つからない場合の警告
+        console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
+      }
+    } else {
+      // content.js が見つからない場合の警告
+      console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。エントリポイントは生成されません。`);
+    }
+  });
 } catch (error) {
-    // content_scripts ディレクトリの読み込み自体（fs.readdirSyncなど）でエラーが発生した場合
-    console.error(`content_scripts ディレクトリの読み込み中にエラーが発生しました: ${error.message}`);
-    // このエラーが発生した場合、contentScriptManifestEntries は初期値（空の配列 []）のままとなるため、
-    // Webpackのビルドはクラッシュせずに続行されます。必要であればここで `process.exit(1);` を呼び出してビルドを中断できます。
+  // content_scripts ディレクトリの読み込み自体（fs.readdirSyncなど）でエラーが発生した場合
+  console.error(`content_scripts ディレクトリの読み込み中にエラーが発生しました: ${error.message}`);
+  // このエラーが発生した場合、contentScriptManifestEntries は初期値（空の配列 []）のままとなるため、
+  // Webpackのビルドはクラッシュせずに続行されます。必要であればここで `process.exit(1);` を呼び出してビルドを中断できます。
 }
 // ====================================================================
 // ★ここまでエントリポイントとmanifest.jsonのcontent_scriptsの自動生成ロジック★
