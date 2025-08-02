@@ -7,64 +7,89 @@ const fs = require('fs'); // Node.jsのファイルシステムモジュール�
 const packageJson = require('./package.json');
 console.log('packageJson', packageJson);
 
-// ★ここからentryポイントの自動生成ロジックを追加★
+// ====================================================================
+// ★ここからエントリポイントとmanifest.jsonのcontent_scriptsを自動生成するロジック★
+// ====================================================================
+
+// content_scripts ディレクトリの絶対パスを解決
 const contentScriptsPath = path.resolve(__dirname, 'content_scripts');
+// Webpackのエントリポイントを格納するオブジェクト
 const entryPoints = {};
-let contentScriptManifestEntries = [];
+// manifest.jsonのcontent_scripts配列に渡すデータを格納する配列
+let contentScriptManifestEntries = []; // 初期値を空の配列で宣言（letを使用）
 
 try {
-    // content_scripts ディレクトリ内のサブディレクトリを読み込む
+    // content_scripts ディレクトリ内の全エントリ（ファイルとディレクトリ）を読み込む
+    // { withFileTypes: true } で fs.Dirent オブジェクトとして取得し、種類を判別可能にする
     const featureFolders = fs.readdirSync(contentScriptsPath, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory()) // ディレクトリのみをフィルタリング
-        .map(dirent => dirent.name); // ディレクトリ名（機能名）を取得
+        .filter(dirent => dirent.isDirectory()) // ディレクトリのみをフィルタリング（各機能のフォルダ）
+        .map(dirent => dirent.name); // ディレクトリ名（例: 'course_timetable', 'add_time_limit'）を取得
 
+    // 各機能フォルダに対して処理を実行
     featureFolders.forEach(folderName => {
+        // 各機能のエントリポイントとなる content.js ファイルのパスを構築
         const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
+        // 各機能の設定が記述された config.json ファイルのパスを構築
+        const configFilePath = path.join(contentScriptsPath, folderName, 'config.json'); // ★修正：forEachループ内で定義
+
         // content.js ファイルが存在するか確認
         if (fs.existsSync(entryFilePath)) {
-            // config.jsonを読み込み、manifest.jsonのcontent_scriptsエントリを生成
+            // Webpackのエントリポイントとして追加
+            // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.js' }
+            entryPoints[folderName] = entryFilePath;
+
+            // config.json ファイルが存在するか確認
             if (fs.existsSync(configFilePath)) {
                 try {
+                    // config.json を読み込み、JSONとしてパースする
                     const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
 
+                    // config.json に matches プロパティがあり、それが配列であることを確認
                     if (config.matches && Array.isArray(config.matches)) {
+                        // manifest.json の content_scripts 部分に記述するエントリを作成
                         const manifestEntry = {
                             matches: config.matches,
-                            js: [`js/${folderName}.bundle.js`] // Webpackの出力パスに合わせる
+                            js: [`js/${folderName}.bundle.js`] // Webpackが出力するJSバンドルのパスに合わせる
                         };
-                        // もしconfig.jsonにCSSが定義されていれば追加
+                        // もしconfig.jsonにCSSが定義されており、それが配列で空でない場合
                         if (config.css && Array.isArray(config.css) && config.css.length > 0) {
+                           // CSSファイルのパスをマップして追加
                            manifestEntry.css = config.css.map(cssFile => `css/${folderName}/${cssFile}`);
-                           // 必要であれば、ここでCopyWebpackPluginに追加のパターンも生成できます
-                           // 現状のCSSローダーでJSに埋め込んでいるなら、別途コピーは不要です
-                           // もしcontent.jsのCSSをmanifest.jsonに独立して記述するなら、
-                           // そのCSSファイルをdist/css/機能名/ファイル名.cssにコピーする設定をCopyWebpackPluginに追加する必要があります。
-                           // 現状のCSSローダー（style-loader, css-loader）であれば、CSSはJSバンドルに含まれるため、
-                           // manifestEntry.css の行は不要または別の処理が必要です。
-                           // ここでは一旦、独立したCSSファイルがある場合のプレースホルダーとして残しておきます。
-                           // (JSにCSSをバンドルしている場合は、manifest.jsonにCSSは記述しません)
+                           // 重要: 現在のWebpack設定（style-loader, css-loader）ではCSSはJSにバンドルされます。
+                           // そのため、manifest.jsonにCSSファイルを別途記述する必要は通常ありません。
+                           // もしmanifest.jsonにCSSを記述し、独立したCSSファイルとして出力したい場合は、
+                           // MiniCssExtractPlugin の導入と、CopyWebpackPlugin でのCSSファイルのコピー設定も追加で必要になります。
+                           // このコメントアウトされた行は、独立したCSSファイルを扱う場合のプレースホルダーです。
                         }
+                        // 生成したmanifestエントリを配列に追加
                         contentScriptManifestEntries.push(manifestEntry);
                     } else {
+                        // matches プロパティが不正な場合の警告
                         console.warn(`警告: ${configFilePath} に 'matches' 配列が見つからないか無効です。`);
                     }
                 } catch (parseError) {
+                    // config.json のJSONパースエラーが発生した場合の処理
                     console.error(`エラー: ${configFilePath} のパースに失敗しました: ${parseError.message}`);
                 }
             } else {
+                // config.json が見つからない場合の警告
                 console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
             }
-            entryPoints[folderName] = entryFilePath;
         } else {
-            console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。`);
+            // content.js が見つからない場合の警告
+            console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。エントリポイントは生成されません。`);
         }
     });
 } catch (error) {
+    // content_scripts ディレクトリの読み込み自体（fs.readdirSyncなど）でエラーが発生した場合
     console.error(`content_scripts ディレクトリの読み込み中にエラーが発生しました: ${error.message}`);
-    // エラーが発生した場合でも、空のentryオブジェクトでWebpackが起動できるようにする
-    // または、ここで process.exit(1) などでビルドを中断することも検討
+    // このエラーが発生した場合、contentScriptManifestEntries は初期値（空の配列 []）のままとなるため、
+    // Webpackのビルドはクラッシュせずに続行されます。必要であればここで `process.exit(1);` を呼び出してビルドを中断できます。
 }
-// ★ここまでentryポイントの自動生成ロジック★
+// ====================================================================
+// ★ここまでエントリポイントとmanifest.jsonのcontent_scriptsの自動生成ロジック★
+// ====================================================================
+
 
 module.exports = {
   // ビルドモードを設定:
@@ -75,7 +100,7 @@ module.exports = {
   // エントリポイント: Webpackがビルドを開始するJavaScriptファイル
   // 各エントリポイントは、独自のバンドルファイルとして出力されます。
   // ここでは、content_scripts ディレクトリ内の各機能の content.js をエントリポイントとして自動で設定
-  entry: entryPoints,
+  entry: entryPoints, // 自動生成された `entryPoints` オブジェクトを使用
 
   // 出力設定: バンドルされたファイルをどこに出力するか
   output: {
@@ -152,15 +177,14 @@ module.exports = {
     // manifest.json をテンプレートから生成する HtmlWebpackPlugin の設定
     new HtmlWebpackPlugin({
       filename: 'manifest.json', // 出力ファイル名 (dist/manifest.json)
-      template: './manifest.json.ejs', // 使用するテンプレートファイル
+      template: './manifest.json.ejs', // 使用するEJSテンプレートファイル
       inject: false, // HTMLにJS/CSSを自動注入しない (manifest.json なので不要)
       templateParameters: {
-        // オブジェクトとして渡す (例: `data` という名前で)
-        // テンプレートでは `data.packageName` のように参照する
+        // EJSテンプレートに渡すデータ
         packageName: packageJson.name,
         packageVersion: packageJson.version,
         packageDescription: packageJson.description,
-        ontentScripts: contentScriptManifestEntries, // content_scriptsデータをテンプレートに渡す
+        contentScripts: contentScriptManifestEntries, // ★修正: タイプミスを修正 `contentScripts`
       },
     }),
 
@@ -175,14 +199,14 @@ module.exports = {
         { from: 'assets', to: 'assets' },
 
         // もしCSSをJSから import せずに、manifest.json で直接指定する場合は、ここで個別にコピー
-        // { from: 'content_scripts/course_timetable/content.css', to: 'content_scripts/course_timetable/content.css' },
-        // { from: 'content_scripts/fun/fun.css', to: 'content_scripts/fun/fun.css' },
+        // 例: { from: 'content_scripts/course_timetable/content.css', to: 'content_scripts/course_timetable/content.css' },
+        // 上記のように個別に指定するか、fs.readdirSync などで動的にパターンを生成する必要がある
       ],
     }),
   ],
 
   // 開発ツール: ソースマップの生成など、デバッグを助ける設定
-  // 開発中は 'cheap-module-source-map' が推奨されます
-  // 本番ビルドでは通常 'source-map' (精度は最高だがビルド遅い) または無効化
+  // 開発中は 'cheap-module-source-map' が推奨されます (ビルド速度とデバッグのしやすさのバランスが良い)
+  // 本番ビルドでは通常 'source-map' (精度は最高だがビルドが遅い) または無効化 (本番環境ではソースコードを公開しないため)
   devtool: 'cheap-module-source-map',
 };
