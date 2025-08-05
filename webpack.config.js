@@ -203,6 +203,33 @@ module.exports = {
         // 上記のように個別に指定するか、fs.readdirSync などで動的にパターンを生成する必要がある
       ],
     }),
+
+    // ビルド完了後に機能一覧JSONを生成するプラグイン
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('GenerateFeatureKeysJson', (compilation) => {
+          // featureFolders変数から、機能名（キー）のリストを取得する
+          const featureKeys = fs.readdirSync(contentScriptsPath, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+
+          // JSONファイルの中身を生成
+          const jsonData = {
+            features: featureKeys,
+            // 必要であれば、ここに表示名や説明などのメタデータも追加可能
+          };
+          const jsonString = JSON.stringify(jsonData, null, 2);
+
+          // 出力パスを設定
+          const outputPath = compilation.outputOptions.path;
+          const jsonFilePath = path.join(outputPath, 'features.json');
+
+          // JSONファイルを dist ディレクトリに出力
+          fs.writeFileSync(jsonFilePath, jsonString);
+          console.log(`\n✅ ${jsonFilePath} を生成しました。`);
+        });
+      },
+    },
   ],
 
   // 開発ツール: ソースマップの生成など、デバッグを助ける設定

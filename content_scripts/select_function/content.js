@@ -1,3 +1,9 @@
+main();
+function main(){
+    // ページ読み込み時に拡張機能のコンフィグ画面を設定。
+    createListOparateButton(); //オプション出現ボタン
+}
+
 /** 上のリストの中に拡張機能設定用のボタンを作成 */
 function createListOparateButton() {
     //親要素
