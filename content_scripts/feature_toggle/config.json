@@ -1,0 +1,5 @@
+{
+  "matches": ["https://*.kyutech.ac.jp/*"],
+  "displayName": "機能選択",
+  "description": "拡張機能のオンオフを管理します。"
+}

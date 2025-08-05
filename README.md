@@ -6,7 +6,7 @@
 九州工業大学のmoodle専用の拡張機能です。便利機能を随時追加していく予定です。
 
 ## インストール方法
-[インストールリンク](https://github.com/harunn416/Kyutech_moodle_chrome_extentions)  
+[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)  
 
 上のリンクから拡張機能をインストールしてください。
 
@@ -51,10 +51,12 @@ Moodle Helper Extensionに実装してほしい機能のアイデアがありま
 > なるべくブラウザ内で処理を完結させるようにしてください。  
 > また、学生情報(氏名や学籍番号など)の取り扱いは慎重になってください。取得しないに越したことはありません。
 
+わからなければ、これらの文章をAIにぶち込めば解決するでしょう。
+
 ## 導入
-1. gitファイルのコピー
-1. npm で必要なライブラリを取得。``npm i``をターミナルで実行。
-1. distファイルを出力しビルド(バンドル)する。``npm run dev``をターミナルで実行。本命の出力は``npm run build``を実行。
+1. gitファイルのコピー。``git clone [URL]``をターミナルで実行。URLはこのページの一番上の緑色の``code``から取得可能。
+1. npm で必要なライブラリを取得。``npm i``をターミナルで実行。これにより必要なライブラリが取得できる。
+1. distファイルを出力しビルド(バンドル)する。``npm run dev``をターミナルで実行。本番用の出力は``npm run build``を実行。
 1. ブラウザの拡張機能タブの``パッケージ化されていない拡張機能を読み込む``から``dist``フォルダを読み込む。
 > [!important]
 > 拡張機能はルートディレクトリを読み込むのではなく、必ず``dist``フォルダを読み込んでください。``manifest.json``が読み込まれません。
@@ -80,15 +82,17 @@ JavaScriptファイルは``content.js``という名前にし、他のJavaScript�
 ### アセット
 アセット(jpg,png,json,etc...)は、``assets``の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は``assets/[機能名]/[ファイル名]``で取得できます。ブラウザは``dist``ファオルダ内のjsファイルを起点に参照するので。
 
-### manifest.json
+### config.json
 > [!IMPORTANT]
-> ``manifest.json``への記述の方法が新しくなりました。要確認お願いします。
+> ``config.json``へ機能情報を記入してください。
 
 
-``content_scripts``の中に作成した機能フォルダの中に``config.json``を作成し、以下のスクリプトを追加してください。URLは機能してほしいサイトのアドレスを入力してください。URLは複数記述可能です。
+``content_scripts``の中に作成した機能フォルダの中に``config.json``を作成し、以下のスクリプトを記述してください。URLは機能してほしいサイトのアドレスを入力してください。URLは複数記述可能です。
 ```
 {
-    "matches": ["https://*.kyutech.ac.jp/*"]
+  "matches": ["https://*.kyutech.ac.jp/*"],
+  "displayName": "[機能表示名]",
+  "description": "[ここに機能の説明を記述。簡潔に10~40字程度で。]"
 }
 ```
 > [!TIP]
@@ -110,7 +114,8 @@ JavaScriptファイルは``content.js``という名前にし、他のJavaScript�
 もしもプルリクエストの承認に時間がかかっている場合は連絡してください。
 
 ## contents_scripts/ fun
-ちょっとした遊び心です。隠し機能みたいな？
+ちょっとした遊び心です。隠し機能みたいな？  
+どんどん追加してもらってかまわないぜ。
 
 # バージョン
 ## v1.0

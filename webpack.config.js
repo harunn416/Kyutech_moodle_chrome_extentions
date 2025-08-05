@@ -213,10 +213,35 @@ module.exports = {
             .filter(dirent => dirent.isDirectory())
             .map(dirent => dirent.name);
 
-          // JSONファイルの中身を生成
+          const features = featureKeys.map(key => {
+            const configFilePath = path.join(contentScriptsPath, key, 'config.json');
+            let displayName = key; // デフォルトはフォルダ名
+            let description = ''; // デフォルトは空
+
+            if (fs.existsSync(configFilePath)) {
+              try {
+                const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+                // config.jsonにdisplayNameがあればそれを使う
+                if (config.displayName) {
+                  displayName = config.displayName;
+                }
+                // config.jsonにdescriptionがあればそれを使う
+                if (config.description) {
+                  description = config.description;
+                }
+              } catch (e) {
+                console.error(`エラー: ${configFilePath} のパースに失敗しました: ${e.message}`);
+              }
+            }
+            return {
+              key: key,
+              displayName: displayName,
+              description: description
+            };
+          });
+
           const jsonData = {
-            features: featureKeys,
-            // 必要であれば、ここに表示名や説明などのメタデータも追加可能
+            features: features,
           };
           const jsonString = JSON.stringify(jsonData, null, 2);
 
