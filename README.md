@@ -76,6 +76,30 @@ Moodle Helper Extensionに実装してほしい機能のアイデアがありま
 ### JavaScript
 JavaScriptファイルは``content.js``という名前にし、他のJavaScriptファイルは必要な関数を``content.js``でimportしてください。
 
+そして、ユーザーが機能のオンオフを選択できるようにするため、以下のスクリプトを冒頭にコピペしてください。
+```JS
+/* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
+// この機能に対応するプレフィックス付きのキー名を定義
+const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+
+/**
+ * この機能が有効になっているかブラウザのストレージから確認する関数
+ * @returns {Promise<boolean>} 機能が有効ならtrue、無効ならfalse
+ */
+async function shouldRun() {
+    try {
+        const result = await chrome.storage.sync.get("toggle_"+FEATURE_KEY);
+        // キーが存在しない場合はtrue（ON）をデフォルトとする
+        return result["toggle_"+FEATURE_KEY] !== false;
+    } catch (error) {
+        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        return true; // エラー時も安全策としてONを返す
+    }
+}
+/********************************************************************************/
+```
+ユーザーの意向にかかわらず強制的に機能をオンにする場合は、後述の``config.json``の``ForceExecution``を``true``にしてください。
+
 ### css
 ``content.js``ファイルにインポートしてください。
 
@@ -88,11 +112,12 @@ JavaScriptファイルは``content.js``という名前にし、他のJavaScript�
 
 
 ``content_scripts``の中に作成した機能フォルダの中に``config.json``を作成し、以下のスクリプトを記述してください。URLは機能してほしいサイトのアドレスを入力してください。URLは複数記述可能です。
-```
+```json
 {
   "matches": ["https://*.kyutech.ac.jp/*"],
   "displayName": "[機能表示名]",
-  "description": "[ここに機能の説明を記述。簡潔に10~40字程度で。]"
+  "description": "[ここに機能の説明を記述。簡潔に10~40字程度で。]",
+  "ForceExecution": false //省略可
 }
 ```
 > [!TIP]
@@ -106,6 +131,10 @@ JavaScriptファイルは``content.js``という名前にし、他のJavaScript�
 > ```
 > は``マイコース``タブでしか実行されません。
 > 最後に``*``がついているのはプレースホルダに対応するためです。(``?=``みたいなやつ)
+
+> [!IMPORTANT]
+> ``ForceExecution``を``true``にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
+> **この設定は慎重に行ってください。**
 
 ### 開発ブランチにマージ
 機能が完成し、developブランチにマージする際は**プルリクエスト**を作成してください。  

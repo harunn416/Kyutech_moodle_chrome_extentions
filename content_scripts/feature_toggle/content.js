@@ -9,7 +9,7 @@ function main() {
     createPopupOperateFeatures(); //オプションページ
 }
 
-/** 機能のオンオフを管理するキーをブラウザのストレージに作成 
+/** 機能のオンオフを管理するキーをブラウザのストレージに作成
  * * キーの名前は "toggle_[機能名(config.jsonのkey)]"
 */
 async function createKeyForStrage() {
@@ -19,8 +19,10 @@ async function createKeyForStrage() {
     featureArray.forEach((feature) => {
         chrome.storage.sync.get(["toggle_" + feature.key], (result) => {
             // キーがなければ作成
-            if (result === undefined) {
-                chrome.storage.sync.set({ ["toggle_" + feature.key]: true });
+            if (result["toggle_" + feature.key] === undefined) {
+                let key = { ["toggle_" + feature.key]: true };
+                chrome.storage.sync.set(key);
+                console.log("機能管理用のキーを作成しました。", key);
             }
         });
     });
@@ -148,6 +150,11 @@ async function createPopupOperateFeatures() {
     title.textContent = '機能一覧';
     popup.appendChild(title);
 
+    // ポップアップの説明
+    const popupDescription = document.createElement("h5");
+    popupDescription.textContent = "ここで機能のオンオフを設定できます。";
+    popupDescription.style.marginBottom = "25px";
+    popup.appendChild(popupDescription);
 
     //機能ごとに作成
     const features = await getFeatureConfigListArray();
@@ -155,7 +162,7 @@ async function createPopupOperateFeatures() {
         // 機能ごとのdiv
         const featureDiv = document.createElement("div");
         featureDiv.setAttribute("class", "feature-item");
-        if (featureJson.key === "feature_toggle") { // 機能をオンオフの機能はオフにできない。(当たり前だろ！)
+        if (!featureJson.ForceExecution) { // 機能をオンオフの機能はオフにできない。(当たり前だろ！)
             featureDiv.style.display = "none";
         }
         // トグルとタイトル

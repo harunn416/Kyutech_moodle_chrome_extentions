@@ -204,6 +204,30 @@ module.exports = {
       ],
     }),
 
+    // ビルド時に各機能ファイルに自身の機能名を置換して挿入
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('InjectFeatureKey', (compilation) => {
+          Object.keys(entryPoints).forEach(featureName => {
+            const bundleFilename = `js/${featureName}.bundle.js`;
+            const bundlePath = path.join(compilation.outputOptions.path, bundleFilename);
+            
+            if (fs.existsSync(bundlePath)) {
+              let bundleContent = fs.readFileSync(bundlePath, 'utf8');
+              const featureKey = `${featureName}`;
+              
+              // `const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';` のような
+              // 特殊なプレースホルダー文字列を置換する
+              bundleContent = bundleContent.replace(/const FEATURE_KEY = '.*';/, `const FEATURE_KEY = '${featureKey}';`);
+
+              fs.writeFileSync(bundlePath, bundleContent, 'utf8');
+              console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました。`);
+            }
+          });
+        });
+      },
+    },
+
     // ビルド完了後に機能一覧JSONを生成するプラグイン
     {
       apply: (compiler) => {
@@ -217,6 +241,7 @@ module.exports = {
             const configFilePath = path.join(contentScriptsPath, key, 'config.json');
             let displayName = key; // デフォルトはフォルダ名
             let description = ''; // デフォルトは空
+            let ForceExecution = false; // デフォルトはfalse
 
             if (fs.existsSync(configFilePath)) {
               try {
@@ -229,6 +254,10 @@ module.exports = {
                 if (config.description) {
                   description = config.description;
                 }
+                // config.jsonにdescriptionがtrueならばばそれを使う
+                if (config.ForceExecution === true) {
+                  ForceExecution = config.ForceExecution;
+                }
               } catch (e) {
                 console.error(`エラー: ${configFilePath} のパースに失敗しました: ${e.message}`);
               }
@@ -236,7 +265,8 @@ module.exports = {
             return {
               key: key,
               displayName: displayName,
-              description: description
+              description: description,
+              ForceExecution: ForceExecution
             };
           });
 
