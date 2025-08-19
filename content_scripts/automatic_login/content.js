@@ -57,7 +57,13 @@ function addCheckboxAutomaticLogin (){
 
 /** ログインボタンにユーザー情報を記録するイベントを追加。 */
 function addAddEventListenerToLoginButton(){
+    const loginButton = document.querySelector("#loginbtn");
+    loginButton.addEventListener("click", (e)=>{
+        const userName = formParentContent.querySelector("input#username").value;
+        const userPass = formParentContent.querySelector("input#password").value;
+        if(userName != "" && userPass != ""){
+            
+        }
 
+    });
 }
-console.log(formParentContent.querySelector("input#username").value);
-console.log(formParentContent.querySelector("input#password").value);

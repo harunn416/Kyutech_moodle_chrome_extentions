@@ -1,5 +1,6 @@
 {
   "matches": ["https://ict-i.el.kyutech.ac.jp/login/index.php*"],
   "displayName": "自動ログイン機能",
-  "description": "ログイン画面で自動でログイン処理をします。他アカウントに切り換える場合はこの機能を一度オフにしてください。"
+  "description": "ログイン画面で自動でログイン処理をします。他アカウントに切り換える場合はこの機能を一度オフにしてください。",
+  "initialState": false
 }

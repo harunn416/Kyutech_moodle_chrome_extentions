@@ -50,7 +50,11 @@ function createListOparateButton() {
 
     //それぞれの要素を追加
     listOparateButton.appendChild(aListOparateButton);
-    parentElement.appendChild(listOparateButton);
+    if(parentElement !== null){
+        parentElement.appendChild(listOparateButton);
+    }else{
+        console.log("親要素が見つかりませんでした。");
+    }
 }
 
 /** 機能一覧の配列を返す関数
