@@ -242,6 +242,7 @@ module.exports = {
             let displayName = key; // デフォルトはフォルダ名
             let description = ''; // デフォルトは空
             let ForceExecution = false; // デフォルトはfalse
+            let initialState = true; // デフォルトはtrue
 
             if (fs.existsSync(configFilePath)) {
               try {
@@ -254,9 +255,13 @@ module.exports = {
                 if (config.description) {
                   description = config.description;
                 }
-                // config.jsonにdescriptionがtrueならばばそれを使う
+                // config.jsonのForceExecutionがtrueならばそれを使う
                 if (config.ForceExecution === true) {
                   ForceExecution = config.ForceExecution;
+                }
+                // config.jsonのinitialStateがfalseならばそれを使う
+                if (config.initialState === false) {
+                  initialState = config.initialState;
                 }
               } catch (e) {
                 console.error(`エラー: ${configFilePath} のパースに失敗しました: ${e.message}`);
@@ -266,7 +271,8 @@ module.exports = {
               key: key,
               displayName: displayName,
               description: description,
-              ForceExecution: ForceExecution
+              ForceExecution: ForceExecution,
+              initialState: initialState
             };
           });
 

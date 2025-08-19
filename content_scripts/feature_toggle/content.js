@@ -20,7 +20,7 @@ async function createKeyForStrage() {
         chrome.storage.sync.get(["toggle_" + feature.key], (result) => {
             // キーがなければ作成
             if (result["toggle_" + feature.key] === undefined) {
-                let key = { ["toggle_" + feature.key]: true };
+                let key = { ["toggle_" + feature.key]: feature.initialState };
                 chrome.storage.sync.set(key);
                 console.log("機能管理用のキーを作成しました。", key);
             }

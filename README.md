@@ -134,7 +134,8 @@ function main(){}
   "matches": ["https://*.kyutech.ac.jp/*"],
   "displayName": "[機能表示名]",
   "description": "[ここに機能の説明を記述。簡潔に10~40字程度で。]",
-  "ForceExecution": false //省略可
+  "ForceExecution": false, //省略可
+  "initialState": true //省略可
 }
 ```
 > [!TIP]
@@ -151,7 +152,7 @@ function main(){}
 
 > [!IMPORTANT]
 > ``ForceExecution``を``true``にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
-> **この設定は慎重に行ってください。**
+> ``initialState``を``false``にすると、初期状態で機能が無効化した状態になります。
 
 ### 開発ブランチにマージ
 機能が完成し、developブランチにマージする際は**プルリクエスト**を作成してください。  
