@@ -113,6 +113,10 @@ function main(){}
 外に関数を定義して呼び出すことも可能です。動作の意図が理解できているなら多少改変しても構いません。  
 ユーザーの意向にかかわらず強制的に機能をオンにする場合は、後述の``config.json``の``ForceExecution``を``true``にしてください。
 
+> [!TIP]
+> 要素を監視するなら``MutationObserver``を利用することをおすすめします。  
+> → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
+
 ### css
 ``content.js``ファイルにインポートしてください。
 

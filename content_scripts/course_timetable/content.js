@@ -334,13 +334,9 @@ const callback_courses = (mutationList, observer) => {
     observer.disconnect();
     for (const mutation of mutationList) {
         if (mutation.type === "childList") {
-            console.log("子ノードが追加または削除されました。");
-            console.log("mutationList.length = " + mutationList.length);
             searchElementList();
             searchElementCard();
             searchElementOverview();
-        } else if (mutation.type === "attributes") {
-            console.log(`${mutation.attributeName} 属性が変更されました。`);
         }
     }
     // 処理が完了したら、監視を再開する
@@ -480,13 +476,3 @@ function create_custombutton(targetElements, domType) {
         削除はコース名編集から行うのでボツ */
     })
 }
-
-const target_test = document.querySelector("[id^='page-container-'] ul.list-group");
-
-const ovserver = new MutationObserver(records => {
-    console.log("要素が監視されていますよ。")
-});
-
-ovserver.observe(target_test, {
-    childList: true
-})
