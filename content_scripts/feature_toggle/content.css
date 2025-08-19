@@ -1,0 +1,60 @@
+div#extention-operate-popup-div {
+    h3{
+        margin-bottom: 25px;
+    }
+
+    div.feature-item {
+        margin: 0 0 0 10px;
+
+        label{
+            display: flex;
+        }
+
+        div.slide_switch {
+            position: relative;
+
+            input[type='checkbox'] {
+                position: absolute;
+                width: 0;
+                height: 0;
+            }
+
+            .base {
+                width: 56px;
+                border-radius: 15px;
+                height: 32px;
+                background-color: #ddd;
+                transition: 0.5s;
+            }
+
+            input:checked~.base {
+                background-color: rgb(66, 214, 76);
+                transition: 0.5s;
+            }
+
+            .circle {
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background-color: white;
+                box-shadow: 1px 1px 10px #575757;
+                transition: 0.5s;
+            }
+
+            input:checked~.circle {
+                transform: translateX(100%);
+            }
+
+            .title {
+                margin-left: 4px;
+            }
+        }
+
+        h4{
+            margin: 0 0 0 7px;
+        }
+    }
+}

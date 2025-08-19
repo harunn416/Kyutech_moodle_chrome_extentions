@@ -1,3 +1,31 @@
+/* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
+// この機能に対応するキー名を定義
+// キー名はバンドル時に置換される
+const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+
+/**
+ * この機能が有効になっているかブラウザのストレージから確認する関数
+ * @returns {Promise<boolean>} 機能が有効ならtrue、無効ならfalse
+ */
+async function shouldRun() {
+    try {
+        const result = await chrome.storage.sync.get("toggle_" + FEATURE_KEY);
+        // キーが存在しない場合はtrue（ON）をデフォルトとする
+        return result["toggle_" + FEATURE_KEY] !== false;
+    } catch (error) {
+        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        return true; // エラー時も安全策としてONを返す
+    }
+}
+(async () => {
+    if (await shouldRun()) {
+        main();
+    } else {
+        console.log(`機能(${FEATURE_KEY})は無効になっています。`);
+    }
+})();
+/********************************************************************************/
+
 import './content.css'; // 追加: CSSファイルのインポート
 
 // 外部ファイルで定義されている関数をインポート
@@ -37,6 +65,7 @@ async function main() {
     // ページのヘッダーに時間割の編集ポップアップを display: none で追加
     createPageAddPopup();
     createPageEditPopup();
+    observer_courses.observe(targetNode, config);
 }
 
 /** 時間割の説明を挿入する関数 */
@@ -160,8 +189,7 @@ export async function updateTimetableAtStorage(courseInformationIncludeTimeJson)
     }
 }
 
-/**
- * 時間割データを更新する関数
+/** 時間割データを更新する関数
  * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
  * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
  */
@@ -288,14 +316,45 @@ function createManualEditDiscription() {
     return div;
 }
 
-
-main();
-
 /* 待機して挿入 ------------------------------------------------ */
+
+// 変更を監視するノードを選択
+const targetNode = document.querySelector("div[id^='block-myoverview'] div.container-fluid");
+
+// (変更を監視する) オブザーバーのオプション
+const config = {
+    attributes: false,  // 属性値の監視
+    childList: true,  // 子ノードのDOM変更を監視
+    subtree: true  // ノードのサブツリーまで監視
+};
+
+// 変更が発見されたときに実行されるコールバック関数
+const callback_courses = (mutationList, observer) => {
+    // 変更の連鎖を防ぐため、一時的に監視を切断する
+    observer.disconnect();
+    for (const mutation of mutationList) {
+        if (mutation.type === "childList") {
+            searchElementList();
+            searchElementCard();
+            searchElementOverview();
+        }
+    }
+    // 処理が完了したら、監視を再開する
+    observer.observe(targetNode, config);
+};
+
+// コールバック関数に結びつけられたオブザーバーのインスタンスを生成
+const observer_courses = new MutationObserver(callback_courses);
+
+// 対象ノードの設定された変更の監視を開始(main関数で実行)
+//observer_courses.observe(targetNode, config);
+
+// その後で、監視を停止することができる
+//observer.disconnect();
 
 // 要素が途中で追加される場合があるので、定期的に要素を検索して時間割登録ボタンを追加する
 let intervalInterval
-intervalInterval = setInterval(searchElement, 1000);
+//intervalInterval = setInterval(searchElement, 1000);
 function searchElement() {
     if (!document.querySelector("div[id^='page-container-'] div.ml-auto div.dropdown-menu button.addCourseToTimetable")) {
         // 要素が見つかったら時間割登録ボタンを追加
