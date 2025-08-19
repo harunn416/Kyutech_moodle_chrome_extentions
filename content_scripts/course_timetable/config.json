@@ -1,3 +1,5 @@
 {
-  "matches": ["https://*.kyutech.ac.jp/my/courses.php*"]
+  "matches": ["https://*.kyutech.ac.jp/my/courses.php*"],
+  "displayName": "コース時間割選択",
+  "description": "コースを時間割形式でアクセスすることができるようになります。"
 }
