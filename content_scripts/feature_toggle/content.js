@@ -162,7 +162,7 @@ async function createPopupOperateFeatures() {
         // 機能ごとのdiv
         const featureDiv = document.createElement("div");
         featureDiv.setAttribute("class", "feature-item");
-        if (!featureJson.ForceExecution) { // 機能をオンオフの機能はオフにできない。(当たり前だろ！)
+        if (featureJson.ForceExecution) { // 強制的に実行させる機能は表示しない
             featureDiv.style.display = "none";
         }
         // トグルとタイトル
