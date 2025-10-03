@@ -1,0 +1,19 @@
+#memo-icon {
+    border-top: #999 2px solid;
+    border-left: #999 2px solid;
+    border-bottom: #999 2px solid;
+    position: sticky;
+    top: 60px;
+    margin-left: auto;
+    margin-right: 0px;
+    margin-top: -50px;
+    transition: 0.25s;
+    background-color: #d4d4d4;
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 30px auto;
+    box-sizing: border-box;
+    width: 50px;
+    height: 50px;
+    border-radius: 20px 0 0 20px;
+}

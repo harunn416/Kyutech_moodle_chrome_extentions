@@ -26,6 +26,9 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
+// cssをインポート
+import './content.css';
+
 // MutationObserverを使った要素出現監視関数をインポート
 const { observeElementAppearance } = require('../../util/mutationObserver.js');
 
@@ -33,83 +36,40 @@ const { observeElementAppearance } = require('../../util/mutationObserver.js');
 function main(){
     console.log(`機能(${FEATURE_KEY})を実行します。`);
     observeElementAppearance('div#page', showFeatureSettingsPopup, document.body, true);
+    observeElementAppearance('div#page', addToggleElement, document.body, true);
 }
 
-/** ポップアップを出すトグルを生成する関数
+/** メモ欄を出すトグルを生成し、挿入する関数
  * @returns {HTMLDivElement} 生成したトグルのdiv要素
  */
-function createDrawerTogglerElement() {
-    // メインの <div> 要素の生成
-    const divToggler = document.createElement('div');
-    divToggler.className = 'drawer-toggler drawer-right-toggle ml-auto d-print-none';
-    // style属性の設定
-    divToggler.style.cssText = '\n    top: calc(60px + 5.7rem);\n';
+function addToggleElement() {
+    // トグルの親要素
+    const togglerDiv = document.createElement('div');
+    togglerDiv.id = 'memo-icon';
 
-    // <button> 要素の生成
-    const button = document.createElement('button');
-    button.className = 'btn icon-no-margin';
-    button.setAttribute('data-toggler', 'drawers');
-    button.setAttribute('data-action', 'toggle');
-    button.setAttribute('data-target', 'theme_boost-drawers-blocks');
-    button.setAttribute('data-toggle', 'tooltip');
-    button.setAttribute('data-placement', 'right');
-    button.setAttribute('data-original-title', 'メモを開く');
-    button.setAttribute('data-lastused', 'true');
+    // 画像のURLを拡張機能のAPIから取得
+    const iconUrl = chrome.runtime.getURL('assets/course_memo/memo_icon.png');
+    
+    // スタイルを設定
+    togglerDiv.style.backgroundImage = `url(${iconUrl})`;
+    togglerDiv.style.backgroundColor = '#d4d4d4'; // 通常時の背景色
 
-    // 最初の <span> 要素（sr-only）の生成
-    const spanSrOnly = document.createElement('span');
-    spanSrOnly.className = 'sr-only';
-    spanSrOnly.textContent = 'メモを開く'; // テキストノードを設定
+    // ホバーイベント
+    togglerDiv.addEventListener('mouseover', () => {
+        togglerDiv.style.backgroundColor = '#a6a6a6'; // ホバー時の背景色
+        togglerDiv.style.width = '55px';
+    });
 
-    // 2番目の <span> 要素（dir-rtl-hide）の生成
-    const spanDirRtlHide = document.createElement('span');
-    spanDirRtlHide.className = 'dir-rtl-hide';
+    togglerDiv.addEventListener('mouseout', () => {
+        togglerDiv.style.backgroundColor = '#d4d4d4'; // 通常時の背景色
+        togglerDiv.style.width = '50px';
+    });
 
-    // <i> 要素（chevron-left）の生成
-    const iconLeft = document.createElement('i');
-    iconLeft.className = 'icon fa fa-chevron-left fa-fw ';
-    iconLeft.setAttribute('aria-hidden', 'true');
-
-    // <i> 要素を <span>（dir-rtl-hide）に追加
-    spanDirRtlHide.appendChild(iconLeft);
-
-    // 3番目の <span> 要素（dir-ltr-hide）の生成
-    const spanDirLtrHide = document.createElement('span');
-    spanDirLtrHide.className = 'dir-ltr-hide';
-
-    // 2番目の <i> 要素（chevron-right）の生成
-    const iconRight = document.createElement('i');
-    iconRight.className = 'icon fa fa-chevron-right fa-fw ';
-    iconRight.setAttribute('aria-hidden', 'true');
-
-    // 2番目の <i> 要素を <span>（dir-ltr-hide）に追加
-    spanDirLtrHide.appendChild(iconRight);
-
-    // 全ての <span> 要素を <button> に追加
-    button.appendChild(spanSrOnly);
-    button.appendChild(spanDirRtlHide);
-    button.appendChild(spanDirLtrHide);
-
-    // <button> 要素をメインの <div> に追加
-    divToggler.appendChild(button);
-
-    // 完成した要素を返す
-    return divToggler;
+    // トグルを挿入する要素
+    const targetElement = document.querySelector('div#page');
+    targetElement.prepend(togglerDiv);
 }
 
-/** トグルを生成し、特定の要素に追加する関数 */
-function addMemoToggle() {
-    // ターゲットセレクタ
-    const targetSelector = '#topofscroll';
-    observeElementAppearance(targetSelector, (targetElement) => {
-        // トグル要素を生成
-        const togglerElement = createDrawerTogglerElement();
-        // ターゲット要素の指定した部分にトグル要素を追加
-        targetElement.querySelector('div.drawer-toggles.d-flex').appendChild(togglerElement);
-        console.log('メモトグルを追加しました。');
-    }, document.body, true);
-
-}
 
 /** メモ欄を表示する関数 */
 function showFeatureSettingsPopup() {
