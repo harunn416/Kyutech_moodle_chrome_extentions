@@ -6,7 +6,7 @@
 九州工業大学のmoodle専用の拡張機能です。便利機能を随時追加していく予定です。
 
 ## インストール方法
-[インストールリンク](https://github.com/harunn416/Kyutech_moodle_chrome_extentions)  
+[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)  
 
 上のリンクから拡張機能をインストールしてください。
 
