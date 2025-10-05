@@ -35,8 +35,16 @@ import { observeElementAppearance } from '../../util/mutationObserver.js';
 // メモ欄を出すトグルを生成し、挿入する関数をインポート
 import { showFeatureSettingsPopup } from './createAndSet.js';
 
+// スプリッターの初期化関数をインポート
+import { initializeSplitter } from './splitter.js';
+
 // ブラウザ読み込み時にメイン関数を実行。
 function main(){
-    observeElementAppearance('div#page', showFeatureSettingsPopup);
+    observeElementAppearance('div#page', () => {
+        // メモ欄を表示する関数を実行
+        showFeatureSettingsPopup();
+        // スプリッターの初期化関数を実行
+        initializeSplitter();
+    });
 }
 

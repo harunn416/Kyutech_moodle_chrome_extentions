@@ -5,7 +5,8 @@
     z-index: 2;
 
     /* ボックスモデル (大きさ・余白) */
-    box-sizing: border-box; /* サイズ計算の基準を明確に */
+    box-sizing: border-box;
+    /* サイズ計算の基準を明確に */
     width: 50px;
     height: 50px;
     margin-top: -50px;
@@ -31,4 +32,12 @@
     border-top: #ccc 2px solid;
     border-left: #ccc 2px solid;
     border-bottom: #ccc 2px solid;
+}
+
+#course-memo-separator {
+    display: none; /* 初期状態は非表示 */
+    width: 5px; /* ドラッグする仕切りの幅 */
+    cursor: col-resize; /* カーソルをリサイズ用に変更 */
+    background-color: #aaa;
+    flex-shrink: 0; /* 縮まないようにする */
 }
