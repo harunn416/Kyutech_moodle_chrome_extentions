@@ -1,19 +1,34 @@
 #memo-icon {
+    /* ポジショニング */
+    position: sticky;
+    top: 200px;
+    z-index: 2;
+
+    /* ボックスモデル (大きさ・余白) */
+    box-sizing: border-box; /* サイズ計算の基準を明確に */
+    width: 50px;
+    height: 50px;
+    margin-top: -50px;
+    margin-left: auto;
+    margin-right: 10px;
+
+    /* ボーダー */
     border-top: #999 2px solid;
     border-left: #999 2px solid;
     border-bottom: #999 2px solid;
-    position: sticky;
-    top: 60px;
-    margin-left: auto;
-    margin-right: 0px;
-    margin-top: -50px;
-    transition: 0.25s;
-    background-color: #d4d4d4;
+    border-radius: 20px 0 0 20px;
+
+    /* 背景 */
     background-repeat: no-repeat;
     background-position: 12px center;
     background-size: 30px auto;
-    box-sizing: border-box;
-    width: 50px;
-    height: 50px;
-    border-radius: 20px 0 0 20px;
+
+    /* その他の視覚効果 */
+    transition: 0.25s;
+}
+
+#memo-icon:hover {
+    border-top: #ccc 2px solid;
+    border-left: #ccc 2px solid;
+    border-bottom: #ccc 2px solid;
 }
