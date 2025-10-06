@@ -40,9 +40,9 @@ import { initializeSplitter } from './splitter.js';
 
 // ブラウザ読み込み時にメイン関数を実行。
 function main(){
-    observeElementAppearance('div#page', () => {
+    observeElementAppearance('div#page', async () => {
         // メモ欄を表示する関数を実行
-        showFeatureSettingsPopup();
+        await showFeatureSettingsPopup();
         // スプリッターの初期化関数を実行
         initializeSplitter();
     });
