@@ -41,7 +41,7 @@ import { initializeSplitter } from './splitter.js';
 // ブラウザ読み込み時にメイン関数を実行。
 function main(){
     observeElementAppearance('div#page', async () => {
-        // メモ欄を表示する関数を実行
+        // メモトグルとメモ欄を作成挿入する関数を実行
         await showFeatureSettingsPopup();
         // スプリッターの初期化関数を実行
         initializeSplitter();
