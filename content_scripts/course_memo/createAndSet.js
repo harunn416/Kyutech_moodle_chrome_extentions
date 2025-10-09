@@ -83,6 +83,8 @@ async function createCourseList() {
     currentCourseNameInput.required = true;
     currentCourseNameInput.id = "current-course-name";
     currentCourseNameInput.style.width = "100%";
+    // コース名が変更されたら保存
+    currentCourseNameInput.addEventListener("change", saveCurrentMemo);
     currentCourseNameLabel.appendChild(currentCourseNameInput);
 
     courseSelectContainer.appendChild(courseSelect);
@@ -107,6 +109,12 @@ function createMemoWritingArea() {
     // memoTextArea.style.height = "100%";
     // memoTextArea.style.resize = "none"; // ユーザーによるリサイズを無効にする
     // memoTextArea.style.boxSizing = "border-box"; // パディングとボーダーを含めてサイズを計算
+
+    // テキストエリアの内容が変更されたら保存
+    memoTextArea.addEventListener("input", () => {
+        debouncedSave(); // Debounce処理を使って保存
+        indicateUnsaved(); // 未保存の縁を赤くする
+    });
 
     memoWritingArea.appendChild(memoTextArea);
 
@@ -301,6 +309,7 @@ async function loadMemoForCourse(courseID) {
     // }
 }
 
+/** コース名とメモ記述欄の内容を保存する関数 */
 function saveCurrentMemo() {
     // 現在選択されているコースIDを取得
     const courseSelect = document.getElementById("course-select");
@@ -329,8 +338,48 @@ function saveCurrentMemo() {
             if (selectedOption) {
                 selectedOption.textContent = courseName;
             }
+            indicateSaved(); // 保存が完了したら枠を緑にする
         })
         .catch((error) => {
             console.error("メモの保存に失敗しました:", error);
         });
+}
+
+// Debounce関数を定義 (一定期間、再実行を遅延させる)
+function debounce(func, delay = 500) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+// 500ms（0.5秒）入力が止まったら保存を実行する、Debounce処理を作成
+const debouncedSave = debounce(saveCurrentMemo, 500);
+
+/** 未保存の場合縁を赤くし、未保存状態をユーザーに知らせる関数 */
+function indicateUnsaved() {
+    const memoTextArea = document.getElementById("memo-textarea");
+    memoTextArea.style.border = "solid 3px #ff000015";
+}
+
+/** 保存が完了したら枠を緑にして、ユーザーに保存が完了したことを伝える関数 */
+function indicateSaved() {
+    const memoTextArea = document.getElementById("memo-textarea");
+    memoTextArea.style.border = "solid 3px #00ff002e";
+}
+
+/** 機能実行時、[その他]がなければ作成する関数 */
+export async function createOtherIfNotExist() {
+    // メモリストを取得
+    const memoList = await getMemoList();
+    // メモリストの中に「その他」のメモがあるか確認
+    const otherExists = memoList.some(memo => memo.courseID === OTHER_NOTES_KEY);
+    // 「その他」のメモがない場合は新しく作成
+    if (!otherExists) {
+        const newMemoData = { title: "その他", content: "", isMarkdown: false};
+        await saveMemoJson(OTHER_NOTES_KEY, newMemoData);
+        console.log("「その他」のメモを作成しました:", newMemoData);
+    }
 }

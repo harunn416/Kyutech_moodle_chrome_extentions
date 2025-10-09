@@ -33,7 +33,7 @@ import './content.css';
 import { observeElementAppearance } from '../../util/mutationObserver.js';
 
 // メモ欄を出すトグルを生成し、挿入する関数をインポート
-import { showFeatureSettingsPopup } from './createAndSet.js';
+import { showFeatureSettingsPopup, createOtherIfNotExist } from './createAndSet.js';
 
 // スプリッターの初期化関数をインポート
 import { initializeSplitter } from './splitter.js';
@@ -48,6 +48,8 @@ function main(){
         await showFeatureSettingsPopup();
         // スプリッターの初期化関数を実行
         initializeSplitter();
+        // 「その他」のメモが存在しない場合は作成する
+        await createOtherIfNotExist();
     });
 }
 
