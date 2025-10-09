@@ -86,3 +86,22 @@ export function saveMemoJson(courseID, memoData) {
         });
     });
 }
+
+/** メモJSONを削除する関数
+ * @param {string} courseID コースID
+ * @returns {Promise<void>}
+*/
+export function deleteMemoJson(courseID) {
+    // 1. コースIDが存在しない場合（メニューページなど）は、固定キーを使用する
+    const key = (courseID && courseID.trim() !== "")
+                ? `memo_${courseID}` // コースIDがある場合は、通常のキーを作成
+                : `memo_${OTHER_NOTES_KEY}`; // コースIDがない場合は、「その他」の固定キーを使用
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.remove([key], () => {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+            }
+            resolve();
+        });
+    });
+}

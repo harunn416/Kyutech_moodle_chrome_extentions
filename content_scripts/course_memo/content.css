@@ -70,3 +70,11 @@
     /* 5. スクロールバーの非表示（必要に応じて） */
     overflow-y: auto;   /* メモが多くなったらスクロールバーを表示（デフォルト） */
 }
+
+.footer-button{
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 10px;
+}

@@ -1,5 +1,5 @@
 // メモの取得、削除を行う関数をインポート
-import { getMemoList, getMemoJson, saveMemoJson } from "./saveJsonData.js";
+import { getMemoList, getMemoJson, saveMemoJson, deleteMemoJson } from "./saveJsonData.js";
 
 // 「その他」のメモ用の予約キーの定義をインポート
 import { OTHER_NOTES_KEY } from './content.js';
@@ -98,7 +98,7 @@ function createMemoWritingArea() {
     const memoWritingArea = document.createElement("div");
     memoWritingArea.id = "memo-writing-area";
     memoWritingArea.style.flexGrow = "1";
-    memoWritingArea.style.padding = "10px";
+    memoWritingArea.style.padding = "10px 10px 1px 10px";
     memoWritingArea.style.overflowY = "auto"; // 縦スクロールを有効にする
 
     // メモを書くテキストエリア
@@ -119,6 +119,36 @@ function createMemoWritingArea() {
     memoWritingArea.appendChild(memoTextArea);
 
     return memoWritingArea;
+}
+
+/** フッターを生成する関数 */
+function createFooter() {
+    // フッター要素
+    const footer = document.createElement("div");
+    footer.id = "memo-footer";
+    footer.style.padding = "7px";
+    footer.style.borderTop = "#d9d9d9 dashed 2px";
+    footer.style.textAlign = "right";
+
+    // 削除ボタン
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "メモを削除";
+    deleteButton.classList = "footer-button";
+    deleteButton.style.backgroundColor = "#ff4d4d";
+    deleteButton.style.color = "white";
+    deleteButton.addEventListener("click", deleteCurrentMemo);
+    footer.appendChild(deleteButton);
+
+    // リセットボタン
+    const resetButton = document.createElement("button");
+    resetButton.textContent = "リセット";
+    resetButton.classList = "footer-button";
+    resetButton.style.backgroundColor = "#5fe535";
+    resetButton.style.color = "white";
+    resetButton.addEventListener("click", resetCurrentMemo);
+    footer.appendChild(resetButton);
+
+    return footer;
 }
 
 /** メモ欄全体を生成する関数
@@ -143,6 +173,10 @@ async function createSideMemoBar() {
     // メモを書くエリアを作成してメモ欄に追加
     const memoWritingArea = createMemoWritingArea();
     sideMemoBar.appendChild(memoWritingArea);
+
+    // フッターを作成してメモ欄に追加
+    const footer = createFooter();
+    sideMemoBar.appendChild(footer);
 
     // セレクトボックスと今のコース名を表示する要素をメモ欄に追加
     return sideMemoBar;
@@ -368,6 +402,51 @@ function indicateUnsaved() {
 function indicateSaved() {
     const memoTextArea = document.getElementById("memo-textarea");
     memoTextArea.style.border = "solid 3px #00ff002e";
+}
+
+/** 現在表示されているメモを削除する関数 */
+async function deleteCurrentMemo() {
+    // 現在選択されているコースIDを取得
+    const courseSelect = document.getElementById("course-select");
+    const selectedCourseID = courseSelect.value;
+    
+    if (selectedCourseID === OTHER_NOTES_KEY) {
+        alert("「その他」のメモは削除できません。");
+        return;
+    }
+    // 確認ダイアログを表示
+    const confirmDelete = confirm("本当にこのメモを削除しますか？この操作は元に戻せません。");
+    if (!confirmDelete) {
+        return; // ユーザーがキャンセルした場合は何もしない
+    }
+    try {
+        await deleteMemoJson(selectedCourseID);
+        console.log("メモを削除しました:", selectedCourseID);
+        // サイドメモバーを閉じる
+        openHideFeatureSettingsPopup();
+    } catch (error) {
+        console.error("メモの削除に失敗しました:", error);
+    }
+}
+
+/** 現在表示されているメモをリセット(contentを空白に置き換える)する関数 */
+async function resetCurrentMemo() {
+    // 現在選択されているコースIDを取得
+    const courseSelect = document.getElementById("course-select");
+    const selectedCourseID = courseSelect.value;
+
+    // 確認ダイアログを表示
+    const confirmReset = confirm("本当にこのメモをリセットしますか？この操作は元に戻せません。");
+    if (!confirmReset) {
+        return; // ユーザーがキャンセルした場合は何もしない
+    }
+
+    // メモ記述欄の内容を取得
+    const memoTextArea = document.getElementById("memo-textarea");
+    memoTextArea.value = ""; // メモ記述欄を空にする
+    
+    // 空のメモを保存
+    saveCurrentMemo();
 }
 
 /** 機能実行時、[その他]がなければ作成する関数 */
