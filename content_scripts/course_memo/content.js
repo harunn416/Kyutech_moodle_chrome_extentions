@@ -38,6 +38,9 @@ import { showFeatureSettingsPopup } from './createAndSet.js';
 // スプリッターの初期化関数をインポート
 import { initializeSplitter } from './splitter.js';
 
+// 「その他」のメモ用の予約キーを定義（例として、大文字で固定）
+export const OTHER_NOTES_KEY = "GLOBAL_OTHER_NOTES"; 
+
 // ブラウザ読み込み時にメイン関数を実行。
 function main(){
     observeElementAppearance('div#page', async () => {

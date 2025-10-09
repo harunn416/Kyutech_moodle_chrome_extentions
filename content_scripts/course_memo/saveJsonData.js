@@ -4,15 +4,15 @@
   メモを保存する関数
 */
 
-// 「その他」のメモ用の予約キーを定義（例として、大文字で固定）
-const OTHER_NOTES_KEY = "GLOBAL_OTHER_NOTES"; 
+// 「その他」のメモ用の予約キーの定義をインポート
+import { OTHER_NOTES_KEY } from './content.js';
 
 // メモデータのキーは 'memo_' プレフィックスで始まる
 // メモデータの構造は { title: 'コース名', content: 'メモ内容', isMarkdown: true/false }
 
 /**
  * chrome.storage.local から全てのメモのキーとコース名を取得する
- * @returns {Promise<Array<{key: string, name: string}>>} キーとコース名のペアの配列
+ * @returns {Promise<Array<{courseID: string, name: string}>>} キーとコース名のペアの配列
  */
 export function getMemoList() {
     return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ export function getMemoList() {
                     // 2. コース名 (title) が存在するか確認
                     if (memoData && memoData.title) {
                         memoList.push({
-                            key: key,               // 実際のデータ取得に使用するキーID
+                            courseID: key.replace(/^memo_/, ''),               // 実際のデータ取得に使用するキーID
                             name: memoData.title    // プルダウンに表示するコース名
                         });
                     }
@@ -49,10 +49,10 @@ export function getMemoList() {
  * @param {string} courseID コースID
  * @returns {Promise<{title: string, content: string, isMarkdown: boolean}>} メモデータ
 */
-export function getMemoJson(courseID) {
+export async function getMemoJson(courseID) {
     // 1. コースIDが存在しない場合（メニューページなど）は、固定キーを使用する
     const key = (courseID && courseID.trim() !== "") 
-                ? `memo_${courseId}` // コースIDがある場合は、通常のキーを作成
+                ? `memo_${courseID}` // コースIDがある場合は、通常のキーを作成
                 : `memo_${OTHER_NOTES_KEY}`; // コースIDがない場合は、「その他」の固定キーを使用
     
     return new Promise((resolve, reject) => {
@@ -60,8 +60,8 @@ export function getMemoJson(courseID) {
             if (chrome.runtime.lastError) {
                 return reject(chrome.runtime.lastError);
             }
+            resolve(result[key]);
         });
-        resolve(result[key]);
     });
 }
 
@@ -73,7 +73,7 @@ export function getMemoJson(courseID) {
 export function saveMemoJson(courseID, memoData) {
     // 1. コースIDが存在しない場合（メニューページなど）は、固定キーを使用する
     const key = (courseID && courseID.trim() !== "")
-                ? `memo_${courseId}` // コースIDがある場合は、通常のキーを作成
+                ? `memo_${courseID}` // コースIDがある場合は、通常のキーを作成
                 : `memo_${OTHER_NOTES_KEY}`; // コースIDがない場合は、「その他」の固定キーを使用
     return new Promise((resolve, reject) => {
         const dataToSave = {};

@@ -1,6 +1,9 @@
 // メモの取得、削除を行う関数をインポート
 import { getMemoList, getMemoJson, saveMemoJson } from "./saveJsonData.js";
 
+// 「その他」のメモ用の予約キーの定義をインポート
+import { OTHER_NOTES_KEY } from './content.js';
+
 /** メモ欄を出すトグルを生成し、挿入する関数
  * @returns {HTMLDivElement} 生成したトグルのdiv要素
  */
@@ -62,6 +65,13 @@ async function createCourseList() {
     defaultOption.textContent = "コースを選択";
     courseSelect.appendChild(defaultOption);
 
+    // セレクトボックスの選択が変わったときのイベント
+    courseSelect.addEventListener("change", (event) => {
+        const selectedCourseID = event.target.value;
+        // 選択されたコースIDに対応するメモを取得して表示
+        loadMemoForCourse(selectedCourseID);
+    });
+
     // 今のコース名を表示する要素
     const currentCourseNameLabel = document.createElement("label");
     currentCourseNameLabel.htmlFor = "current-course-name";
@@ -75,6 +85,7 @@ async function createCourseList() {
     currentCourseNameInput.style.width = "100%";
     currentCourseNameLabel.appendChild(currentCourseNameInput);
 
+    courseSelectContainer.appendChild(courseSelect);
     courseSelectContainer.appendChild(currentCourseNameLabel);
 
     return courseSelectContainer;
@@ -194,68 +205,132 @@ export async function showFeatureSettingsPopup() {
 }
 
 /** メモ欄を開閉する関数 */
-function openHideFeatureSettingsPopup() {
+async function openHideFeatureSettingsPopup() {
     const sideMemoBar = document.querySelector("#course-memo-sidebar");
     const separator = document.querySelector("#course-memo-separator");
-    if (sideMemoBar.style.display == "none") {
+    if (sideMemoBar.style.display == "none") { // メモ欄が閉じている場合 => 開く
+        // 現在のページのURLから 'id' を取得する
+        const currentParams = new URLSearchParams(window.location.search);
+        let courseID = currentParams.get('id') || OTHER_NOTES_KEY; // 'id' パラメータがない場合は「その他」のメモを使用
+        await insertTextAtCursor(courseID); // メモ欄を開いた時、文字列を挿入する関数を実行
+        // メモ記述欄にメモを挿入
+        loadMemoForCourse(courseID);
         sideMemoBar.style.display = "flex";
         sideMemoBar.style.width = "30%"; // メモ欄を開く
         separator.style.display = "block"; // セパレーターを表示
-    } else {
+    } else { // メモ欄が開いている場合 => 閉じる
         sideMemoBar.style.display = "none"; // メモ欄を閉じる
         separator.style.display = "none"; // セパレーターを非表示
     }
 }
 
-/** メモ欄を開いた時、文字列を挿入する関数 */
+/** メモ欄を開いた時、セレクトボックスにコース一覧を挿入する関数 */
 async function insertTextAtCursor(courseID) {
     // メモリストを取得
-    const memoList = await getMemoList();
+    let memoList = await getMemoList();
     
+
     // メモリストの中に現在のコースIDに対応するメモがあるか確認
-    const memoExists = memoList.some(memo => memo.key === `memo_${courseID}`);
-    if (!memoExists) { // メモがない場合は新しく作成
-        // 現在のコース名を取得
-        const currentCourseNameInput = document.querySelector("div#page-header div.mr-auto h1.h2")
-        const currentCourseName = currentCourseNameInput.value.trim() || "無題のコース";
+    const memoExists = memoList.some(memo => memo.courseID === courseID);
+    // メモがない場合は新しく作成
+    if (!memoExists) {
+        let currentCourseName = "その他";
+        try{
+            // 現在のコース名を取得
+            const currentCourseNameInput = document.querySelector("header#page-header div.mr-auto h1.h2")
+            currentCourseName = currentCourseNameInput.textContent.trim() || "その他";
+        } catch (error) {
+            console.error("コース名の取得に失敗しました:", error);
+            currentCourseName = "その他";
+        }
 
         // メモリストに新しいメモを追加
-        const newMemoKey = `memo_${courseID}`;
         const newMemoData = { title: currentCourseName, content: "", isMarkdown: false};
 
         // メモを保存
-        await saveMemoJson(newMemoKey, newMemoData);
-        console.log("新しいメモを作成しました:", newMemoKey, newMemoData);
+        await saveMemoJson(courseID, newMemoData);
+        console.log("新しいメモを作成しました:", courseID, newMemoData);
 
         // メモリストを再取得
         memoList = await getMemoList();
     }
 
     // 取得したコース一覧をセレクトボックスに追加
+    const courseSelect = document.querySelector("select#course-select");
+    // 既存のオプションをクリア (innerHTML はセキュリティリスクがあるため、今回は使用しない)
+    while (courseSelect.firstChild) {
+        courseSelect.removeChild(courseSelect.firstChild);
+    }
+    // 最初にその他のメモを追加
+    const option = document.createElement("option");
+    option.value = OTHER_NOTES_KEY; // メモのキーを値として使用
+    option.textContent = "その他"; // コース名を表示
+    courseSelect.appendChild(option);
+    // その他以外のメモを追加
     memoList.forEach((memo) => {
-        const option = document.createElement("option");
-        option.value = memo.key; // メモのキーを値として使用
-        option.textContent = memo.name; // コース名を表示
-        courseSelect.appendChild(option);
-    });
-    courseSelectContainer.appendChild(courseSelect);
-
-
-    // 現在のページのURLから 'id' を取得する
-    const currentParams = new URLSearchParams(window.location.search);
-    const CourseId = currentParams.get('id');
-
-    // コースidからメモのJSONを取得
-    getMemoJson(courseID).then((memoData) => {
-        const memoTextArea = document.getElementById("memo-textarea");
-        if (memoData && memoData.content) {
-            memoTextArea.value = memoData.content;
-        } else {
-            memoTextArea.value = ""; // メモがない場合は空にする
+        if(memo.courseID !== OTHER_NOTES_KEY) { // 「その他」のメモは最初に追加
+            const option = document.createElement("option");
+            option.value = memo.courseID; // メモのコースIDを値として使用
+            option.textContent = memo.name; // コース名を表示
+            courseSelect.appendChild(option);
         }
-    }).catch((error) => {
-        console.error("メモの取得に失敗しました:", error);
     });
+
+    // セレクトボックスの値を現在のコースIDに設定
+    courseSelect.value = courseID;
 
 }
 
+/** コースidからメモを取得し、メモ記述欄に挿入する関数 */
+async function loadMemoForCourse(courseID) {
+    //try {
+        // メモデータを取得
+        const memoData = await getMemoJson(courseID);
+        // 内容をメモ記述欄に挿入
+        const memoTextArea = document.getElementById("memo-textarea");
+        memoTextArea.value = memoData.content;
+        // コース名をコース名入力欄に挿入
+        const currentCourseNameInput = document.getElementById("current-course-name");
+        currentCourseNameInput.value = memoData.title;
+        // カーソルを合わせたときにIDを表示
+        currentCourseNameInput.title = `コースID: ${courseID}`;
+
+
+    // } catch (error) {
+    //     console.error("メモの取得に失敗しました:", error);
+    // }
+}
+
+function saveCurrentMemo() {
+    // 現在選択されているコースIDを取得
+    const courseSelect = document.getElementById("course-select");
+    const selectedCourseID = courseSelect.value;
+
+    // メモ記述欄の内容を取得
+    const memoTextArea = document.getElementById("memo-textarea");
+    const memoContent = memoTextArea.value;
+
+    // コース名入力欄の内容を取得
+    const currentCourseNameInput = document.getElementById("current-course-name");
+    const courseName = currentCourseNameInput.value || "無題のコース";
+
+    // メモデータを保存
+    const memoData = {
+        title: courseName,
+        content: memoContent,
+        isMarkdown: false // 今回はMarkdown機能は未実装なのでfalseで固定
+    };
+
+    saveMemoJson(selectedCourseID, memoData)
+        .then(() => {
+            console.log("メモを保存しました:", selectedCourseID, memoData);
+            // コース名セレクトボックスの表示名も更新
+            const selectedOption = courseSelect.querySelector(`option[value="${selectedCourseID}"]`);
+            if (selectedOption) {
+                selectedOption.textContent = courseName;
+            }
+        })
+        .catch((error) => {
+            console.error("メモの保存に失敗しました:", error);
+        });
+}
