@@ -1,5 +1,5 @@
 {
   "matches": ["https://*.kyutech.ac.jp/*"],
   "displayName": "コースメモ",
-  "description": "コースごとに簡易的なメモを残すことができます。"
+  "description": "コースごとに簡易的なメモを残すことができます。※メモは異なる端末では同期できません。"
 }

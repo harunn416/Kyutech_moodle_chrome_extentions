@@ -2,7 +2,7 @@
 import { getMemoList, getMemoJson, saveMemoJson, deleteMemoJson } from "./saveJsonData.js";
 
 // 「その他」のメモ用の予約キーの定義をインポート
-import { OTHER_NOTES_KEY } from './content.js';
+import { OTHER_NOTES_KEY, REQUIRED_ROOT_KEY } from './content.js';
 
 /** メモ欄を出すトグルを生成し、挿入する関数
  * @returns {HTMLDivElement} 生成したトグルのdiv要素
@@ -130,23 +130,49 @@ function createFooter() {
     footer.style.borderTop = "#d9d9d9 dashed 2px";
     footer.style.textAlign = "right";
 
+    // エクスポートボタン
+    const exportButton = document.createElement("button");
+    exportButton.textContent = "エクスポート";
+    exportButton.classList = "footer-button";
+    exportButton.style.backgroundColor = "#d54dffff";
+    exportButton.style.color = "white";
+    exportButton.addEventListener("click", exportMemoJsonData);
+    footer.appendChild(exportButton);
+
+    // インポートボタン
+    const importButton = document.createElement("button");
+    importButton.textContent = "インポート";
+    importButton.classList = "footer-button";
+    importButton.style.backgroundColor = "#4d79ff";
+    importButton.style.color = "white";
+    importButton.addEventListener("click", importMemoData);
+    footer.appendChild(importButton);
+
+    // 非表示のファイル入力要素（インポート用）
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.id = "fileInput_kyutech";
+    fileInput.accept = ".json,application/json";
+    fileInput.style.display = "none"; // 非表示にする
+    footer.appendChild(fileInput);
+
+    // クリアボタン
+    const clearButton = document.createElement("button");
+    clearButton.textContent = "クリア";
+    clearButton.classList = "footer-button";
+    clearButton.style.backgroundColor = "#5fe535";
+    clearButton.style.color = "white";
+    clearButton.addEventListener("click", resetCurrentMemo);
+    footer.appendChild(clearButton);
+
     // 削除ボタン
     const deleteButton = document.createElement("button");
-    deleteButton.textContent = "メモを削除";
+    deleteButton.textContent = "削除";
     deleteButton.classList = "footer-button";
     deleteButton.style.backgroundColor = "#ff4d4d";
     deleteButton.style.color = "white";
     deleteButton.addEventListener("click", deleteCurrentMemo);
     footer.appendChild(deleteButton);
-
-    // リセットボタン
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "リセット";
-    resetButton.classList = "footer-button";
-    resetButton.style.backgroundColor = "#5fe535";
-    resetButton.style.color = "white";
-    resetButton.addEventListener("click", resetCurrentMemo);
-    footer.appendChild(resetButton);
 
     return footer;
 }
@@ -448,6 +474,141 @@ async function resetCurrentMemo() {
     // 空のメモを保存
     saveCurrentMemo();
 }
+
+
+/**
+ * chrome.storage.local に保存されている「memo_」で始まるキーのデータのみをエクスポートする
+ */
+async function exportMemoJsonData() {
+    console.log("エクスポート対象のデータを取得中...");
+    
+    // 1. chrome.storage.local に保存されている全データを取得
+    //   (キーを指定しない get() は、すべてのキーと値のペアを返す)
+    const allData = await new Promise((resolve, reject) => {
+        // null または {} を渡すと全データを取得
+        chrome.storage.local.get(null, (result) => {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+            }
+            resolve(result);
+        });
+    });
+
+    // 2. 取得したデータから「memo_」で始まるキーだけをフィルタリング
+    const exportedData = {};
+    
+    for (const key in allData) {
+        if (key.startsWith('memo_')) {
+            // memo_ で始まるキーとその値を新しいオブジェクトに追加
+            exportedData[key] = allData[key];
+        }
+    }
+
+    if (Object.keys(exportedData).length === 0) {
+        console.warn("エクスポート対象のメモデータが見つかりませんでした。");
+        alert("保存されているメモが見つかりません。");
+        return;
+    }
+
+    const saveJsonData = {
+        memoData: exportedData
+    };
+
+    // 3. JSON文字列に変換（整形して読みやすくするために第3引数に '2' を指定）
+    const jsonString = JSON.stringify(saveJsonData, null, 2); 
+    
+    // 4. ファイルとしてダウンロードさせる処理
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // 拡張機能名と日付を使ったファイル名を生成
+    const date = new Date().toISOString().slice(0, 10);
+    const fileName = `extension_memo_backup_${date}.json`;
+
+    // ダウンロードを実行
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log(`✅ メモデータが ${fileName} としてエクスポートされました。`);
+}
+
+/**
+ * メモデータをファイルから読み込み、chrome.storage.local にインポートする
+ */
+function importMemoData() {
+    // 警告を表示
+    const proceed = confirm("インポートを実行すると、既存のメモデータが上書きされます。\nよろしいですか？");
+    if (!proceed) {
+        return; // ユーザーがキャンセルした場合は何もしない
+    }
+
+    const fileInput = document.getElementById('fileInput_kyutech');
+    
+    // 1. ファイル選択をトリガー
+    fileInput.click();
+
+    // 2. ファイルが選択されたときの処理を設定
+    fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            console.log("ファイルが選択されませんでした。");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        // 3. ファイルの読み込みが完了したときの処理
+        reader.onload = async (e) => {
+            try {
+                // ファイル内容（JSON文字列）を取得
+                const jsonText = e.target.result;
+                const parsedData = JSON.parse(jsonText);
+
+                // 4. データ構造の検証
+                if (!parsedData[REQUIRED_ROOT_KEY]) {
+                    alert("エラー: ファイルの形式が正しくありません。\n'memoData' キーが見つかりませんでした。");
+                    return;
+                }
+
+                const dataToImport = parsedData[REQUIRED_ROOT_KEY];
+                
+                // 5. インポート（chrome.storage.local にデータ全体を上書き保存）
+                await new Promise((resolve, reject) => {
+                    // dataToImport の中には { "memo_3479": { ... }, "memo_4027": { ... } } という構造が入っている
+                    chrome.storage.local.set(dataToImport, () => {
+                        if (chrome.runtime.lastError) {
+                            return reject(chrome.runtime.lastError);
+                        }
+                        resolve();
+                    });
+                });
+
+                alert("✅ メモデータのインポートが完了しました。\n（既存のメモは上書きされました）");
+                console.log("インポートされたデータ:", dataToImport);
+
+                // インポート後、メモ欄を閉じる
+                openHideFeatureSettingsPopup();
+                
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    alert("エラー: ファイルの内容が不正なJSON形式です。");
+                } else {
+                    alert(`エラーが発生しました: ${error.message}`);
+                }
+                console.error("インポート処理中にエラー:", error);
+            }
+        };
+
+        // 6. ファイルをテキスト形式で読み込む
+        reader.readAsText(file);
+    };
+}
+
 
 /** 機能実行時、[その他]がなければ作成する関数 */
 export async function createOtherIfNotExist() {
