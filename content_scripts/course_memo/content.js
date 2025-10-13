@@ -55,7 +55,7 @@ function main(){
         // スプリッターの初期化関数を実行
         initializeSplitter();
         // 「その他」のメモが存在しない場合は作成する
-        await createOtherIfNotExist();
+        createOtherIfNotExist();
         // 最初に読み込んだときに機能の宣伝用のポップアップを表示
         showInitialFeaturePromotionPopup();
     });
