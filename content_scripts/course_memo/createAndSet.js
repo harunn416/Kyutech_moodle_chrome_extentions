@@ -105,6 +105,7 @@ function createMemoWritingArea() {
     const memoTextArea = document.createElement("textarea");
     memoTextArea.id = "memo-textarea";
     memoTextArea.classList = "note-textarea"
+    memoTextArea.style.border = "solid 3px #00ff002e"; // 初期状態は緑の枠
     // memoTextArea.style.width = "100%";
     // memoTextArea.style.height = "100%";
     // memoTextArea.style.resize = "none"; // ユーザーによるリサイズを無効にする

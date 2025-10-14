@@ -77,6 +77,12 @@ export function saveMemoJson(courseID, memoData) {
                 : `memo_${OTHER_NOTES_KEY}`; // コースIDがない場合は、「その他」の固定キーを使用
     return new Promise((resolve, reject) => {
         const dataToSave = {};
+
+        // その他の場合は、タイトルを「その他」に固定
+        if (courseID === OTHER_NOTES_KEY) {
+            memoData.title = "その他";
+        }
+
         dataToSave[key] = memoData;
         chrome.storage.local.set(dataToSave, () => {
             if (chrome.runtime.lastError) {
