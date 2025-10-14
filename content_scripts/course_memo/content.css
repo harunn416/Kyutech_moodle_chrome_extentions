@@ -1,0 +1,79 @@
+#memo-icon {
+    /* ポジショニング */
+    position: sticky;
+    top: 200px;
+    z-index: 2;
+
+    /* ボックスモデル (大きさ・余白) */
+    box-sizing: border-box;
+    /* サイズ計算の基準を明確に */
+    width: 50px;
+    height: 50px;
+    margin-top: -50px;
+    margin-left: auto;
+    margin-right: 10px;
+
+    /* ボーダー */
+    border-top: #999 2px solid;
+    border-left: #999 2px solid;
+    border-bottom: #999 2px solid;
+    border-radius: 20px 0 0 20px;
+
+    /* 背景 */
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 30px auto;
+
+    /* その他の視覚効果 */
+    transition: 0.25s;
+}
+
+#memo-icon:hover {
+    border-top: #ccc 2px solid;
+    border-left: #ccc 2px solid;
+    border-bottom: #ccc 2px solid;
+}
+
+#course-memo-separator {
+    display: none; /* 初期状態は非表示 */
+    width: 5px; /* ドラッグする仕切りの幅 */
+    cursor: col-resize; /* カーソルをリサイズ用に変更 */
+    background-color: #aaa;
+    flex-shrink: 0; /* 縮まないようにする */
+}
+
+
+/* ------------------------------------------------------------------- */
+/* メモ入力欄（<textarea>）のスタイル */
+/* ------------------------------------------------------------------- */
+.note-textarea {
+    /* 1. 枠線、背景、影を完全に消す */
+    background-color: #fff8e085; /* 背景色を透明にする */
+    box-shadow: none;         /* ドロップシャドウなどの影を消す */
+    
+    /* 2. フォーカス時のエフェクトを消す */
+    /* 入力欄をクリックしたとき（フォーカス時）に表示される青やオレンジの枠を消す */
+    outline: none;
+    
+    /* 3. サイズと表示の調整 */
+    width: 100%;              /* 親要素いっぱいに広げる */
+    height: 99%;             /* 親要素いっぱいに広げる */
+    resize: none;             /* ユーザーがサイズを変更できないようにする（見た目が崩れるのを防ぐ） */
+    padding: 5px;             /* テキストが枠に近すぎないように少しパディング（余白）を入れる */
+
+    /* 4. フォントと文字の調整 */
+    font-size: 14px;          /* 適切な文字サイズに調整 */
+    font-family: inherit;     /* 親要素のフォントを継承して、見た目の一貫性を保つ */
+    color: #333;              /* 文字色を調整 */
+    
+    /* 5. スクロールバーの非表示（必要に応じて） */
+    overflow-y: auto;   /* メモが多くなったらスクロールバーを表示（デフォルト） */
+}
+
+.footer-button{
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 10px;
+}
