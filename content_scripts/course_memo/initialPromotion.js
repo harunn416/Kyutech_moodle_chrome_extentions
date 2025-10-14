@@ -72,7 +72,6 @@ function initiatePopupPromotion() {
 import { shouldShowPopup, setFlag } from '../../util/firstViewPopupFlags.js';
 /** ポップアップを表示するかフラグを取得して判断する関数 */
 export async function showInitialFeaturePromotionPopup() {
-    console.log(await shouldShowPopup(POPUP_FLAG_KEY));
     if (await shouldShowPopup(POPUP_FLAG_KEY)) {
         // ポップアップを表示
         initiatePopupPromotion();
