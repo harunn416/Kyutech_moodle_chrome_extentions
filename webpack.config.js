@@ -186,6 +186,7 @@ module.exports = {
         packageDescription: packageJson.description,
         contentScripts: contentScriptManifestEntries, // ★修正: タイプミスを修正 `contentScripts`
       },
+      minify: false,
     }),
 
     // `manifest.json` やその他の静的ファイルを `dist` フォルダにコピーする
