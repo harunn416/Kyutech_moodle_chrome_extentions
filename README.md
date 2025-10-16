@@ -8,8 +8,7 @@
 九州工業大学の moodle 専用の拡張機能です。便利機能を随時追加していく予定です。
 
 ## インストール方法
-
-[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)
+[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)  
 
 上のリンクから拡張機能をインストールしてください。
 
@@ -134,6 +133,47 @@ function main(){}
 > → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)  
 > ``util``フォルダの``mutationObserver.js``をインポートして活用できます。
 
+そして、ユーザーが機能のオンオフを選択できるようにするため、以下のスクリプトを冒頭にコピペしてください。
+```JS
+/* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
+// この機能に対応するキー名を定義
+// キー名はバンドル時に置換される
+const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+
+/**
+ * この機能が有効になっているかブラウザのストレージから確認する関数
+ * @returns {Promise<boolean>} 機能が有効ならtrue、無効ならfalse
+ */
+async function shouldRun() {
+    try {
+        const result = await chrome.storage.sync.get("toggle_"+FEATURE_KEY);
+        // キーが存在しない場合はtrue（ON）をデフォルトとする
+        return result["toggle_"+FEATURE_KEY] !== false;
+    } catch (error) {
+        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        return true; // エラー時も安全策としてONを返す
+    }
+}
+(async () => {
+    if (await shouldRun()) {
+      main();
+    } else {
+      console.log(`機能(${FEATURE_KEY})は無効になっています。`);
+    }
+})();
+/********************************************************************************/
+
+// ブラウザ読み込み時にメイン関数を実行。
+function main(){}
+```
+そして``main``関数のなかに処理を書いてください。  
+外に関数を定義して呼び出すことも可能です。動作の意図が理解できているなら多少改変しても構いません。  
+ユーザーの意向にかかわらず強制的に機能をオンにする場合は、後述の``config.json``の``ForceExecution``を``true``にしてください。
+
+> [!TIP]
+> 要素を監視するなら``MutationObserver``を利用することをおすすめします。  
+> → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
+
 ### css
 
 `content.js`ファイルにインポートしてください。
@@ -173,7 +213,8 @@ function main(){}
 > は`マイコース`タブでしか実行されません。
 > 最後に`*`がついているのはプレースホルダに対応するためです。(`?=`みたいなやつ)
 
-> [!IMPORTANT] > `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
+> [!IMPORTANT] 
+> `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
 > `initialState`を`false`にすると、初期状態で機能が無効化した状態になります。
 
 ### 開発ブランチにマージ
