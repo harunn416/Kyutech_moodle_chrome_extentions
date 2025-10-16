@@ -4,18 +4,15 @@
   "manifest_version": 3,
   "description": "<%= packageDescription %>",
   "content_scripts": [
+    <% contentScripts.forEach((script, index) => { %>
     {
-      "matches": ["https://*.kyutech.ac.jp/my/courses.php*"],
-      "js": ["js/course_timetable.bundle.js"]
-    },
-    {
-      "matches": ["https://*.kyutech.ac.jp/my*"],
-      "js": ["js/add_time_limit.bundle.js"]
-    },
-    {
-      "matches": ["https://*.kyutech.ac.jp/*"],
-      "js": ["js/fun.bundle.js"]
-    }
+      "matches": <%= JSON.stringify(script.matches) %>,
+      "js": <%= JSON.stringify(script.js) %>
+      <% if (script.css) { %>,
+      "css": <%= JSON.stringify(script.css) %>
+      <% } %>
+    }<%= index < contentScripts.length - 1 ? ',' : '' %>
+    <% }); %>
   ],
   "icons": {
     "16": "assets/icons/icon16.png",
@@ -24,5 +21,11 @@
   },
   "permissions":[
     "storage"
-  ]
+  ],
+  "web_accessible_resources": [
+  {
+    "resources": ["features.json","assets/*"],
+    "matches": ["<all_urls>"]
+  }
+]
 }

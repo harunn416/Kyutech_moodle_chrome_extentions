@@ -1,0 +1,6 @@
+{
+  "matches": ["https://*.kyutech.ac.jp/*"],
+  "displayName": "お楽しみ機能",
+  "description": "さて、何が起こるでしょうか？",
+  "initialState": false
+}

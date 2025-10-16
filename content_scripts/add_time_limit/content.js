@@ -1,10 +1,41 @@
+/* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
+// この機能に対応するキー名を定義
+// キー名はバンドル時に置換される
+const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+
+/**
+ * この機能が有効になっているかブラウザのストレージから確認する関数
+ * @returns {Promise<boolean>} 機能が有効ならtrue、無効ならfalse
+ */
+async function shouldRun() {
+    try {
+        const result = await chrome.storage.sync.get("toggle_" + FEATURE_KEY);
+        // キーが存在しない場合はtrue（ON）をデフォルトとする
+        return result["toggle_" + FEATURE_KEY] !== false;
+    } catch (error) {
+        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        return true; // エラー時も安全策としてONを返す
+    }
+}
+(async () => {
+    if (await shouldRun()) {
+        main();
+    } else {
+        console.log(`機能(${FEATURE_KEY})は無効になっています。`);
+    }
+})();
+/********************************************************************************/
+
 // https://ict-i.el.kyutech.ac.jp/my/ で反応するようにする。
 // つまり、「ダッシュボード」ページで反応してもらう。
 
 import "./content.css";
 
 // 提出物一覧が入っているdev要素を繰り返し検索
-let intarvalSearchSubmittion = setInterval(searchSubmittionElement, 1000);
+let intarvalSearchSubmittion;
+function main(){
+    intarvalSearchSubmittion = setInterval(searchSubmittionElement, 1000);
+}
 
 /** 提出物一覧が入っているdev要素を検索する関数
  * @returns {void}
