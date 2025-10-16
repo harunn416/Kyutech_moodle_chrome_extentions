@@ -131,7 +131,8 @@ function main(){}
 
 > [!TIP]
 > 要素を監視するなら`MutationObserver`を利用することをおすすめします。  
-> → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
+> → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)  
+> ``util``フォルダの``mutationObserver.js``をインポートして活用できます。
 
 ### css
 
@@ -139,7 +140,7 @@ function main(){}
 
 ### アセット
 
-アセット(jpg,png,json,etc...)は、`assets`の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は`../../assets/[機能名]/[ファイル名]`で取得できます。バンドル時に参照先を自動的に変更してくれます。
+アセット(jpg,png,json,etc...)は、`assets`の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は`../../assets/[機能名]/[ファイル名]`で取得できます。パスはバンドル時に自動的に変更してくれます。
 
 ### config.json
 
