@@ -361,6 +361,12 @@ async function loadMemoForCourse(courseID) {
         // コース名をコース名入力欄に挿入
         const currentCourseNameInput = document.getElementById("current-course-name");
         currentCourseNameInput.value = memoData.title;
+        // コースIDが「その他」の場合は、コース名入力欄を編集不可にする
+        if (courseID === OTHER_NOTES_KEY) {
+            currentCourseNameInput.disabled = true;
+        } else {
+            currentCourseNameInput.disabled = false;
+        }
         // カーソルを合わせたときにIDを表示
         currentCourseNameInput.title = `コースID: ${courseID}`;
 
