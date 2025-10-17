@@ -8,8 +8,7 @@
 九州工業大学の moodle 専用の拡張機能です。便利機能を随時追加していく予定です。
 
 ## インストール方法
-
-[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)
+[インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)  
 
 上のリンクから拡張機能をインストールしてください。
 
@@ -22,9 +21,13 @@
 
 moodle のコース一覧を時間割形式で素早くアクセスできます。
 
-### 提出物一覧に残り時間追加 **(実装予定)**
+### 提出物一覧に残り時間 (ver1.1 実装)
 
 提出物一覧に残り時間を追加し、提出までの猶予を確認しやすくできます。
+
+### 簡易メモ機能 **new**(ver1.2 実装)
+コースごとに簡易的なメモを残すことができます。  
+※メモはデバイス間で同期できません。インポート・エクスポート機能を活用してください。(将来的には外部サーバーを使って同期可能にする予定です。)
 
 ## 機能のリクエスト
 
@@ -127,6 +130,48 @@ function main(){}
 
 > [!TIP]
 > 要素を監視するなら`MutationObserver`を利用することをおすすめします。  
+> → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)  
+> ``util``フォルダの``mutationObserver.js``をインポートして活用できます。
+
+そして、ユーザーが機能のオンオフを選択できるようにするため、以下のスクリプトを冒頭にコピペしてください。
+```JS
+/* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
+// この機能に対応するキー名を定義
+// キー名はバンドル時に置換される
+const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+
+/**
+ * この機能が有効になっているかブラウザのストレージから確認する関数
+ * @returns {Promise<boolean>} 機能が有効ならtrue、無効ならfalse
+ */
+async function shouldRun() {
+    try {
+        const result = await chrome.storage.sync.get("toggle_"+FEATURE_KEY);
+        // キーが存在しない場合はtrue（ON）をデフォルトとする
+        return result["toggle_"+FEATURE_KEY] !== false;
+    } catch (error) {
+        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        return true; // エラー時も安全策としてONを返す
+    }
+}
+(async () => {
+    if (await shouldRun()) {
+      main();
+    } else {
+      console.log(`機能(${FEATURE_KEY})は無効になっています。`);
+    }
+})();
+/********************************************************************************/
+
+// ブラウザ読み込み時にメイン関数を実行。
+function main(){}
+```
+そして``main``関数のなかに処理を書いてください。  
+外に関数を定義して呼び出すことも可能です。動作の意図が理解できているなら多少改変しても構いません。  
+ユーザーの意向にかかわらず強制的に機能をオンにする場合は、後述の``config.json``の``ForceExecution``を``true``にしてください。
+
+> [!TIP]
+> 要素を監視するなら``MutationObserver``を利用することをおすすめします。  
 > → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
 
 ### css
@@ -135,7 +180,7 @@ function main(){}
 
 ### アセット
 
-アセット(jpg,png,json,etc...)は、`assets`の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は`../../assets/[機能名]/[ファイル名]`で取得できます。バンドル時に参照先を自動的に変更してくれます。
+アセット(jpg,png,json,etc...)は、`assets`の中に機能実装の際につけた名前と同じフォルダを作成し入れてください。参照は`../../assets/[機能名]/[ファイル名]`で取得できます。パスはバンドル時に自動的に変更してくれます。
 
 ### config.json
 
@@ -168,7 +213,8 @@ function main(){}
 > は`マイコース`タブでしか実行されません。
 > 最後に`*`がついているのはプレースホルダに対応するためです。(`?=`みたいなやつ)
 
-> [!IMPORTANT] > `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
+> [!IMPORTANT] 
+> `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
 > `initialState`を`false`にすると、初期状態で機能が無効化した状態になります。
 
 ### 開発ブランチにマージ
@@ -204,11 +250,22 @@ function main(){}
 
 ### 1.1.1
 
-日付の桁数によるバグ修正
+日付の桁数によるバグ修
+
+### 1.2.0
+
+簡易メモ機能を実装  
+機能選択を可能に
+
+### 1.2.1
+
+時間割追加画面に時間割が複数表示されるバグを修正 (協力：けいたん)  
+機能選択が効かないバグを修正 (協力：けいたん)
 
 # 開発者
 
 ### Harukomugi (はるこむぎ)
+### けいたん
 
 # 参加
 

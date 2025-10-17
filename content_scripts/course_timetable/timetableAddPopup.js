@@ -32,6 +32,12 @@ async function addCourseJsonFromTimetable() {
 // --- 1. ポップアップのHTML構造を作成する関数 ---
 
 export function createPageAddPopup() {
+    // 既に存在する場合は作成しない
+    if (document.querySelector("#divAddPop_TT")) {
+        console.log("追加ポップアップは既に存在します");
+        return;
+    }
+
     //courseInformationJson = { "courseName": "コースネームだよ", "courseID": "0120" };
     // オーバーレイ（背景の暗い部分）
     const overlay = document.createElement('div');
@@ -181,10 +187,10 @@ function hideAddPopup() {
 /** 編集ボタンがクリックされたときに、ポップアップした時間割編集画面に、コース情報を挿入していく関数 */
 async function insertCoursesInTimetable() {
     //初期化
-    let customiseTable = document.querySelector("#divAddPop_TT table");
-    if (customiseTable) {
-        customiseTable.remove();
-    }
+    let customiseTables = document.querySelectorAll("#divAddPop_TT table");
+    customiseTables.forEach(table => {
+        table.remove();
+    });
     // 時間割の選択UI
     let time_table_json = await loadTimetableFromStorage();
     let time_table = document.createElement("table");
@@ -238,6 +244,11 @@ export function setEventTimetableCustomiseButton() {
     const allTimetableCustomiseButton = document.querySelectorAll("button.addCourseToTimetable");
 
     allTimetableCustomiseButton.forEach(addButton => {
+        // 既にイベントリスナーが登録されている場合はスキップ
+        if (addButton.dataset.eventListenerAdded === 'true') {
+            return;
+        }
+
         addButton.addEventListener("click", (e) => {
             const clickButtonElem = e.target;
             const courseName = clickButtonElem.dataset.courseName;
@@ -250,5 +261,8 @@ export function setEventTimetableCustomiseButton() {
             }
             showAddPopup(courseInformationJson);
         });
+
+        // イベントリスナーが登録されたことをマーク
+        addButton.dataset.eventListenerAdded = 'true';
     });
 }
