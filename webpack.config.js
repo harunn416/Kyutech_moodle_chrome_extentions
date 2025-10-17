@@ -212,17 +212,18 @@ module.exports = {
           Object.keys(entryPoints).forEach(featureName => {
             const bundleFilename = `js/${featureName}.bundle.js`;
             const bundlePath = path.join(compilation.outputOptions.path, bundleFilename);
-            
+
             if (fs.existsSync(bundlePath)) {
               let bundleContent = fs.readFileSync(bundlePath, 'utf8');
               const featureKey = `${featureName}`;
-              
-              // `const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';` のような
-              // 特殊なプレースホルダー文字列を置換する
-              bundleContent = bundleContent.replace(/const FEATURE_KEY = '.*';/, `const FEATURE_KEY = '${featureKey}';`);
+
+              // プレースホルダー文字列自体を直接置換する
+              // 最小化後も "__FEATURE_KEY_PLACEHOLDER__" という文字列は保持されるため、
+              // 変数名に依存せずに置換できる
+              bundleContent = bundleContent.replace(/__FEATURE_KEY_PLACEHOLDER__/g, featureKey);
 
               fs.writeFileSync(bundlePath, bundleContent, 'utf8');
-              console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました。`);
+              console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました: ${featureKey}`);
             }
           });
         });
