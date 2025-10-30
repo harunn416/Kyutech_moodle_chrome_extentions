@@ -278,9 +278,7 @@ async function openHideFeatureSettingsPopup() {
     const sideMemoBar = document.querySelector("#course-memo-sidebar");
     const separator = document.querySelector("#course-memo-separator");
     if (sideMemoBar.style.display == "none") { // メモ欄が閉じている場合 => 開く
-        // 現在のページのURLから 'id' を取得する
-        const currentParams = new URLSearchParams(window.location.search);
-        let courseID = currentParams.get('id') || OTHER_NOTES_KEY; // 'id' パラメータがない場合は「その他」のメモを使用
+        const courseID = getCurrentCourseID();
         await insertTextAtCursor(courseID); // メモ欄を開いた時、文字列を挿入する関数を実行
         // メモ記述欄にメモを挿入
         loadMemoForCourse(courseID);
@@ -297,24 +295,30 @@ async function openHideFeatureSettingsPopup() {
 async function insertTextAtCursor(courseID) {
     // メモリストを取得
     let memoList = await getMemoList();
-    
+
 
     // メモリストの中に現在のコースIDに対応するメモがあるか確認
     const memoExists = memoList.some(memo => memo.courseID === courseID);
     // メモがない場合は新しく作成
     if (!memoExists) {
         let currentCourseName = "その他";
-        try{
+        try {
             // 現在のコース名を取得
-            const currentCourseNameInput = document.querySelector("header#page-header div.mr-auto h1.h2")
-            currentCourseName = currentCourseNameInput.textContent.trim() || "その他";
+            // 課題提出ページなど、コース名の表示方法が異なる場合に対応
+            const currentCourseNameHeader = document.querySelector("header#page-header div#page-navbar ol a");
+            if (currentCourseNameHeader && currentCourseNameHeader.textContent.trim() !== "") {
+                currentCourseName = currentCourseNameHeader.textContent.trim();
+            }else {
+                const currentCourseNameInput = document.querySelector("header#page-header div.mr-auto h1.h2")
+                currentCourseName = currentCourseNameInput.textContent.trim();
+            }
         } catch (error) {
             console.error("コース名の取得に失敗しました:", error);
             currentCourseName = "その他";
         }
 
         // メモリストに新しいメモを追加
-        const newMemoData = { title: currentCourseName, content: "", isMarkdown: false};
+        const newMemoData = { title: currentCourseName, content: "", isMarkdown: false };
 
         // メモを保存
         await saveMemoJson(courseID, newMemoData);
@@ -337,7 +341,7 @@ async function insertTextAtCursor(courseID) {
     courseSelect.appendChild(option);
     // その他以外のメモを追加
     memoList.forEach((memo) => {
-        if(memo.courseID !== OTHER_NOTES_KEY) { // 「その他」のメモは最初に追加
+        if (memo.courseID !== OTHER_NOTES_KEY) { // 「その他」のメモは最初に追加
             const option = document.createElement("option");
             option.value = memo.courseID; // メモのコースIDを値として使用
             option.textContent = memo.name; // コース名を表示
@@ -353,22 +357,22 @@ async function insertTextAtCursor(courseID) {
 /** コースidからメモを取得し、メモ記述欄に挿入する関数 */
 async function loadMemoForCourse(courseID) {
     //try {
-        // メモデータを取得
-        const memoData = await getMemoJson(courseID);
-        // 内容をメモ記述欄に挿入
-        const memoTextArea = document.getElementById("memo-textarea");
-        memoTextArea.value = memoData.content;
-        // コース名をコース名入力欄に挿入
-        const currentCourseNameInput = document.getElementById("current-course-name");
-        currentCourseNameInput.value = memoData.title;
-        // コースIDが「その他」の場合は、コース名入力欄を編集不可にする
-        if (courseID === OTHER_NOTES_KEY) {
-            currentCourseNameInput.disabled = true;
-        } else {
-            currentCourseNameInput.disabled = false;
-        }
-        // カーソルを合わせたときにIDを表示
-        currentCourseNameInput.title = `コースID: ${courseID}`;
+    // メモデータを取得
+    const memoData = await getMemoJson(courseID);
+    // 内容をメモ記述欄に挿入
+    const memoTextArea = document.getElementById("memo-textarea");
+    memoTextArea.value = memoData.content;
+    // コース名をコース名入力欄に挿入
+    const currentCourseNameInput = document.getElementById("current-course-name");
+    currentCourseNameInput.value = memoData.title;
+    // コースIDが「その他」の場合は、コース名入力欄を編集不可にする
+    if (courseID === OTHER_NOTES_KEY) {
+        currentCourseNameInput.disabled = true;
+    } else {
+        currentCourseNameInput.disabled = false;
+    }
+    // カーソルを合わせたときにIDを表示
+    currentCourseNameInput.title = `コースID: ${courseID}`;
 
 
     // } catch (error) {
@@ -442,7 +446,7 @@ async function deleteCurrentMemo() {
     // 現在選択されているコースIDを取得
     const courseSelect = document.getElementById("course-select");
     const selectedCourseID = courseSelect.value;
-    
+
     if (selectedCourseID === OTHER_NOTES_KEY) {
         alert("「その他」のメモは削除できません。");
         return;
@@ -477,7 +481,7 @@ async function resetCurrentMemo() {
     // メモ記述欄の内容を取得
     const memoTextArea = document.getElementById("memo-textarea");
     memoTextArea.value = ""; // メモ記述欄を空にする
-    
+
     // 空のメモを保存
     saveCurrentMemo();
 }
@@ -488,7 +492,7 @@ async function resetCurrentMemo() {
  */
 async function exportMemoJsonData() {
     console.log("エクスポート対象のデータを取得中...");
-    
+
     // 1. chrome.storage.local に保存されている全データを取得
     //   (キーを指定しない get() は、すべてのキーと値のペアを返す)
     const allData = await new Promise((resolve, reject) => {
@@ -503,7 +507,7 @@ async function exportMemoJsonData() {
 
     // 2. 取得したデータから「memo_」で始まるキーだけをフィルタリング
     const exportedData = {};
-    
+
     for (const key in allData) {
         if (key.startsWith('memo_')) {
             // memo_ で始まるキーとその値を新しいオブジェクトに追加
@@ -522,12 +526,12 @@ async function exportMemoJsonData() {
     };
 
     // 3. JSON文字列に変換（整形して読みやすくするために第3引数に '2' を指定）
-    const jsonString = JSON.stringify(saveJsonData, null, 2); 
-    
+    const jsonString = JSON.stringify(saveJsonData, null, 2);
+
     // 4. ファイルとしてダウンロードさせる処理
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     // 拡張機能名と日付を使ったファイル名を生成
     const date = new Date().toISOString().slice(0, 10);
     const fileName = `extension_memo_backup_${date}.json`;
@@ -540,7 +544,7 @@ async function exportMemoJsonData() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     console.log(`✅ メモデータが ${fileName} としてエクスポートされました。`);
 }
 
@@ -555,7 +559,7 @@ function importMemoData() {
     }
 
     const fileInput = document.getElementById('fileInput_kyutech');
-    
+
     // 1. ファイル選択をトリガー
     fileInput.click();
 
@@ -583,7 +587,7 @@ function importMemoData() {
                 }
 
                 const dataToImport = parsedData[REQUIRED_ROOT_KEY];
-                
+
                 // 5. インポート（chrome.storage.local にデータ全体を上書き保存）
                 await new Promise((resolve, reject) => {
                     // dataToImport の中には { "memo_3479": { ... }, "memo_4027": { ... } } という構造が入っている
@@ -600,7 +604,7 @@ function importMemoData() {
 
                 // インポート後、メモ欄を閉じる
                 openHideFeatureSettingsPopup();
-                
+
             } catch (error) {
                 if (error instanceof SyntaxError) {
                     alert("エラー: ファイルの内容が不正なJSON形式です。");
@@ -625,8 +629,44 @@ export async function createOtherIfNotExist() {
     const otherExists = memoList.some(memo => memo.courseID === OTHER_NOTES_KEY);
     // 「その他」のメモがない場合は新しく作成
     if (!otherExists) {
-        const newMemoData = { title: "その他", content: "", isMarkdown: false};
+        const newMemoData = { title: "その他", content: "", isMarkdown: false };
         await saveMemoJson(OTHER_NOTES_KEY, newMemoData);
         console.log("「その他」のメモを作成しました:", newMemoData);
     }
+}
+
+/* コースIDを取得する関数 */
+function getCurrentCourseID() {
+    // body要素を取得
+    const bodyElement = document.body;
+
+    // body要素のclass属性からコースIDを抽出
+    const classNameString = bodyElement.className;
+
+    // 正規表現パターンを定義
+    //    /course-(\d+)/:
+    //      - course- にマッチ
+    //      - (\d+): 1桁以上の数字 (\d+) にマッチし、かつ () で囲むことで**キャプチャグループ**とする
+    //    \b: 単語の境界。より正確にクラス名全体にマッチさせるためのオプション（例: course-12345a などへの部分的なマッチを防ぐ）
+    const regex = /\bcourse-(\d+)\b/;
+
+    // 4. 正規表現でクラス文字列を検索し、マッチング結果を取得
+    const match = classNameString.match(regex);
+
+    // 5. マッチング結果を判定し、数字の部分を返す
+    if (match && match[1]) {
+        // match[0] はパターン全体（例: "course-123"）
+        // match[1] は1つ目のキャプチャグループ（例: "123"）
+        const courseID = match[1];
+
+        // もしIDが1なら「その他」のメモとして扱う
+        if (courseID === "1") {
+            return OTHER_NOTES_KEY;
+        } else {
+            return courseID;
+        }
+    }
+
+    // 該当するクラスが見つからなかった場合
+    return null;
 }
