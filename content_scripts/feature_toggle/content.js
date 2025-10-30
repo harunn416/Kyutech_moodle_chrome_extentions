@@ -203,8 +203,34 @@ async function createPopupOperateFeatures() {
 
     // ボタンコンテナ
     const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.justifyContent = 'space-between';
+    buttonContainer.style.alignItems = 'flex-end';
     buttonContainer.style.marginTop = '20px';
     buttonContainer.style.textAlign = 'right';
+
+    // リンク集コンテナ
+    const linkContainer = document.createElement('div');
+    linkContainer.style.marginTop = '10px';
+    linkContainer.style.textAlign = 'left';
+    const githubLink = document.createElement('a');
+    githubLink.classList = 'popup-link';
+    githubLink.href = 'https://github.com/harunn416/Kyutech_moodle_chrome_extentions';
+    githubLink.textContent = 'GitHubリポジトリ';
+    githubLink.target = '_blank';
+    linkContainer.appendChild(githubLink);
+    const separater = document.createElement('span');
+    separater.textContent = ' | ';
+    separater.classList = 'popup-link';
+    linkContainer.appendChild(separater); // 区切りのテキスト
+    const extensionLink = document.createElement('a');
+    extensionLink.classList = 'popup-link';
+    extensionLink.href = 'https://chromewebstore.google.com/detail/%E4%B9%9D%E5%B7%A5%E5%A4%A7moodle%E4%BE%BF%E5%88%A9%E3%83%84%E3%83%BC%E3%83%AB/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja';
+    extensionLink.textContent = 'Chromeウェブストア';
+    extensionLink.target = '_blank';
+    linkContainer.appendChild(extensionLink);
+    buttonContainer.appendChild(linkContainer);
+
 
     // 閉じるボタン
     const closeButton = document.createElement('button');
