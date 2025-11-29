@@ -29,41 +29,73 @@ async function shouldRun() {
 // css 読み込み
 import "./content.css";
 
+// mutationObserver ユーティリティ読み込み
+import { observeElementAppearance } from "../../util/mutationObserver.js";
+
+// ログアウト時にユーザー情報を削除する関数読み込み
+import { addEventListenerToLogoutButtonAndClearUserInfo } from "./logout.js";
+
 function main(){
-    addCheckboxAutomaticLogin();
-}
-
-//親要素を取得
-const formParentContent = document.querySelector("form.login-form");
-
-/** ログイン画面にチェックボックスを挿入するための関数
- * @returns {void}
- */
-function addCheckboxAutomaticLogin (){
-    const automaticLoginCheckboxDiv = document.createElement("div");
-    automaticLoginCheckboxDiv.setAttribute("id", "automatic-login-div-ext")
-    const automaticLoginCheckboxLabel = document.createElement("label");
-    // ログイン情報を記録するかどうかのinput
-    const recordLoginInfoInput = document.createElement("input");
-    recordLoginInfoInput.setAttribute("type", "checkbox");
-    recordLoginInfoInput.setAttribute("id", "automatic-login-input-ext");
-    const recordLoginInfoDescription = document.createElement("span");
-    recordLoginInfoDescription.textContent = "ログイン情報を保存し自動でログインする。"
-    automaticLoginCheckboxLabel.appendChild(recordLoginInfoInput);
-    automaticLoginCheckboxLabel.appendChild(recordLoginInfoDescription);
-    automaticLoginCheckboxDiv.appendChild(automaticLoginCheckboxLabel);
-    formParentContent.querySelector("div.login-form-submit").prepend(automaticLoginCheckboxDiv);
-}
-
-/** ログインボタンにユーザー情報を記録するイベントを追加。 */
-function addAddEventListenerToLoginButton(){
-    const loginButton = document.querySelector("#loginbtn");
-    loginButton.addEventListener("click", (e)=>{
-        const userName = formParentContent.querySelector("input#username").value;
-        const userPass = formParentContent.querySelector("input#password").value;
-        if(userName != "" && userPass != ""){
-            
-        }
-
+    // ログインフォームが出現したら自動ログインを試みる
+    observeElementAppearance("form.login-form", async (loginForm)=>{
+        await automaticLogin();
     });
+
+    // ログインボタンにユーザー情報保存のイベントリスナーを追加
+    addEventListenerToLoginButtonAndSaveUserInfo();
+
+    // ログアウトボタンにユーザー情報削除のイベントリスナーを追加
+    addEventListenerToLogoutButtonAndClearUserInfo();
+}
+
+/* ログインボタンを押した際、ユーザー情報を取得し保存する関数 */
+function addEventListenerToLoginButtonAndSaveUserInfo(){
+    observeElementAppearance("form.login-form div.login-form-submit button.btn", (loginButton)=>{
+        loginButton.addEventListener("click", (e)=>{
+            const userName = document.querySelector("form.login-form input#username").value;
+            const userPass = document.querySelector("form.login-form input#password").value;
+            const encryptedPass = btoa(userPass);
+            if(userName != "" && userPass != ""){
+                const userInfo = {
+                    username: userName,
+                    password: encryptedPass
+                };
+                chrome.storage.sync.set({ automaticLoginUserInfo: userInfo }, () => {
+                    console.log("ユーザー情報が保存されました。");
+                });
+            }
+        });
+    })
+}
+
+/* 拡張機能のストレージにユーザー情報が保存されているか確認する関数 */
+async function isUserInfoStored(){
+    try {
+        const result = await chrome.storage.sync.get("automaticLoginUserInfo");
+        return result.automaticLoginUserInfo !== undefined
+    } catch (error) {
+        console.error("ユーザー情報の取得に失敗しました:", error);
+        return false;
+    }
+}
+
+/* 自動ログイン関数 */
+async function automaticLogin(){
+    if(await isUserInfoStored()){
+        const result = await chrome.storage.sync.get(["automaticLoginUserInfo"]);
+        const userInfo = result.automaticLoginUserInfo;
+        const decryptedPass = atob(userInfo.password);
+        const usernameInput = document.querySelector("form.login-form input#username");
+        const passwordInput = document.querySelector("form.login-form input#password");
+        if(usernameInput && passwordInput){
+            usernameInput.value = userInfo.username;
+            passwordInput.value = decryptedPass;
+            const loginButton = document.querySelector("form.login-form div.login-form-submit button.btn");
+            if(loginButton){
+                // 自動ログインの場合はユーザー情報を保存しない
+                loginButton.removeEventListener("click", addEventListenerToLoginButtonAndSaveUserInfo);
+                loginButton.click();
+            }
+        }
+    }
 }
