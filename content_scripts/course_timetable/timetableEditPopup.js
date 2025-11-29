@@ -2,12 +2,12 @@ import { loadTimetableFromStorage, updateTimetableAtStorage, updateTimetable, de
 
 
 /** ポップアップの保存ボタンが押された時実行 */
-async function customiseCourseJsonFromTimetable() {
+async function saveCourseJsonFromTimetable() {
     // ポップアップの入力からコース情報を取得
     if (document.querySelector("#courseChangeNameInput").value !== "") {
         const courseName = document.querySelector("#courseChangeNameInput").value;
         const courseID = document.querySelector("#courseEditNameDiv").dataset.courseId;
-        const courseLink = document.querySelector("#courseEditNameDiv").dataset.courseLink;
+        const courseLink = document.querySelector("#courseChangeLinkInput").value;
         const day = document.querySelector("#courseEditNameDiv").dataset.day;
         const period = document.querySelector("#courseEditNameDiv").dataset.period;
 
@@ -28,7 +28,7 @@ async function customiseCourseJsonFromTimetable() {
         document.querySelector("#courseEditNameDiv").style.display = "none"; // コース名を編集する部分のdivを閉じる(ポップアップは閉じない)
         document.querySelector("#courseChangeNameInput").value = ""; // 入力フィールドをクリア
     } else {
-        alert("コースを選択してください！");
+        alert("コースを選択してください！もしくはコース名を入力してください！");
     }
 }
 
@@ -111,7 +111,7 @@ export function createPageEditPopup() {
     courseEditNameDiv.style.width = "90%";
 
     const courseEditNameTitle = document.createElement("h5");
-    courseEditNameTitle.textContent = "コース名を編集できるよ！";
+    courseEditNameTitle.textContent = "コースを編集できるよ！";
     courseEditNameTitle.style.marginBottom = "10px";
     courseEditNameDiv.appendChild(courseEditNameTitle);
 
@@ -136,6 +136,20 @@ export function createPageEditPopup() {
     courseEditNameInput.style.width = "100%";
     courseEditNameInputLabel.appendChild(courseEditNameInput);
     courseEditNameDiv.appendChild(courseEditNameInputLabel);
+    
+    const courseEditLinkInputLabel = document.createElement("label");
+    courseEditLinkInputLabel.setAttribute("for", "courseChangeLinkInput");
+    courseEditLinkInputLabel.innerHTML = "<nobr>リンク:</nobr>";
+    courseEditLinkInputLabel.style.display = "flex";
+    courseEditLinkInputLabel.style.alignItems = "center";
+    courseEditLinkInputLabel.style.marginRight = "10px";
+    courseEditLinkInputLabel.style.fontSize = "16px";
+    const courseEditLinkInput = document.createElement("input");
+    courseEditLinkInput.setAttribute("type", "input");
+    courseEditLinkInput.setAttribute("id", "courseChangeLinkInput");
+    courseEditLinkInput.style.width = "100%";
+    courseEditLinkInputLabel.appendChild(courseEditLinkInput);
+    courseEditNameDiv.appendChild(courseEditLinkInputLabel);
 
     const courseEditNameDeleteButtonDiv = document.createElement("div");
     courseEditNameDeleteButtonDiv.style.display = "flex";
@@ -165,7 +179,7 @@ export function createPageEditPopup() {
 
     // 保存ボタン
     const saveButton = document.createElement('button');
-    saveButton.textContent = 'コース名変更';
+    saveButton.textContent = '保存';
     saveButton.style.padding = '8px 15px';
     saveButton.style.backgroundColor = '#007bff';
     saveButton.style.color = 'white';
@@ -174,7 +188,7 @@ export function createPageEditPopup() {
     saveButton.style.cursor = 'pointer';
     buttonContainer.appendChild(saveButton);
     saveButton.addEventListener("click", (e) => {
-        customiseCourseJsonFromTimetable()
+        saveCourseJsonFromTimetable()
     });
 
     // 閉じるボタン
@@ -263,11 +277,6 @@ async function insertCoursesInTimetableEdit() {
                 date_class_element_span.dataset.courseLink = date_class_data["link"];
                 date_class_element_span.textContent = date_class_data["name"];
 
-                date_class_element_a.appendChild(date_class_element_span);
-                date_class_element.appendChild(date_class_element_a);
-
-                trs[j].appendChild(date_class_element);
-
                 /* 時間割変更ボタンのイベント作成 */
                 date_class_element_span.addEventListener("click", (e) => {
                     const clickButtonElem = e.target;
@@ -283,8 +292,28 @@ async function insertCoursesInTimetableEdit() {
                     }
                     apeardNameEditPopup(courseInformationJson); //ポップアップを表示
                 });
+
+                date_class_element_a.appendChild(date_class_element_span);
+                date_class_element.appendChild(date_class_element_a);
+
+                trs[j].appendChild(date_class_element);
+
             } else {
                 let date_class_element = document.createElement("td");
+                let dateClassElementSpan = document.createElement("span");
+                dateClassElementSpan.setAttribute("class", "noCourseEditLink");
+                dateClassElementSpan.textContent = "新規追加"
+                dateClassElementSpan.addEventListener("click", (e) => {
+                    const courseInformationJson = {
+                        "day": day[i],
+                        "period": j + 1,
+                        "courseName": "",
+                        "courseID": "",
+                        "courseLink": ""
+                    }
+                    apeardNameEditPopup(courseInformationJson); //ポップアップを表示
+                });
+                date_class_element.appendChild(dateClassElementSpan);
                 trs[j].appendChild(date_class_element);
             }
         }
@@ -312,6 +341,7 @@ function apeardNameEditPopup(courseInformationJson) {
     document.querySelector("#courseEditDay").innerHTML = convertDayToJapanese(courseInformationJson.day);
     document.querySelector("#courseEditPeriod").innerHTML = courseInformationJson.period;
     document.querySelector("#courseChangeNameInput").value = courseInformationJson.courseName;
+    document.querySelector("#courseChangeLinkInput").value = courseInformationJson.courseLink;
 
 }
 
