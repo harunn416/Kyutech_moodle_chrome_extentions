@@ -27,15 +27,24 @@ try {
 
   // 各機能フォルダに対して処理を実行
   featureFolders.forEach(folderName => {
-    // 各機能のエントリポイントとなる content.js ファイルのパスを構築
-    const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
-    // 各機能の設定が記述された config.json ファイルのパスを構築
-    const configFilePath = path.join(contentScriptsPath, folderName, 'config.json'); // ★修正：forEachループ内で定義
+    // 各機能のエントリポイントを探す (content.ts を優先)
+    const tsEntryPath = path.join(contentScriptsPath, folderName, 'content.ts');
+    const jsEntryPath = path.join(contentScriptsPath, folderName, 'content.js');
+    let entryFilePath = '';
 
-    // content.js ファイルが存在するか確認
-    if (fs.existsSync(entryFilePath)) {
+    if (fs.existsSync(tsEntryPath)) {
+      entryFilePath = tsEntryPath;
+    } else if (fs.existsSync(jsEntryPath)) {
+      entryFilePath = jsEntryPath;
+    }
+    
+    // 各機能の設定が記述された config.json ファイルのパスを構築
+    const configFilePath = path.join(contentScriptsPath, folderName, 'config.json');
+
+    // エントリファイルが存在するか確認
+    if (entryFilePath) {
       // Webpackのエントリポイントとして追加
-      // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.js' }
+      // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.ts' }
       entryPoints[folderName] = entryFilePath;
 
       // config.json ファイルが存在するか確認
@@ -76,8 +85,8 @@ try {
         console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
       }
     } else {
-      // content.js が見つからない場合の警告
-      console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。エントリポイントは生成されません。`);
+      // content.js または content.ts が見つからない場合の警告
+      console.warn(`警告: ${folderName} ディレクトリ内に content.js または content.ts が見つかりませんでした。エントリポイントは生成されません。`);
     }
   });
 } catch (error) {
@@ -123,6 +132,12 @@ module.exports = {
   // WebpackがJavaScript以外のファイルタイプ（CSS、画像など）をどう処理するかを定義します。
   module: {
     rules: [
+      // TypeScriptの処理
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       // CSSファイルの処理:
       // JavaScriptファイル内で `import './style.css';` のようにCSSをインポートできるようにします。
       {
@@ -166,7 +181,7 @@ module.exports = {
   // モジュールの解決方法:
   // `import` 文でファイル拡張子を省略できるようにします。
   resolve: {
-    extensions: ['.js', '.jsx', '.json'], // .js, .jsx, .json の拡張子を解決対象とする
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'], // .ts, .tsx, .js, .jsx, .json の拡張子を解決対象とする
   },
 
   // プラグイン: ビルドプロセスにカスタム機能を追加
