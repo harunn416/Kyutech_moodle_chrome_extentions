@@ -1,7 +1,0 @@
-{
-  "matches": ["https://ict-i.el.kyutech.ac.jp/my/"],
-  "displayName": "残り時間表示",
-  "description": "リアルタイムで提出物の残り時間を秒単位で表示します。",
-  "ForceExecution": true,
-  "initialState": true
-}
