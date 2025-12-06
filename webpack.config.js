@@ -8,7 +8,7 @@ const packageJson = require('./package.json');
 console.log('packageJson', packageJson);
 
 // バージョン情報が書いてあるjsonファイルを読み込む
-const versionInfo = require('./content_scripts/update_announcer/version_info.json');
+const versionInfo = require('./version_info.json');
 
 // ====================================================================
 // ★ここからエントリポイントとmanifest.jsonのcontent_scriptsを自動生成するロジック★

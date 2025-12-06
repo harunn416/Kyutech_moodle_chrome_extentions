@@ -1,5 +1,5 @@
 // バージョン情報をインポート
-import versionInfoArray from './version_info.json';
+import versionInfoArray from '../../version_info.json';
 console.log("Latest Version Info:", versionInfoArray[0]);
 
 // Chromeストレージ操作モジュールをインポート
@@ -46,7 +46,7 @@ function createUpdatePopup(storedVersion, currentVersion) {
     } });
 
     const changeVersion = document.createElement("h1")
-    changeVersion.textContent = `v${storedVersion} → v${currentVersion}`
+    changeVersion.textContent = `v${versionInfoArray[1].version} → v${currentVersion}`
     changeVersion.style.color = '#a3006f';
     popup.appendChild(changeVersion);
 
