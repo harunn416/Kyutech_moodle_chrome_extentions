@@ -1,6 +1,6 @@
 // バージョン情報をインポート
 import versionInfoArray from '../../version_info.json';
-console.log("Latest Version Info:", versionInfoArray[0]);
+// console.log("Latest Version Info:", versionInfoArray[0]);
 
 // Chromeストレージ操作モジュールをインポート
 import { getStoredLatestAccessedVersion, setStoredLatestAccessedVersion } from './access_chrome_storage.js';
@@ -8,19 +8,28 @@ import { getStoredLatestAccessedVersion, setStoredLatestAccessedVersion } from '
 main();
 async function main() {
     // 現在のバージョンを取得
-    const currentVersion = "__CURRENT_VERSION_PLACEHOLDER__"; // ビルド時に置換される
+    const currentVersionPlaceholder = "__CURRENT_VERSION_PLACEHOLDER__"; // ビルド時に置換される
+    const currentVersion = versionInfoArray[0].version;
+
+    // バージョンの整合性チェック
+    if(currentVersionPlaceholder !== currentVersion ){
+        console.warn(`⚠️ 警告: package.json のバージョン (${currentVersionPlaceholder}) と version_info.json の最新バージョン (${versionInfoArray[0].version}) が一致しません。`);
+        return;
+    }
     
-    console.log("Current Version:", currentVersion);
+    // console.log("Current Version:", currentVersion);
     
     // 現在保存されている最後にアクセスしたバージョンを取得
     let storedVersion = await getStoredLatestAccessedVersion();
     if (storedVersion === undefined) {
         storedVersion = "1.0.0"; // デフォルト値
     }
-    console.log("Stored Latest Accessed Version:", storedVersion);
+    // console.log("Stored Latest Accessed Version:", storedVersion);
     
     if (storedVersion !== currentVersion) {
-        const popup = createUpdatePopup(storedVersion, currentVersion);
+        console.log(`拡張機能が更新されました: ${storedVersion} → ${currentVersion}`);
+        // 更新情報ポップアップを表示
+        const popup = createUpdatePopup();
         document.body.appendChild(popup);
         // 現在のバージョンを保存
         await setStoredLatestAccessedVersion(currentVersion);
@@ -29,7 +38,7 @@ async function main() {
 
 
 /* 更新情報を表示するポップアップを作成する関数 */
-function createUpdatePopup(storedVersion, currentVersion) {
+function createUpdatePopup() {
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.bottom = '20px';
@@ -46,20 +55,23 @@ function createUpdatePopup(storedVersion, currentVersion) {
     } });
 
     const changeVersion = document.createElement("h1")
-    changeVersion.textContent = `v${versionInfoArray[1].version} → v${currentVersion}`
+    changeVersion.textContent = `v${versionInfoArray[1].version} → v${versionInfoArray[0].version}`
+    changeVersion.style.textAlign = 'center';
     changeVersion.style.color = '#a3006f';
     popup.appendChild(changeVersion);
 
     const title = document.createElement('h3');
     title.textContent = `拡張機能が更新されました！`;
+    title.style.textAlign = 'center';
     popup.appendChild(title);
 
     const description = document.createElement('p');
     description.textContent = '最新の更新内容';
-    description.style.margin = '20px 0 0 0';
+    description.style.margin = '20px 0 2px 10px';
     popup.appendChild(description);
 
     const changeInfo = document.createElement('ul');
+    changeInfo.style.marginBottom = '6px';
     versionInfoArray[0].update_content.forEach(updateInfo => {
         const listItem = document.createElement('li');
         listItem.textContent = updateInfo;
@@ -69,10 +81,32 @@ function createUpdatePopup(storedVersion, currentVersion) {
 
     const closeMessage = document.createElement('p');
     closeMessage.textContent = 'このポップアップはクリックすると閉じます';
+    closeMessage.style.textAlign = 'center';
     closeMessage.style.fontSize = '0.8em';
     closeMessage.style.color = '#666';
     closeMessage.style.margin = '0';
     popup.appendChild(closeMessage);
+
+    const progectNameDiv = document.createElement('div');
+    progectNameDiv.style.display = 'flex';
+    progectNameDiv.style.justifyContent = 'flex-end';
+    progectNameDiv.style.alignContent = 'center';
+    progectNameDiv.style.margin = '7px 0px -10px 0';
+    
+    const logoImg = document.createElement('img');
+    logoImg.src = chrome.runtime.getURL('../../assets/icons/icon128.png');
+    logoImg.style.width = '19px';
+    logoImg.style.filter = 'grayscale(100%) opacity(0.7)';
+    logoImg.style.marginRight = '5px';
+    progectNameDiv.appendChild(logoImg);
+
+    const progectName = document.createElement('span');
+    progectName.textContent = '九工大moodle 拡張機能';
+    progectName.style.fontSize = '0.8em';
+    progectName.style.color = '#bbbbbbff';
+    progectNameDiv.appendChild(progectName);
+
+    popup.appendChild(progectNameDiv);
 
     return popup;
 }

@@ -56,8 +56,8 @@ function main(){
         initializeSplitter();
         // 「その他」のメモが存在しない場合は作成する
         createOtherIfNotExist();
-        // 最初に読み込んだときに機能の宣伝用のポップアップを表示
-        showInitialFeaturePromotionPopup();
+        // 最初に読み込んだときに機能の宣伝用のポップアップを表示 (update_announcerに移動済み)
+        // showInitialFeaturePromotionPopup();
     });
 }
 
