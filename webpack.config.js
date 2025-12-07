@@ -7,6 +7,9 @@ const fs = require('fs'); // Node.jsのファイルシステムモジュール�
 const packageJson = require('./package.json');
 console.log('packageJson', packageJson);
 
+// バージョン情報が書いてあるjsonファイルを読み込む
+const versionInfo = require('./version_info.json');
+
 // ====================================================================
 // ★ここからエントリポイントとmanifest.jsonのcontent_scriptsを自動生成するロジック★
 // ====================================================================
@@ -27,15 +30,24 @@ try {
 
   // 各機能フォルダに対して処理を実行
   featureFolders.forEach(folderName => {
-    // 各機能のエントリポイントとなる content.js ファイルのパスを構築
-    const entryFilePath = path.join(contentScriptsPath, folderName, 'content.js');
-    // 各機能の設定が記述された config.json ファイルのパスを構築
-    const configFilePath = path.join(contentScriptsPath, folderName, 'config.json'); // ★修正：forEachループ内で定義
+    // 各機能のエントリポイントを探す (content.ts を優先)
+    const tsEntryPath = path.join(contentScriptsPath, folderName, 'content.ts');
+    const jsEntryPath = path.join(contentScriptsPath, folderName, 'content.js');
+    let entryFilePath = '';
 
-    // content.js ファイルが存在するか確認
-    if (fs.existsSync(entryFilePath)) {
+    if (fs.existsSync(tsEntryPath)) {
+      entryFilePath = tsEntryPath;
+    } else if (fs.existsSync(jsEntryPath)) {
+      entryFilePath = jsEntryPath;
+    }
+    
+    // 各機能の設定が記述された config.json ファイルのパスを構築
+    const configFilePath = path.join(contentScriptsPath, folderName, 'config.json');
+
+    // エントリファイルが存在するか確認
+    if (entryFilePath) {
       // Webpackのエントリポイントとして追加
-      // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.js' }
+      // 例: { 'course_timetable': 'C:/.../content_scripts/course_timetable/content.ts' }
       entryPoints[folderName] = entryFilePath;
 
       // config.json ファイルが存在するか確認
@@ -76,8 +88,8 @@ try {
         console.warn(`警告: ${folderName} ディレクトリ内に config.json が見つかりませんでした。content_scriptsエントリは生成されません。`);
       }
     } else {
-      // content.js が見つからない場合の警告
-      console.warn(`警告: ${folderName} ディレクトリ内に content.js が見つかりませんでした。エントリポイントは生成されません。`);
+      // content.js または content.ts が見つからない場合の警告
+      console.warn(`警告: ${folderName} ディレクトリ内に content.js または content.ts が見つかりませんでした。エントリポイントは生成されません。`);
     }
   });
 } catch (error) {
@@ -123,6 +135,12 @@ module.exports = {
   // WebpackがJavaScript以外のファイルタイプ（CSS、画像など）をどう処理するかを定義します。
   module: {
     rules: [
+      // TypeScriptの処理
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       // CSSファイルの処理:
       // JavaScriptファイル内で `import './style.css';` のようにCSSをインポートできるようにします。
       {
@@ -166,7 +184,7 @@ module.exports = {
   // モジュールの解決方法:
   // `import` 文でファイル拡張子を省略できるようにします。
   resolve: {
-    extensions: ['.js', '.jsx', '.json'], // .js, .jsx, .json の拡張子を解決対象とする
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'], // .ts, .tsx, .js, .jsx, .json の拡張子を解決対象とする
   },
 
   // プラグイン: ビルドプロセスにカスタム機能を追加
@@ -215,15 +233,25 @@ module.exports = {
 
             if (fs.existsSync(bundlePath)) {
               let bundleContent = fs.readFileSync(bundlePath, 'utf8');
-              const featureKey = `${featureName}`;
+              if (bundleContent.includes('__FEATURE_KEY_PLACEHOLDER__')) {
+                // 機能名を置換
+                const featureKey = `${featureName}`;
+                // プレースホルダー文字列自体を直接置換する
+                // 最小化後も "__FEATURE_KEY_PLACEHOLDER__" という文字列は保持されるため、
+                // 変数名に依存せずに置換できる
+                bundleContent = bundleContent.replace(/__FEATURE_KEY_PLACEHOLDER__/g, featureKey);
+                console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました: ${featureKey}`);
+              }
 
-              // プレースホルダー文字列自体を直接置換する
-              // 最小化後も "__FEATURE_KEY_PLACEHOLDER__" という文字列は保持されるため、
-              // 変数名に依存せずに置換できる
-              bundleContent = bundleContent.replace(/__FEATURE_KEY_PLACEHOLDER__/g, featureKey);
-
-              fs.writeFileSync(bundlePath, bundleContent, 'utf8');
-              console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました: ${featureKey}`);
+              if (bundleContent.includes('__CURRENT_VERSION_PLACEHOLDER__')) {
+                // 現在のバージョンを置換
+                const CurrentVersion = packageJson.version;
+                // 最小化後も "__CURRENT_VERSION_PLACEHOLDER__" という文字列は保持されるため、
+                // 変数名に依存せずに置換できる
+                bundleContent = bundleContent.replace(/__CURRENT_VERSION_PLACEHOLDER__/g, CurrentVersion);
+                fs.writeFileSync(bundlePath, bundleContent, 'utf8');
+                console.log(`✅ ${bundleFilename} に CURRENT_VERSION を注入しました: ${CurrentVersion}`);
+              }
             }
           });
         });
@@ -295,8 +323,15 @@ module.exports = {
     },
   ],
 
+  
   // 開発ツール: ソースマップの生成など、デバッグを助ける設定
   // 開発中は 'cheap-module-source-map' が推奨されます (ビルド速度とデバッグのしやすさのバランスが良い)
   // 本番ビルドでは通常 'source-map' (精度は最高だがビルドが遅い) または無効化 (本番環境ではソースコードを公開しないため)
   devtool: 'cheap-module-source-map',
 };
+
+// バージョン情報の最新バージョンとpackage.jsonのバージョンを比較して警告を出す設定
+if (versionInfo[0].version !== packageJson.version) {
+  console.warn(`⚠️ 警告: package.json のバージョン (${packageJson.version}) と version_info.json の最新バージョン (${versionInfo[0].version}) が一致しません。`);
+  console.warn(`  両方のバージョンを一致させることを推奨します。\n`);
+}

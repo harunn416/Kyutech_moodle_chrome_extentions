@@ -1,0 +1,6 @@
+{
+  "matches": ["https://ict-i.el.kyutech.ac.jp/*"],
+  "displayName": "自動ログイン機能",
+  "description": "ログイン画面で自動でログイン処理をします。他アカウントに切り換える場合はログアウトをしてください。※この機能を利用してアカウント情報が流出しても、当拡張機能は一切の責任を負いません。",
+  "initialState": false
+}

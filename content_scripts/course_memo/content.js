@@ -38,8 +38,8 @@ import { showFeatureSettingsPopup, createOtherIfNotExist } from './createAndSet.
 // スプリッターの初期化関数をインポート
 import { initializeSplitter } from './splitter.js';
 
-// 最初に読み込んだときに機能の宣伝用のポップアップを表示する関数をインポート
-import { showInitialFeaturePromotionPopup } from './initialPromotion.js';
+// 最初に読み込んだときに機能の宣伝用のポップアップを表示する関数をインポート (update_announcerに移動済み)
+//import { showInitialFeaturePromotionPopup } from './initialPromotion.js';
 
 // 「その他」のメモ用の予約キーを定義（例として、大文字で固定）
 export const OTHER_NOTES_KEY = "GLOBAL_OTHER_NOTES"; 
@@ -56,8 +56,8 @@ function main(){
         initializeSplitter();
         // 「その他」のメモが存在しない場合は作成する
         createOtherIfNotExist();
-        // 最初に読み込んだときに機能の宣伝用のポップアップを表示
-        showInitialFeaturePromotionPopup();
+        // 最初に読み込んだときに機能の宣伝用のポップアップを表示 (update_announcerに移動済み)
+        // showInitialFeaturePromotionPopup();
     });
 }
 

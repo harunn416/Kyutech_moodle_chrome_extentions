@@ -50,7 +50,11 @@ function createListOparateButton() {
 
     //それぞれの要素を追加
     listOparateButton.appendChild(aListOparateButton);
-    parentElement.appendChild(listOparateButton);
+    if(parentElement !== null){
+        parentElement.appendChild(listOparateButton);
+    }else{
+        console.log("親要素が見つかりませんでした。");
+    }
 }
 
 /** 機能一覧の配列を返す関数
@@ -209,6 +213,14 @@ async function createPopupOperateFeatures() {
     buttonContainer.style.marginTop = '20px';
     buttonContainer.style.textAlign = 'right';
 
+    // 区切り文字要素を作成して返す関数
+    function createSeparator() {
+        const separator = document.createElement('span');
+        separator.textContent = ' | ';
+        separator.classList.add('popup-link'); // classList = の代わりに .add() を使うのが一般的
+        return separator;
+    }
+
     // リンク集コンテナ
     const linkContainer = document.createElement('div');
     linkContainer.style.marginTop = '10px';
@@ -219,16 +231,26 @@ async function createPopupOperateFeatures() {
     githubLink.textContent = 'GitHubリポジトリ';
     githubLink.target = '_blank';
     linkContainer.appendChild(githubLink);
-    const separater = document.createElement('span');
-    separater.textContent = ' | ';
-    separater.classList = 'popup-link';
-    linkContainer.appendChild(separater); // 区切りのテキスト
+
+    linkContainer.appendChild(createSeparator()); // 区切りのテキスト
+    
     const extensionLink = document.createElement('a');
     extensionLink.classList = 'popup-link';
     extensionLink.href = 'https://chromewebstore.google.com/detail/%E4%B9%9D%E5%B7%A5%E5%A4%A7moodle%E4%BE%BF%E5%88%A9%E3%83%84%E3%83%BC%E3%83%AB/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja';
     extensionLink.textContent = 'Chromeウェブストア';
     extensionLink.target = '_blank';
     linkContainer.appendChild(extensionLink);
+    
+    linkContainer.appendChild(createSeparator()); // 区切りのテキスト
+    
+    const LcuLink = document.createElement('a');
+    LcuLink.classList = 'popup-link';
+    LcuLink.href = 'https://virginia.jimu.kyutech.ac.jp/lcu-web/';
+    LcuLink.textContent = 'LCU';
+    LcuLink.target = '_blank';
+    linkContainer.appendChild(LcuLink);
+
+
     buttonContainer.appendChild(linkContainer);
 
 

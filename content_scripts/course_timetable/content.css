@@ -32,12 +32,19 @@
 
 .customiseTimetable span.courseLink {
     font-size: 13px;
+    font-weight: bold;
     /* 複数行の省略設定 */
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2; /* 表示する行数を2行に指定 */
     line-clamp: 2;
     -webkit-box-orient: vertical;
+}
+
+.customiseTimetable span.noCourseEditLink {
+    font-size: 13px;
+    color: rgba(100, 100, 100, 0.521);
+    text-decoration: underline;
 }
 
 input.checkboxTimeschedule {
