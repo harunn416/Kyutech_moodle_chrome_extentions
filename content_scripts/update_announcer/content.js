@@ -16,29 +16,33 @@ async function main() {
         console.warn(`⚠️ 警告: package.json のバージョン (${currentVersionPlaceholder}) と version_info.json の最新バージョン (${versionInfoArray[0].version}) が一致しません。`);
         return;
     }
-    
+
     // console.log("Current Version:", currentVersion);
-    
+
     // 現在保存されている最後にアクセスしたバージョンを取得
     let storedVersion = await getStoredLatestAccessedVersion();
     if (storedVersion === undefined) {
         storedVersion = "1.0.0"; // デフォルト値
     }
     // console.log("Stored Latest Accessed Version:", storedVersion);
-    
+
     if (storedVersion !== currentVersion) {
         console.log(`拡張機能が更新されました: ${storedVersion} → ${currentVersion}`);
         // 更新情報ポップアップを表示
         const popup = createUpdatePopup();
         document.body.appendChild(popup);
         // 現在のバージョンを保存
-        await setStoredLatestAccessedVersion(currentVersion);
+        // await setStoredLatestAccessedVersion(currentVersion);
     }
 }
 
 
 /* 更新情報を表示するポップアップを作成する関数 */
 function createUpdatePopup() {
+    // 最新版と一つ前のバージョン情報を取得し、"."で分割する
+    const latestVersionDivided = versionInfoArray[0].version.split('.');
+    const secondVersionDivided = versionInfoArray[1].version.split('.');
+
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.bottom = '20px';
@@ -57,11 +61,22 @@ function createUpdatePopup() {
     const changeVersion = document.createElement("h1")
     changeVersion.textContent = `v${versionInfoArray[1].version} → v${versionInfoArray[0].version}`
     changeVersion.style.textAlign = 'center';
-    changeVersion.style.color = '#a3006f';
+    // アップデートの重要度に応じて色を変える
+    if ( latestVersionDivided[1] !== secondVersionDivided[1] ) {
+        changeVersion.style.color = '#a30064ff';
+    } else {
+        changeVersion.style.color = '#00427f';
+    }
     popup.appendChild(changeVersion);
 
     const title = document.createElement('h3');
-    title.textContent = `拡張機能が更新されました！`;
+    if ( latestVersionDivided[0] !== secondVersionDivided[0] ) {
+        title.textContent = `大型アップデートが来ました!!`;
+    }else if ( latestVersionDivided[1] !== secondVersionDivided[1] ) {
+        title.textContent = `大きな更新がありました！`;
+    } else {
+        title.textContent = `軽微な更新がありました！`;
+    }
     title.style.textAlign = 'center';
     popup.appendChild(title);
 
@@ -92,7 +107,7 @@ function createUpdatePopup() {
     progectNameDiv.style.justifyContent = 'flex-end';
     progectNameDiv.style.alignContent = 'center';
     progectNameDiv.style.margin = '7px 0px -10px 0';
-    
+
     const logoImg = document.createElement('img');
     logoImg.src = chrome.runtime.getURL('../../assets/icons/icon128.png');
     logoImg.style.width = '19px';
