@@ -267,7 +267,7 @@ const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 
 日付の桁数によるバグ修
 
-### 1.2.0
+## 1.2
 
 簡易メモ機能を実装  
 機能選択を可能に
@@ -284,6 +284,12 @@ const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 ### 1.2.3
 
 URLでLCUにマッチしないようにサブドメインを追加。
+
+## 1.3
+
+自動ログイン機能を追加  
+時間割に任意のリンクを追加できるように修正  
+機能選択ポップアップにLCUのリンクを追加
 
 # 開発者
 
