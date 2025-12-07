@@ -32,7 +32,7 @@ async function main() {
         const popup = createUpdatePopup();
         document.body.appendChild(popup);
         // 現在のバージョンを保存
-        // await setStoredLatestAccessedVersion(currentVersion);
+        await setStoredLatestAccessedVersion(currentVersion);
     }
 }
 
