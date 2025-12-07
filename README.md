@@ -56,7 +56,8 @@ Moodle Helper Extension に実装してほしい機能のアイデアがあり�
 > ~~webpack でバンドルする際は`developmet`ではなく`production`を使用してください。拡張機能では`eval`が使用できないからです。コンソールで`npm run build`を実行すればいいようになってます。~~  
 > 現在は`development`でも読み込むようになっています。`npm run dev`でもビルド(バンドル)可能です。
 
-> [!CAUTION] > **悪意のあるスクリプトを絶対に入れないでください！**  
+> [!CAUTION]
+> **悪意のあるスクリプトを絶対に入れないでください！**  
 > なるべくブラウザ内で処理を完結させるようにしてください。  
 > また、学生情報(氏名や学籍番号など)の取り扱いは慎重になってください。取得しないに越したことはありません。
 
@@ -175,6 +176,17 @@ function main(){}
 > 要素を監視するなら``MutationObserver``を利用することをおすすめします。  
 > → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
 
+#### プレースホルダー
+現在 ``content.js`` で利用可能なプレースホルダーは以下の2つです
+1. ``__FEATURE_KEY_PLACEHOLDER__`` … ``content.js``が格納されているフォルダ名(機能名)を取得できます。
+2. ``__CURRENT_VERSION_PLACEHOLDER__`` … 現在の拡張機能のバージョン(package.jsonのバージョン)を取得できます。
+
+使う際は、以下のように文字列として代入してください。また、変数名にこれらを利用すると想定する動作は保証されません。
+```JS
+const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
+```
+
+
 ### css
 
 `content.js`ファイルにインポートしてください。
@@ -200,7 +212,8 @@ function main(){}
 }
 ```
 
-> [!TIP] > `matches`の部分は JS ファイルが動いてほしい URL を記述する部分です。`*`は任意の文字列となっています。なので、
+> [!TIP]
+> `matches`の部分は JS ファイルが動いてほしい URL を記述する部分です。`*`は任意の文字列となっています。なので、
 >
 > ```
 > https://*ict-i.el.kyutech.ac.jp/*
@@ -215,7 +228,7 @@ function main(){}
 > は`マイコース`タブでしか実行されません。
 > 最後に`*`がついているのはプレースホルダに対応するためです。(`?=`みたいなやつ)
 
-> [!IMPORTANT] 
+> [!IMPORTANT]
 > `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
 > `initialState`を`false`にすると、初期状態で機能が無効化した状態になります。
 
