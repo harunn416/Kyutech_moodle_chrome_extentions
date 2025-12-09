@@ -252,6 +252,7 @@ module.exports = {
                 fs.writeFileSync(bundlePath, bundleContent, 'utf8');
                 console.log(`✅ ${bundleFilename} に CURRENT_VERSION を注入しました: ${CurrentVersion}`);
               }
+              fs.writeFileSync(bundlePath, bundleContent, 'utf8');
             }
           });
         });
