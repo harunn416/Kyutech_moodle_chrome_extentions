@@ -29,19 +29,27 @@ async function main() {
     if (storedVersion !== currentVersion) {
         console.log(`拡張機能が更新されました: ${storedVersion} → ${currentVersion}`);
         // 更新情報ポップアップを表示
-        const popup = createUpdatePopup();
+        const popup = createUpdatePopup(storedVersion, currentVersion);
         document.body.appendChild(popup);
-        // 現在のバージョンを保存
-        await setStoredLatestAccessedVersion(currentVersion);
     }
 }
 
 
 /* 更新情報を表示するポップアップを作成する関数 */
-function createUpdatePopup() {
+function createUpdatePopup(storedVersion, currentVersion) {
     // 最新版と一つ前のバージョン情報を取得し、"."で分割する
     const latestVersionDivided = versionInfoArray[0].version.split('.');
     const secondVersionDivided = versionInfoArray[1].version.split('.');
+
+    // ブラウザに保存されていた最後のバージョンに対応する情報を格納した配列を探す
+    let storedIndex = -1
+    for (let i = 0; i < versionInfoArray.length; i++) {
+        if (versionInfoArray[i].version === storedVersion) {
+            storedIndex = i;
+            break;
+        }
+    }
+    const storedVersionDivided = (storedIndex !== -1) ? versionInfoArray[storedIndex].version.split('.') : [0,0,0];
 
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
@@ -49,20 +57,22 @@ function createUpdatePopup() {
     popup.style.left = '20px';
     popup.style.width = '400px';
     popup.style.padding = '15px';
-    popup.style.backgroundColor = '#f0f0f0ff';
+    popup.style.backgroundColor = '#f5f5f5ff';
     popup.style.border = '3px solid #ccc';
     popup.style.borderRadius = '5px';
     popup.style.boxShadow = '#3b3b3b5c 10px 10px 6px';
     popup.style.zIndex = '10000';
     popup.addEventListener('click', () => { {
         popup.remove();
+        // 現在のバージョンを保存
+        setStoredLatestAccessedVersion(currentVersion);
     } });
 
     const changeVersion = document.createElement("h1")
-    changeVersion.textContent = `v${versionInfoArray[1].version} → v${versionInfoArray[0].version}`
+    changeVersion.textContent = `v${versionInfoArray[storedIndex].version} → v${versionInfoArray[0].version}`
     changeVersion.style.textAlign = 'center';
     // アップデートの重要度に応じて色を変える
-    if ( latestVersionDivided[1] !== secondVersionDivided[1] ) {
+    if ( storedVersionDivided[1] !== secondVersionDivided[1] ) {
         changeVersion.style.color = '#a30064ff';
     } else {
         changeVersion.style.color = '#00427f';
@@ -70,9 +80,9 @@ function createUpdatePopup() {
     popup.appendChild(changeVersion);
 
     const title = document.createElement('h3');
-    if ( latestVersionDivided[0] !== secondVersionDivided[0] ) {
+    if ( storedVersionDivided[0] !== secondVersionDivided[0] ) {
         title.textContent = `大型アップデートが来ました!!`;
-    }else if ( latestVersionDivided[1] !== secondVersionDivided[1] ) {
+    }else if ( storedVersionDivided[1] !== secondVersionDivided[1] ) {
         title.textContent = `大きな更新がありました！`;
     } else {
         title.textContent = `軽微な更新がありました！`;
@@ -81,18 +91,28 @@ function createUpdatePopup() {
     popup.appendChild(title);
 
     const description = document.createElement('p');
-    description.textContent = '最新の更新内容';
+    description.textContent = (storedIndex === 1) ? '最新の更新内容' : '更新内容一覧';
     description.style.margin = '20px 0 2px 10px';
     popup.appendChild(description);
 
-    const changeInfo = document.createElement('ul');
-    changeInfo.style.marginBottom = '6px';
-    versionInfoArray[0].update_content.forEach(updateInfo => {
-        const listItem = document.createElement('li');
-        listItem.textContent = updateInfo;
-        changeInfo.appendChild(listItem);
-    });
-    popup.appendChild(changeInfo);
+    for (let i=0; i<storedIndex; i++) {
+        // もし二番目のバージョンが違うのであれば、そこからは表示しない
+        if (latestVersionDivided[1] !== versionInfoArray[i].version.split(".")[1]) break;
+        if (storedIndex !== 1) {
+            const versionHeader = document.createElement('h4');
+            versionHeader.textContent = versionInfoArray[i].version;
+            versionHeader.style.margin = '10px 0 4px 0';
+            popup.appendChild(versionHeader);
+        }
+        const changeInfo = document.createElement('ul');
+        changeInfo.style.marginBottom = '6px';
+        versionInfoArray[i].update_content.forEach(updateInfo => {
+            const listItem = document.createElement('li');
+            listItem.textContent = updateInfo;
+            changeInfo.appendChild(listItem);
+        });
+        popup.appendChild(changeInfo);
+    }
 
     const closeMessage = document.createElement('p');
     closeMessage.textContent = 'このポップアップはクリックすると閉じます';
