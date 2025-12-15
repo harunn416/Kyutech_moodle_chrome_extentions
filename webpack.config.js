@@ -233,8 +233,7 @@ module.exports = {
 
             if (fs.existsSync(bundlePath)) {
               let bundleContent = fs.readFileSync(bundlePath, 'utf8');
-              if (bundleContent.includes('__FEATURE_KEY_PLACEHOLDER__')) {
-                // 機能名を置換
+              if (bundleContent.includes('__FEATURE_KEY_PLACEHOLDER__')) { // 機能名を置換
                 const featureKey = `${featureName}`;
                 // プレースホルダー文字列自体を直接置換する
                 // 最小化後も "__FEATURE_KEY_PLACEHOLDER__" という文字列は保持されるため、
@@ -243,15 +242,15 @@ module.exports = {
                 console.log(`✅ ${bundleFilename} に FEATURE_KEY を注入しました: ${featureKey}`);
               }
 
-              if (bundleContent.includes('__CURRENT_VERSION_PLACEHOLDER__')) {
-                // 現在のバージョンを置換
-                const CurrentVersion = packageJson.version;
+              if (bundleContent.includes('__CURRENT_VERSION_PLACEHOLDER__')) { // 現在のバージョンを置換
+                const currentVersion = packageJson.version;
                 // 最小化後も "__CURRENT_VERSION_PLACEHOLDER__" という文字列は保持されるため、
                 // 変数名に依存せずに置換できる
-                bundleContent = bundleContent.replace(/__CURRENT_VERSION_PLACEHOLDER__/g, CurrentVersion);
+                bundleContent = bundleContent.replace(/__CURRENT_VERSION_PLACEHOLDER__/g, currentVersion);
                 fs.writeFileSync(bundlePath, bundleContent, 'utf8');
-                console.log(`✅ ${bundleFilename} に CURRENT_VERSION を注入しました: ${CurrentVersion}`);
+                console.log(`✅ ${bundleFilename} に CURRENT_VERSION を注入しました: ${currentVersion}`);
               }
+              fs.writeFileSync(bundlePath, bundleContent, 'utf8');
             }
           });
         });
