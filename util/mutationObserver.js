@@ -18,8 +18,7 @@ export function observeElementAppearance(
     if (existingElement) {
         callback(existingElement);
         // すでに存在する場合は、continueObservingがfalseならここで終了
-        if (logToggle)
-            console.log(`observeElementAppearance: ${targetSelector} はすでに存在しています。`);
+        if (logToggle) console.log(`observeElementAppearance: ${targetSelector} はすでに存在しています。`);
         if (!continueObserving) return;
     }
 
@@ -33,29 +32,20 @@ export function observeElementAppearance(
             ) {
                 // 追加されたノードすべてに対して処理を行う
                 mutation.addedNodes.forEach((node) => {
-                    // nodeが要素であるか、また目的のセレクタにマッチするかを確認
-                    if (node.nodeType === 1 && node.matches(targetSelector)) {
-                        if (!continueObserving) observer.disconnect(); // continueObservingがfalseなら監視を停止
-                        callback(node); // コールバック関数を実行
-                        if (logToggle)
-                            console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
-                        return; // forEachを抜ける
-                    }
-                    // 子孫要素として目的の要素が出現する可能性があるため、その中も探す
-                    if (
-                        node.nodeType === 1 &&
-                        node.querySelector(targetSelector)
-                    ) {
-                        if (!continueObserving) observer.disconnect(); // continueObservingがfalseなら監視を停止
-                        callback(node.querySelector(targetSelector)); // コールバック関数を実行
-                        if (logToggle)
-                            console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
-                        return; // forEachを抜ける
+                    // node自体か、その子孫にターゲットがあるか確認
+                    const targetElement = node.nodeType !== 1 ? null : 
+                                        node.matches(targetSelector) ? node : 
+                                        node.querySelector(targetSelector);
+
+                    if (targetElement) {
+                        if (!continueObserving) observer.disconnect();
+                        callback(targetElement);
+                        if (logToggle) console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
+                        return;
                     }
                 });
             } else {
-                if (logToggle)
-                    console.log(`observeElementAppearance: ${targetSelector} はまだ出現していません。`);
+                if (logToggle) console.log(`observeElementAppearance: ${targetSelector} はまだ出現していません。`);
             }
         }
     });
