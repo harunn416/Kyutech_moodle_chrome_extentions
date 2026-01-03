@@ -19,9 +19,7 @@ export function observeElementAppearance(
         callback(existingElement);
         // すでに存在する場合は、continueObservingがfalseならここで終了
         if (logToggle)
-            console.log(
-                `observeElementAppearance: ${targetSelector} はすでに存在しています。`
-            );
+            console.log(`observeElementAppearance: ${targetSelector} はすでに存在しています。`);
         if (!continueObserving) return;
     }
 
@@ -40,9 +38,7 @@ export function observeElementAppearance(
                         if (!continueObserving) observer.disconnect(); // continueObservingがfalseなら監視を停止
                         callback(node); // コールバック関数を実行
                         if (logToggle)
-                            console.log(
-                                `observeElementAppearance: ${targetSelector} が出現しました。`
-                            );
+                            console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
                         return; // forEachを抜ける
                     }
                     // 子孫要素として目的の要素が出現する可能性があるため、その中も探す
@@ -53,17 +49,13 @@ export function observeElementAppearance(
                         if (!continueObserving) observer.disconnect(); // continueObservingがfalseなら監視を停止
                         callback(node.querySelector(targetSelector)); // コールバック関数を実行
                         if (logToggle)
-                            console.log(
-                                `observeElementAppearance: ${targetSelector} が出現しました。`
-                            );
+                            console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
                         return; // forEachを抜ける
                     }
                 });
             } else {
                 if (logToggle)
-                    console.log(
-                        `observeElementAppearance: ${targetSelector} はまだ出現していません。`
-                    );
+                    console.log(`observeElementAppearance: ${targetSelector} はまだ出現していません。`);
             }
         }
     });
