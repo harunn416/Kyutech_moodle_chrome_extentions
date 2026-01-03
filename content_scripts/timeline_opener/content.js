@@ -1,3 +1,6 @@
+// mutation observerをインポート
+import { observeElementAppearance } from '../../util/mutationObserver.js';
+
 /* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
 // この機能に対応するキー名を定義
 // キー名はバンドル時に置換される
@@ -26,21 +29,16 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
-// mutation observerをインポート
-import { observeElementAppearance } from '../../util/mutationObserver.js';
-
+// タイムラインの「さらに活動を表示する」ボタンのセレクタ
 const buttonSelector = "section#region-main aside#block-region-content section.block_timeline div[data-region='event-list-content'] button[data-action='more-events']";
-// ブラウザ読み込み時にメイン関数を実行。
+
 function main(){
     // 「さらに活動を表示する」ボタンの出現を監視
     observeElementAppearance(buttonSelector, clickMoreShowButton, document.body, false, true);
 }
 
-function clickMoreShowButton(){
+function clickMoreShowButton(button){
     // 「さらに活動を表示する」ボタンをクリック
-    let moreShowButton = document.querySelector(buttonSelector);
-    if(moreShowButton){
-        moreShowButton.click();
-        console.log("タイムラインの「さらに活動を表示する」ボタンをクリックしました。");
-    }
+    button.click();
+    console.log("タイムラインの「さらに活動を表示する」ボタンをクリックしました。");
 }
