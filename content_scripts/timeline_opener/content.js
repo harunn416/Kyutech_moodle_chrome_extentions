@@ -1,3 +1,6 @@
+// mutation observerをインポート
+import { observeElementAppearance } from '../../util/mutationObserver.js';
+
 /* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
 // この機能に対応するキー名を定義
 // キー名はバンドル時に置換される
@@ -25,9 +28,6 @@ async function shouldRun() {
     }
 })();
 /********************************************************************************/
-
-// mutation observerをインポート
-import { observeElementAppearance } from '../../util/mutationObserver.js';
 
 const buttonSelector = "section#region-main aside#block-region-content section.block_timeline div[data-region='event-list-content'] button[data-action='more-events']";
 // ブラウザ読み込み時にメイン関数を実行。
