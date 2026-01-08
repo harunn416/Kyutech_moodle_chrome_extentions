@@ -37,6 +37,8 @@ import { createPageEditPopup, showEditPopup } from './timetableEditPopup.js'; //
 async function main() {
     // ストレージから時間割データを読み込む
     let timetable_json = await loadTimetableFromStorage();
+    // セッションストレージに保存
+    sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetable_json));
 
     // 時間割の表示エリアを作成
     let div_TT = document.createElement("div");
@@ -59,7 +61,7 @@ async function main() {
     // ページのヘッダーに時間割の表示エリアを追加
     document.querySelector("#instance-5-header").appendChild(div_TT);
 
-    // 時間割の説明を挿入
+    // 初期状態の時、時間割の説明を挿入
     insertAddCourseDiscription(timetable_json);
 
     // ページのヘッダーに時間割の編集ポップアップを display: none で追加
@@ -68,7 +70,7 @@ async function main() {
     observer_courses.observe(targetNode, config);
 }
 
-/** 時間割の説明を挿入する関数 */
+/** 初期状態のとき時間割の説明を挿入する関数 */
 function insertAddCourseDiscription(timetable_json) {
     //時間割が何もなかったらコース追加方法を記述
     let isInitial = Object.values(timetable_json).every(daySchedule => {
@@ -147,6 +149,8 @@ async function resetTimetableFromStorage() {
     if (result) {
         try {
             await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
+            // セッションストレージも更新
+            sessionStorage.setItem('myUniversityTimetable', JSON.stringify(initialTimetableData));
             console.log('新規データが保存されました');
         } catch (error) {
             console.log("時間割削除中にエラーが発生しました。", error);
@@ -181,6 +185,9 @@ export async function updateTimetableAtStorage(courseInformationIncludeTimeJson)
             // オブジェクトのキーと値のペアで保存
             // { '保存キー': 保存したい値 }
             await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+            // セッションストレージも更新
+            sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetableData));
+            return true;
         }
     } catch (error) {
         console.error('時間割の読み込み中にエラーが発生しました:', error);
@@ -216,6 +223,9 @@ export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson)
                 // オブジェクトのキーと値のペアで保存
                 // { '保存キー': 保存したい値 }
                 await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
+                // セッションストレージも更新
+                sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetableData));
+                return true;
             }
         } catch (error) {
             console.error('時間割の読み込み中にエラーが発生しました:', error);
@@ -225,6 +235,29 @@ export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson)
     } else {
         console.log("時間割の削除がキャンセルされました。");
     }
+}
+
+/** 現在の時刻から現在受講中のクラスを取得する関数
+ * @returns {Promise<Object|null>} 現在受講中のクラスの情報、受講中でなければnull
+ */
+export async function getCurrentClass() {
+    let timetable_json = chrome.storage.sync.get('myUniversityTimetable');
+    let now = new Date();
+    let dayOfWeek = now.getDay(); // 0 (日曜) から 6 (土曜)
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let second = now.getSeconds();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) return null; // 土日は授業なし
+    
+    timetable_json.then((result) => {
+        let timetableData = JSON.parse(result.myUniversityTimetable);
+        if (!timetableData) {
+            console.log("時間割データを読み込めませんでした。");
+            return null;
+        }
+        timetableData = timetableData[["sun", "mon", "tue", "wed", "thu", "fri", "sat"][dayOfWeek]];
+    });
 }
 
 /**
