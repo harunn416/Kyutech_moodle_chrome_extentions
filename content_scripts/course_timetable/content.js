@@ -58,8 +58,8 @@ async function main() {
     div_TT.setAttribute("id", "div_TT");
     div_TT.style.marginTop = "10px";
 
-    // 現在のコースを表示するh4要素を作成
-    let currentCourseDisplay = document.createElement("h4");
+    // 現在のコースを表示するdiv要素を作成
+    let currentCourseDisplay = document.createElement("div");
     currentCourseDisplay.setAttribute("id", "currentCourseDisplay");
     currentCourseDisplay.style.textAlign = "center";
     div_TT.appendChild(currentCourseDisplay);
@@ -345,15 +345,27 @@ export async function getCurrentCourseIndex() {
     return null;
 }
 
+/* コースの何％が経過したかを計算する関数 */
+function calculateCourseProgress(courseIndex) {
+    let now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start);
+    let endMinutes = timeToMinutes(timetable_origin[courseIndex].end);
+    let currentMinutes = hours * 60 + minutes;
+    let progress = ((currentMinutes - startMinutes) / (endMinutes - startMinutes)) * 100;
+    return Math.min(Math.max(progress, 0), 100); // 0から100の範囲に制限
+}
+
 /** 現在のコースを表示する関数 */
 async function displayCurrentCourse() {
     console.log("現在のコースを表示します。");
     chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
-        // const courseIndex = await getCurrentCourseIndex();
-        let courseIndex = 3 // debug用に4限目固定
+        const courseIndex = await getCurrentCourseIndex();
         console.log("courseIndex:", courseIndex);
         let now = new Date();
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
+        if (currentCourseDisplay === null) throw new Error("courseIndex is null");
 
         let timetableData = result.myUniversityTimetable;
         console.log(timetableData);
@@ -361,19 +373,18 @@ async function displayCurrentCourse() {
             console.log("時間割データを読み込めませんでした。");
             return;
         }
-        if (currentCourseDisplay) {
-            if (courseIndex === null) {
-                currentCourseDisplay.style.display = "none";
-                return;
-            }
-            const dayOfWeek = now.getDay();
-            const day = dayIndexToDay[1]; // debug用に月曜固定
-            const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
-            const courseName = timetableData[day][courseIndex + 1]["name"];
-            const courseLink = timetableData[day][courseIndex + 1]["link"];
-            currentCourseDisplay.innerHTML = `<nobr>現在受講中のコース: ${courseTimeStr} - </nobr><a href="${courseLink}">${courseName}</a>`;
-            currentCourseDisplay.style.display = "block";
+        if (courseIndex === null) {
+            currentCourseDisplay.style.display = "none";
+            return;
         }
+        const dayOfWeek = now.getDay();
+        const day = dayIndexToDay[dayOfWeek];
+        const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
+        const courseName = timetableData[day][courseIndex + 1]["name"];
+        const courseLink = timetableData[day][courseIndex + 1]["link"];
+        currentCourseDisplay.innerHTML = `<nobr>現在受講中のコース: ${courseTimeStr} - </nobr><a href="${courseLink}">${courseName}</a>`;
+        currentCourseDisplay.style.display = "block";
+        currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndex)}%`);
     });
 }
 
