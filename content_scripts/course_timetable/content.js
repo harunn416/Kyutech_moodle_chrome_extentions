@@ -91,7 +91,7 @@ async function main() {
 
     // 毎分現在の時間を更新
     displayCurrentCourse();
-    setInterval(displayCurrentCourse, 60000);
+    setInterval(displayCurrentCourse, 30000);
 }
 
 /** 初期状態のとき時間割の説明を挿入する関数 */
@@ -361,7 +361,8 @@ function calculateCourseProgress(courseIndex) {
 async function displayCurrentCourse() {
     console.log("現在のコースを表示します。");
     chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
-        const courseIndex = await getCurrentCourseIndex();
+        // const courseIndex = await getCurrentCourseIndex();
+        const courseIndex = 3; // テスト用に3限目固定
         console.log("courseIndex:", courseIndex);
         let now = new Date();
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
@@ -377,7 +378,8 @@ async function displayCurrentCourse() {
             currentCourseDisplay.style.display = "none";
             return;
         }
-        const dayOfWeek = now.getDay();
+        // const dayOfWeek = now.getDay();
+        const dayOfWeek = 3; // テスト用に水曜日固定
         const day = dayIndexToDay[dayOfWeek];
         const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
         const courseName = timetableData[day][courseIndex + 1]["name"];
