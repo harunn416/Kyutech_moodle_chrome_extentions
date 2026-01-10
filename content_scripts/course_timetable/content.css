@@ -55,6 +55,13 @@ input.checkboxTimeschedule {
     height: 20px;
 }
 
+#currentCourseDisplay{
+    text-align: center;
+    border: #000c9f solid 2px;
+    border-radius: 10px;
+    padding: 5px;
+    transition: 2s;
+}
 
 
 #div_TT .timetableEditButtonDiv{

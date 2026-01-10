@@ -1,7 +1,7 @@
 /* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
 // この機能に対応するキー名を定義
 // キー名はバンドル時に置換される
-const FEATURE_KEY = '__FEATURE_KEY_PLACEHOLDER__';
+const FEATURE_KEY = "__FEATURE_KEY_PLACEHOLDER__";
 
 /**
  * この機能が有効になっているかブラウザのストレージから確認する関数
@@ -13,7 +13,10 @@ async function shouldRun() {
         // キーが存在しない場合はtrue（ON）をデフォルトとする
         return result["toggle_" + FEATURE_KEY] !== false;
     } catch (error) {
-        console.error(`機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`, error);
+        console.error(
+            `機能(${FEATURE_KEY})の有効/無効状態の取得に失敗しました:`,
+            error
+        );
         return true; // エラー時も安全策としてONを返す
     }
 }
@@ -26,23 +29,40 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
-import './content.css'; // 追加: CSSファイルのインポート
+import "./content.css"; // 追加: CSSファイルのインポート
 
 // 外部ファイルで定義されている関数をインポート
-import { createPageAddPopup, setEventTimetableCustomiseButton } from './timetableAddPopup.js'; // 仮のパスとファイル名
-import { createPageEditPopup, showEditPopup } from './timetableEditPopup.js'; // 仮のパスとファイル名
+import {
+    createPageAddPopup,
+    setEventTimetableCustomiseButton,
+} from "./timetableAddPopup.js"; // 仮のパスとファイル名
+import { createPageEditPopup, showEditPopup } from "./timetableEditPopup.js"; // 仮のパスとファイル名
 
+// 時間割の各時限の開始・終了時間を定義
+const timetable_origin = [
+    { label: "1限目", start: "08:50", end: "10:20" },
+    { label: "2限目", start: "10:20", end: "12:00" },
+    { label: "3限目", start: "13:00", end: "14:30" },
+    { label: "4限目", start: "14:30", end: "16:10" },
+    { label: "5限目", start: "16:10", end: "17:50" },
+    { label: "6限目", start: "17:50", end: "19:30" },
+];
 
 /** main function */
 async function main() {
     // ストレージから時間割データを読み込む
     let timetable_json = await loadTimetableFromStorage();
-    // セッションストレージに保存
-    sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetable_json));
 
     // 時間割の表示エリアを作成
     let div_TT = document.createElement("div");
     div_TT.setAttribute("id", "div_TT");
+    div_TT.style.marginTop = "10px";
+
+    // 現在のコースを表示するh4要素を作成
+    let currentCourseDisplay = document.createElement("h4");
+    currentCourseDisplay.setAttribute("id", "currentCourseDisplay");
+    currentCourseDisplay.style.textAlign = "center";
+    div_TT.appendChild(currentCourseDisplay);
 
     // 時間割のテーブル作成
     let tableDiv = document.createElement("div");
@@ -68,46 +88,78 @@ async function main() {
     createPageAddPopup();
     createPageEditPopup();
     observer_courses.observe(targetNode, config);
+
+    // 毎分現在の時間を更新
+    displayCurrentCourse();
+    setInterval(displayCurrentCourse, 60000);
 }
 
 /** 初期状態のとき時間割の説明を挿入する関数 */
 function insertAddCourseDiscription(timetable_json) {
     //時間割が何もなかったらコース追加方法を記述
-    let isInitial = Object.values(timetable_json).every(daySchedule => {
+    let isInitial = Object.values(timetable_json).every((daySchedule) => {
         // daySchedule (各曜日のオブジェクト) のいずれかのコースに名前があれば false (初期状態ではない)
-        return Object.values(daySchedule).every(course => course["name"] === "");
+        return Object.values(daySchedule).every(
+            (course) => course["name"] === ""
+        );
     });
     if (isInitial) {
         let noDataDescription = document.createElement("p");
         noDataDescription.setAttribute("id", "noDataDescription");
-        noDataDescription.innerHTML = "時間割が登録されていません。<br>コースの時間割を登録するには、コース名の右側にある三点リーダーを押して「時間割に登録」ボタンを押してください。";
-        document.querySelector("#addCourseDescription").appendChild(noDataDescription);
+        noDataDescription.innerHTML =
+            "時間割が登録されていません。<br>コースの時間割を登録するには、コース名の右側にある三点リーダーを押して「時間割に登録」ボタンを押してください。";
+        document
+            .querySelector("#addCourseDescription")
+            .appendChild(noDataDescription);
     }
 }
 
 // 初期状態の空の時間割データ構造を定義
 const initialTimetableData = {
-    "mon": {
-        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
-        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
+    mon: {
+        1: { name: "", link: "", courseID: null },
+        2: { name: "", link: "", courseID: null },
+        3: { name: "", link: "", courseID: null },
+        4: { name: "", link: "", courseID: null },
+        5: { name: "", link: "", courseID: null },
+        6: { name: "", link: "", courseID: null },
     },
-    "tue": {
-        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
-        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
+    tue: {
+        1: { name: "", link: "", courseID: null },
+        2: { name: "", link: "", courseID: null },
+        3: { name: "", link: "", courseID: null },
+        4: { name: "", link: "", courseID: null },
+        5: { name: "", link: "", courseID: null },
+        6: { name: "", link: "", courseID: null },
     },
-    "wed": {
-        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
-        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
+    wed: {
+        1: { name: "", link: "", courseID: null },
+        2: { name: "", link: "", courseID: null },
+        3: { name: "", link: "", courseID: null },
+        4: { name: "", link: "", courseID: null },
+        5: { name: "", link: "", courseID: null },
+        6: { name: "", link: "", courseID: null },
     },
-    "thu": {
-        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
-        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
+    thu: {
+        1: { name: "", link: "", courseID: null },
+        2: { name: "", link: "", courseID: null },
+        3: { name: "", link: "", courseID: null },
+        4: { name: "", link: "", courseID: null },
+        5: { name: "", link: "", courseID: null },
+        6: { name: "", link: "", courseID: null },
     },
-    "fri": {
-        "1": { "name": "", "link": "", "courseID": null }, "2": { "name": "", "link": "", "courseID": null }, "3": { "name": "", "link": "", "courseID": null },
-        "4": { "name": "", "link": "", "courseID": null }, "5": { "name": "", "link": "", "courseID": null }, "6": { "name": "", "link": "", "courseID": null }
-    }
+    fri: {
+        1: { name: "", link: "", courseID: null },
+        2: { name: "", link: "", courseID: null },
+        3: { name: "", link: "", courseID: null },
+        4: { name: "", link: "", courseID: null },
+        5: { name: "", link: "", courseID: null },
+        6: { name: "", link: "", courseID: null },
+    },
 };
+
+// インデックスを曜日に変換するためのマッピング
+const dayIndexToDay = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 /**
  * 時間割データを読み込み、存在しない場合は初期データを保存する関数
@@ -115,10 +167,12 @@ const initialTimetableData = {
  */
 export async function loadTimetableFromStorage() {
     try {
-        const result = await chrome.storage.sync.get('myUniversityTimetable');
+        const result = await chrome.storage.sync.get("myUniversityTimetable");
         let timetableData = result.myUniversityTimetable;
         if (!timetableData) {
-            console.log("localStorageに時間割データがないため、新規作成します。");
+            console.log(
+                "localStorageに時間割データがないため、新規作成します。"
+            );
             try {
                 // オブジェクトのキーと値のペアで保存
                 // { '保存キー': 保存したい値 }
@@ -126,17 +180,20 @@ export async function loadTimetableFromStorage() {
                 console.log('新規データが保存されました');
                 timetableData = initialTimetableData;
             } catch (error) {
-                console.error('新規データの保存に失敗しました:', error);
+                console.error("新規データの保存に失敗しました:", error);
                 timetableData = initialTimetableData;
             }
             // 初回読み込み時に初期データを保存しておくことも可能 (任意)
             //await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         } else {
-            console.log("localStorageから時間割データを読み込みました:", timetableData);
+            console.log(
+                "localStorageから時間割データを読み込みました:",
+                timetableData
+            );
         }
         return timetableData;
     } catch (error) {
-        console.error('時間割の読み込み中にエラーが発生しました:', error);
+        console.error("時間割の読み込み中にエラーが発生しました:", error);
         // エラー時は初期データを返すなど、安全策をとる
         return initialTimetableData;
     }
@@ -144,14 +201,10 @@ export async function loadTimetableFromStorage() {
 
 /** 時間割データをリセットする */
 async function resetTimetableFromStorage() {
-    let result = window.confirm(
-        "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
+    let result = window.confirm("時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
     if (result) {
         try {
-            await chrome.storage.sync.set({ 'myUniversityTimetable': initialTimetableData });
-            // セッションストレージも更新
-            sessionStorage.setItem('myUniversityTimetable', JSON.stringify(initialTimetableData));
-            console.log('新規データが保存されました');
+            await chrome.storage.sync.set({myUniversityTimetable: initialTimetableData,});
         } catch (error) {
             console.log("時間割削除中にエラーが発生しました。", error);
         }
@@ -165,10 +218,12 @@ async function resetTimetableFromStorage() {
  * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
  * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
  */
-export async function updateTimetableAtStorage(courseInformationIncludeTimeJson) {
+export async function updateTimetableAtStorage(
+    courseInformationIncludeTimeJson
+) {
     console.log(courseInformationIncludeTimeJson);
     try {
-        const result = await chrome.storage.sync.get('myUniversityTimetable');
+        const result = await chrome.storage.sync.get("myUniversityTimetable");
         let timetableData = result.myUniversityTimetable;
         if (!timetableData) {
             console.log("時間割データを読み込めませんでした。");
@@ -176,21 +231,33 @@ export async function updateTimetableAtStorage(courseInformationIncludeTimeJson)
             // 初回読み込み時に初期データを保存しておくことも可能 (任意)
             // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
         } else {
-            console.log("localStorageから時間割データを読み込みました:", timetableData);
+            console.log(
+                "localStorageから時間割データを読み込みました:",
+                timetableData
+            );
             courseInformationIncludeTimeJson.times.forEach((timeJson) => {
-                timetableData[timeJson.day][timeJson.period]["name"] = courseInformationIncludeTimeJson["courseInformation"]["name"];
-                timetableData[timeJson.day][timeJson.period]["link"] = courseInformationIncludeTimeJson["courseInformation"]["link"];
-                timetableData[timeJson.day][timeJson.period]["courseID"] = courseInformationIncludeTimeJson["courseInformation"]["courseID"];
+                timetableData[timeJson.day][timeJson.period]["name"] =
+                    courseInformationIncludeTimeJson["courseInformation"][
+                        "name"
+                    ];
+                timetableData[timeJson.day][timeJson.period]["link"] =
+                    courseInformationIncludeTimeJson["courseInformation"][
+                        "link"
+                    ];
+                timetableData[timeJson.day][timeJson.period]["courseID"] =
+                    courseInformationIncludeTimeJson["courseInformation"][
+                        "courseID"
+                    ];
             });
             // オブジェクトのキーと値のペアで保存
             // { '保存キー': 保存したい値 }
-            await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
-            // セッションストレージも更新
-            sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetableData));
+            await chrome.storage.sync.set({
+                myUniversityTimetable: timetableData,
+            });
             return true;
         }
     } catch (error) {
-        console.error('時間割の読み込み中にエラーが発生しました:', error);
+        console.error("時間割の読み込み中にエラーが発生しました:", error);
         // エラー時は初期データを返すなど、安全策をとる
         return false;
     }
@@ -200,13 +267,18 @@ export async function updateTimetableAtStorage(courseInformationIncludeTimeJson)
  * @param {Object} courseInformationIncludeTimeJson - コース情報と時間情報を含むJSONオブジェクト
  * @returns {Promise<boolean>} 更新が成功したかどうかの真偽値
  */
-export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson) {
+export async function deleteTimetableAtStorage(
+    courseInformationIncludeTimeJson
+) {
     let result = window.confirm(
-        "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？");
+        "時間割表のデータを削除します。削除したデータは復元できません。(コース自体が消えることはありません。)\nそれでも削除しますか？"
+    );
     if (result) {
         console.log(courseInformationIncludeTimeJson);
         try {
-            const result = await chrome.storage.sync.get('myUniversityTimetable');
+            const result = await chrome.storage.sync.get(
+                "myUniversityTimetable"
+            );
             let timetableData = result.myUniversityTimetable;
             if (!timetableData) {
                 console.log("時間割データを読み込めませんでした。");
@@ -214,21 +286,25 @@ export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson)
                 // 初回読み込み時に初期データを保存しておくことも可能 (任意)
                 // await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
             } else {
-                console.log("localStorageから時間割データを読み込みました:", timetableData);
+                console.log(
+                    "localStorageから時間割データを読み込みました:",
+                    timetableData
+                );
                 courseInformationIncludeTimeJson.times.forEach((timeJson) => {
                     timetableData[timeJson.day][timeJson.period]["name"] = "";
                     timetableData[timeJson.day][timeJson.period]["link"] = "";
-                    timetableData[timeJson.day][timeJson.period]["courseID"] = null;
+                    timetableData[timeJson.day][timeJson.period]["courseID"] =
+                        null;
                 });
                 // オブジェクトのキーと値のペアで保存
                 // { '保存キー': 保存したい値 }
-                await chrome.storage.sync.set({ 'myUniversityTimetable': timetableData });
-                // セッションストレージも更新
-                sessionStorage.setItem('myUniversityTimetable', JSON.stringify(timetableData));
+                await chrome.storage.sync.set({
+                    myUniversityTimetable: timetableData,
+                });
                 return true;
             }
         } catch (error) {
-            console.error('時間割の読み込み中にエラーが発生しました:', error);
+            console.error("時間割の読み込み中にエラーが発生しました:", error);
             // エラー時は初期データを返すなど、安全策をとる
             return false;
         }
@@ -237,26 +313,67 @@ export async function deleteTimetableAtStorage(courseInformationIncludeTimeJson)
     }
 }
 
-/** 現在の時刻から現在受講中のクラスを取得する関数
- * @returns {Promise<Object|null>} 現在受講中のクラスの情報、受講中でなければnull
+/** 時刻から0:00からの通算時間を計算する関数
+ * @param {string} timeStr "HH:MM"形式の時刻文字列
+ * @returns {number} 0:00からの通算時間（分単位）
  */
-export async function getCurrentClass() {
-    let timetable_json = chrome.storage.sync.get('myUniversityTimetable');
+function timeToMinutes(timeStr) {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return hours * 60 + minutes;
+}
+
+/** 現在の時刻から現在受講中のコースインデックスを取得する関数
+ * @returns {Number|null} 現在受講中のコースインデックス、受講中でなければnull
+ */
+export async function getCurrentCourseIndex() {
     let now = new Date();
     let dayOfWeek = now.getDay(); // 0 (日曜) から 6 (土曜)
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    let second = now.getSeconds();
 
     if (dayOfWeek === 0 || dayOfWeek === 6) return null; // 土日は授業なし
-    
-    timetable_json.then((result) => {
-        let timetableData = JSON.parse(result.myUniversityTimetable);
+
+    for (let i = 0; i < timetable_origin.length; i++) {
+        let startMinutes = timeToMinutes(timetable_origin[i].start);
+        let endMinutes = timeToMinutes(timetable_origin[i].end);
+        let currentMinutes = hours * 60 + minutes;
+        if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+            return i;
+        }
+    }
+    // 現在受講中のコースが見つからなかった場合
+    return null;
+}
+
+/** 現在のコースを表示する関数 */
+async function displayCurrentCourse() {
+    console.log("現在のコースを表示します。");
+    chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
+        // const courseIndex = await getCurrentCourseIndex();
+        let courseIndex = 3 // debug用に4限目固定
+        console.log("courseIndex:", courseIndex);
+        let now = new Date();
+        const currentCourseDisplay = document.getElementById("currentCourseDisplay");
+
+        let timetableData = result.myUniversityTimetable;
+        console.log(timetableData);
         if (!timetableData) {
             console.log("時間割データを読み込めませんでした。");
-            return null;
+            return;
         }
-        timetableData = timetableData[["sun", "mon", "tue", "wed", "thu", "fri", "sat"][dayOfWeek]];
+        if (currentCourseDisplay) {
+            if (courseIndex === null) {
+                currentCourseDisplay.style.display = "none";
+                return;
+            }
+            const dayOfWeek = now.getDay();
+            const day = dayIndexToDay[1]; // debug用に月曜固定
+            const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
+            const courseName = timetableData[day][courseIndex + 1]["name"];
+            const courseLink = timetableData[day][courseIndex + 1]["link"];
+            currentCourseDisplay.innerHTML = `<nobr>現在受講中のコース: ${courseTimeStr} - </nobr><a href="${courseLink}">${courseName}</a>`;
+            currentCourseDisplay.style.display = "block";
+        }
     });
 }
 
@@ -267,8 +384,7 @@ export async function getCurrentClass() {
  */
 function create_timetable(time_table_json) {
     let time_table = document.createElement("table");
-    time_table.setAttribute("class", "customiseTimetable")
-
+    time_table.setAttribute("class", "customiseTimetable");
 
     //曜日作成
     let tr_day = document.createElement("tr");
@@ -279,20 +395,29 @@ function create_timetable(time_table_json) {
     let tr_5 = document.createElement("tr");
     let tr_6 = document.createElement("tr");
 
-    tr_day.innerHTML = "<th>時限</th><td>月曜</td><td>火曜</td><td>水曜</td><td>木曜</td><td>金曜</td>";
-    tr_1.innerHTML = '<th>1限<br><span class="class_time">08:50~10:20</span></th>';
-    tr_2.innerHTML = '<th>2限<br><span class="class_time">10:30~12:00</span></th>';
-    tr_3.innerHTML = '<th>3限<br><span class="class_time">13:00~14:30</span></th>';
-    tr_4.innerHTML = '<th>4限<br><span class="class_time">14:40~16:10</span></th>';
-    tr_5.innerHTML = '<th>5限<br><span class="class_time">16:20~17:50</span></th>';
-    tr_6.innerHTML = '<th>6限<br><span class="class_time">18:00~19:30</span></th>';
+    tr_day.innerHTML =
+        "<th>時限</th><td>月曜</td><td>火曜</td><td>水曜</td><td>木曜</td><td>金曜</td>";
+    tr_1.innerHTML =
+        '<th>1限<br><span class="class_time">08:50~10:20</span></th>';
+    tr_2.innerHTML =
+        '<th>2限<br><span class="class_time">10:30~12:00</span></th>';
+    tr_3.innerHTML =
+        '<th>3限<br><span class="class_time">13:00~14:30</span></th>';
+    tr_4.innerHTML =
+        '<th>4限<br><span class="class_time">14:40~16:10</span></th>';
+    tr_5.innerHTML =
+        '<th>5限<br><span class="class_time">16:20~17:50</span></th>';
+    tr_6.innerHTML =
+        '<th>6限<br><span class="class_time">18:00~19:30</span></th>';
 
     //時間割を挿入(一日ごとに挿入)
-    let day = ["mon", "tue", "wed", "thu", "fri"]
-    let trs = [tr_1, tr_2, tr_3, tr_4, tr_5, tr_6]
-    for (let i = 0; i < 5; i++) { //日付
-        for (let j = 0; j < 6; j++) { //時限
-            let date_class_data = time_table_json[day[i]][j + 1]
+    let day = ["mon", "tue", "wed", "thu", "fri"];
+    let trs = [tr_1, tr_2, tr_3, tr_4, tr_5, tr_6];
+    for (let i = 0; i < 5; i++) {
+        //日付
+        for (let j = 0; j < 6; j++) {
+            //時限
+            let date_class_data = time_table_json[day[i]][j + 1];
             if (date_class_data) {
                 let date_class_element = `<td><a href="${date_class_data.link}"><span class="courseLink">${date_class_data.name}</span></a></td>`;
                 trs[j].innerHTML += date_class_element;
@@ -312,12 +437,17 @@ function create_timetable(time_table_json) {
 /** コースページ上の時間割を更新する関数 */
 export async function updateTimetable() {
     let timetable_json = await loadTimetableFromStorage();
-    let timetable = document.querySelector("#div_TT_TableDiv .customiseTimetable");
-    if (timetable) { timetable.remove(); }
+    let timetable = document.querySelector(
+        "#div_TT_TableDiv .customiseTimetable"
+    );
+    if (timetable) {
+        timetable.remove();
+    }
 
     let tableDiv = document.querySelector("#div_TT_TableDiv");
     tableDiv.appendChild(create_timetable(timetable_json));
-    console.log("時間割表を更新しました")
+    displayCurrentTime();
+    console.log("時間割表を更新しました");
 }
 
 /**
@@ -331,7 +461,10 @@ function createManualEditDiscription() {
     /* リセット */
     const resetButton = document.createElement("button");
     resetButton.innerHTML = "リセット";
-    resetButton.setAttribute("class", "timetable-edit-button timetable-edit-button--reset");
+    resetButton.setAttribute(
+        "class",
+        "timetable-edit-button timetable-edit-button--reset"
+    );
     div.appendChild(resetButton);
     resetButton.addEventListener("click", (e) => {
         resetTimetableFromStorage();
@@ -340,11 +473,14 @@ function createManualEditDiscription() {
     /* 編集ボタン */
     const editButton = document.createElement("button");
     editButton.innerHTML = "編集";
-    editButton.setAttribute("class", "timetable-edit-button timetable-edit-button--edit");
+    editButton.setAttribute(
+        "class",
+        "timetable-edit-button timetable-edit-button--edit"
+    );
     div.appendChild(editButton);
     editButton.addEventListener("click", (e) => {
         showEditPopup();
-    })
+    });
 
     return div;
 }
@@ -352,13 +488,15 @@ function createManualEditDiscription() {
 /* 待機して挿入 ------------------------------------------------ */
 
 // 変更を監視するノードを選択
-const targetNode = document.querySelector("div[id^='block-myoverview'] div.container-fluid");
+const targetNode = document.querySelector(
+    "div[id^='block-myoverview'] div.container-fluid"
+);
 
 // (変更を監視する) オブザーバーのオプション
 const config = {
-    attributes: false,  // 属性値の監視
-    childList: true,  // 子ノードのDOM変更を監視
-    subtree: true  // ノードのサブツリーまで監視
+    attributes: false, // 属性値の監視
+    childList: true, // 子ノードのDOM変更を監視
+    subtree: true, // ノードのサブツリーまで監視
 };
 
 // 変更が発見されたときに実行されるコールバック関数
@@ -386,10 +524,14 @@ const observer_courses = new MutationObserver(callback_courses);
 //observer.disconnect();
 
 // 要素が途中で追加される場合があるので、定期的に要素を検索して時間割登録ボタンを追加する
-let intervalInterval
+let intervalInterval;
 //intervalInterval = setInterval(searchElement, 1000);
 function searchElement() {
-    if (!document.querySelector("div[id^='page-container-'] div.ml-auto div.dropdown-menu button.addCourseToTimetable")) {
+    if (
+        !document.querySelector(
+            "div[id^='page-container-'] div.ml-auto div.dropdown-menu button.addCourseToTimetable"
+        )
+    ) {
         // 要素が見つかったら時間割登録ボタンを追加
         searchElementList();
         searchElementCard();
@@ -399,11 +541,16 @@ function searchElement() {
 
 /** コースリストの要素を検索して時間割登録ボタンを追加する関数 */
 function searchElementList() {
-    let target = document.querySelector("[id^='page-container-'] ul.list-group");
+    let target = document.querySelector(
+        "[id^='page-container-'] ul.list-group"
+    );
 
     if (target) {
         console.log("コースリストが見つかりました。");
-        create_custombutton(target.querySelectorAll("li.list-group-item"), "list"); // コースリストの各コースに時間割登録ボタンを追加
+        create_custombutton(
+            target.querySelectorAll("li.list-group-item"),
+            "list"
+        ); // コースリストの各コースに時間割登録ボタンを追加
         //ボタンにイベントを設定
         setEventTimetableCustomiseButton();
     }
@@ -411,7 +558,9 @@ function searchElementList() {
 
 /** コースカードの要素を検索して時間割登録ボタンを追加する関数 */
 function searchElementCard() {
-    let target = document.querySelector("[id^='page-container-'] div.dashboard-card-deck");
+    let target = document.querySelector(
+        "[id^='page-container-'] div.dashboard-card-deck"
+    );
 
     if (target) {
         console.log("コースカードが見つかりました。");
@@ -423,11 +572,16 @@ function searchElementCard() {
 
 /** コース概要の要素を検索して時間割登録ボタンを追加する関数 */
 function searchElementOverview() {
-    let target = document.querySelector("[id^='page-container-'] div[data-region='paged-content-page'] div[role='list']:not(.card-deck)");
+    let target = document.querySelector(
+        "[id^='page-container-'] div[data-region='paged-content-page'] div[role='list']:not(.card-deck)"
+    );
 
     if (target) {
         console.log("コース概要が見つかりました。");
-        create_custombutton(target.querySelectorAll("div.course-summaryitem"), "overview"); // コース概要の各コースに時間割登録ボタンを追加
+        create_custombutton(
+            target.querySelectorAll("div.course-summaryitem"),
+            "overview"
+        ); // コース概要の各コースに時間割登録ボタンを追加
         //ボタンにイベントを設定
         setEventTimetableCustomiseButton();
     }
@@ -440,13 +594,15 @@ function searchElementOverview() {
  */
 function create_custombutton(targetElements, domType) {
     targetElements.forEach((courseElem) => {
-
         /* コース名検索 */
-        let courseName = '';
+        let courseName = "";
 
         // コース名の取得方法は、リストとカードで異なるため、domTypeに応じて処理を分ける
-        if (domType === "list" || domType === "overview") { // リストの場合
-            const courseNameSrOnlySpan = courseElem.querySelector('span[data-region="favourite-icon"] + span.sr-only');
+        if (domType === "list" || domType === "overview") {
+            // リストの場合
+            const courseNameSrOnlySpan = courseElem.querySelector(
+                'span[data-region="favourite-icon"] + span.sr-only'
+            );
             if (courseNameSrOnlySpan) {
                 // sr-only spanの次の兄弟ノードが目的のテキストノードです
                 let nextNode = courseNameSrOnlySpan.nextSibling;
@@ -455,17 +611,27 @@ function create_custombutton(targetElements, domType) {
                 if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
                     courseName = nextNode.textContent.trim(); // 前後の空白を削除
                 } else {
-                    console.log('目的のコース名テキストノードが見つかりませんでした。');
+                    console.log(
+                        "目的のコース名テキストノードが見つかりませんでした。"
+                    );
                 }
             } else {
-                console.log('セレクタに一致する要素が見つかりませんでした。');
+                console.log("セレクタに一致する要素が見つかりませんでした。");
             }
-        } else if (domType === "card") { // カードの場合
-            courseName = courseElem.querySelector("span.multiline").getAttribute("title").trim();
+        } else if (domType === "card") {
+            // カードの場合
+            courseName = courseElem
+                .querySelector("span.multiline")
+                .getAttribute("title")
+                .trim();
             if (!courseName) {
-                courseName = courseElem.querySelector("span.st-only").textContent.trim();
+                courseName = courseElem
+                    .querySelector("span.st-only")
+                    .textContent.trim();
                 if (!courseName) {
-                    courseName = courseElem.querySelector("span[aria-hidden='true']").textContent.trim();
+                    courseName = courseElem
+                        .querySelector("span[aria-hidden='true']")
+                        .textContent.trim();
                 }
             }
         }
@@ -474,7 +640,6 @@ function create_custombutton(targetElements, domType) {
             return; // コース名が取得できない場合は次の要素へ
         }
 
-
         /* コースid検索 */
         let courseID = courseElem.getAttribute("data-course-id");
         //console.log(`コース名: ${courseName}\nコースid :${courseID}`);
@@ -482,11 +647,15 @@ function create_custombutton(targetElements, domType) {
         /* リンク検索 */
         let courseLink = courseElem.querySelector("a").getAttribute("href");
 
-
-        let courseButtonLi = courseElem.querySelector(".ml-auto .dropdown-menu");
+        let courseButtonLi = courseElem.querySelector(
+            ".ml-auto .dropdown-menu"
+        );
         /* 追加ボタン作成 */
         let setTimetableButton = document.createElement("button");
-        setTimetableButton.setAttribute("class", "dropdown-item addCourseToTimetable");
+        setTimetableButton.setAttribute(
+            "class",
+            "dropdown-item addCourseToTimetable"
+        );
         setTimetableButton.setAttribute("data-action", "set-course-timetable");
         setTimetableButton.setAttribute("data-course-id", courseID);
         setTimetableButton.setAttribute("data-course-name", courseName);
@@ -507,5 +676,5 @@ function create_custombutton(targetElements, domType) {
         deleteTimetableButton.innerHTML = "時間割から削除";
         courseButtonLi.appendChild(deleteTimetableButton);
         削除はコース名編集から行うのでボツ */
-    })
+    });
 }
