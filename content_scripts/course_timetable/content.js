@@ -384,6 +384,10 @@ async function displayCurrentCourse() {
         const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
         const courseName = timetableData[day][courseIndex + 1]["name"];
         const courseLink = timetableData[day][courseIndex + 1]["link"];
+        if (courseName === "") {
+            currentCourseDisplay.style.display = "none";
+            return;
+        }
         currentCourseDisplay.innerHTML = `<nobr>現在受講中のコース: ${courseTimeStr} - </nobr><a href="${courseLink}">${courseName}</a>`;
         currentCourseDisplay.style.display = "block";
         currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndex)}%`);

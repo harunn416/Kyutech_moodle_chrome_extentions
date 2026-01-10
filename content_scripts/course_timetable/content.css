@@ -65,7 +65,7 @@ input.checkboxTimeschedule {
     text-align: center;
     font-size: 22px;
     /* progress% までは薄灰色、そこから先は透明(transparent) */
-    background: linear-gradient(to right, #e3e3e3 var(--progress, 0%), transparent var(--progress, 0%));
+    background: linear-gradient(to right, #e8e8e8 var(--progress, 0%), transparent var(--progress, 0%));
     border: #676767 solid 2px;
     border-radius: 10px;
     padding: 5px;
