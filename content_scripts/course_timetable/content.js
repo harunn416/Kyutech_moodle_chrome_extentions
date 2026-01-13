@@ -362,13 +362,11 @@ async function displayCurrentCourse() {
     console.log("現在のコースを表示します。");
     chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
         const courseIndex = await getCurrentCourseIndex();
-        console.log("courseIndex:", courseIndex);
         let now = new Date();
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
         if (currentCourseDisplay === null) throw new Error("courseIndex is null");
 
         let timetableData = result.myUniversityTimetable;
-        console.log(timetableData);
         if (!timetableData) {
             console.log("時間割データを読み込めませんでした。");
             return;
