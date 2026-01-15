@@ -387,7 +387,34 @@ async function displayCurrentCourse() {
             currentCourseDisplay.style.display = "none";
             return;
         }
-        currentCourseDisplay.innerHTML = `<nobr>現在受講中のコース: ${courseTimeStr} - </nobr><a href="${courseLink}">${courseName}</a>`;
+        // 安全なDOM操作で現在のコースを表示（innerHTMLは使用しない）
+        while (currentCourseDisplay.firstChild) {
+            currentCourseDisplay.removeChild(currentCourseDisplay.firstChild);
+        }
+
+        const nobr = document.createElement("nobr");
+        nobr.textContent = `現在受講中のコース: ${courseTimeStr} - `;
+
+        const linkElement = document.createElement("a");
+        // courseLink を検証し、安全な URL のみ href に設定する
+        let safeHref = "#";
+        if (typeof courseLink === "string" && courseLink !== "") {
+            try {
+                const url = new URL(courseLink, window.location.href);
+                if (url.protocol === "http:" || url.protocol === "https:") {
+                    safeHref = url.href;
+                } else {
+                    console.warn("Unsafe protocol in courseLink detected, using fallback '#'.");
+                }
+            } catch (e) {
+                console.warn("Invalid courseLink URL detected, using fallback '#'.", e);
+            }
+        }
+        linkElement.href = safeHref;
+        linkElement.textContent = courseName;
+
+        currentCourseDisplay.appendChild(nobr);
+        currentCourseDisplay.appendChild(linkElement);
         currentCourseDisplay.style.display = "block";
         currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndex)}%`);
     });
