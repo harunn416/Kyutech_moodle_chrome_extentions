@@ -367,7 +367,7 @@ async function displayCurrentCourse() {
         const courseIndex = await getCurrentCourseIndex();
         let now = new Date();
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
-        if (currentCourseDisplay === null) throw new Error("courseIndex is null");
+        if (currentCourseDisplay === null) throw new Error("currentCourseDisplay element not found");
 
         let timetableData = result.myUniversityTimetable;
         if (!timetableData) {
