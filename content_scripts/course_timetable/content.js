@@ -328,7 +328,7 @@ function timeToMinutes(timeStr) {
 /** 現在の時刻から現在受講中のコースインデックスを取得する関数
  * @returns {Number|null} 現在受講中のコースインデックス、受講中でなければnull
  */
-export async function getCurrentCourseIndex() {
+export function getCurrentCourseIndex() {
     let now = new Date();
     let dayOfWeek = now.getDay(); // 0 (日曜) から 6 (土曜)
     let hours = now.getHours();
