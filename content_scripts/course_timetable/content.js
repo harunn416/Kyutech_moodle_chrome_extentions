@@ -489,7 +489,7 @@ export async function updateTimetable() {
 
     let tableDiv = document.querySelector("#div_TT_TableDiv");
     tableDiv.appendChild(create_timetable(timetable_json));
-    displayCurrentTime();
+    displayCurrentCourse();
     console.log("時間割表を更新しました");
 }
 
