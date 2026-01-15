@@ -567,7 +567,6 @@ const observer_courses = new MutationObserver(callback_courses);
 //observer.disconnect();
 
 // 要素が途中で追加される場合があるので、定期的に要素を検索して時間割登録ボタンを追加する
-let intervalInterval;
 //intervalInterval = setInterval(searchElement, 1000);
 function searchElement() {
     if (
