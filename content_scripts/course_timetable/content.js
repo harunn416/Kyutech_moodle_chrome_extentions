@@ -205,6 +205,7 @@ async function resetTimetableFromStorage() {
     if (result) {
         try {
             await chrome.storage.sync.set({myUniversityTimetable: initialTimetableData,});
+            displayCurrentCourse(); // 現在受講中のコース表示も更新
         } catch (error) {
             console.log("時間割削除中にエラーが発生しました。", error);
         }
@@ -254,6 +255,7 @@ export async function updateTimetableAtStorage(
             await chrome.storage.sync.set({
                 myUniversityTimetable: timetableData,
             });
+            displayCurrentCourse(); // 現在受講中のコース表示も更新
             return true;
         }
     } catch (error) {
@@ -301,6 +303,7 @@ export async function deleteTimetableAtStorage(
                 await chrome.storage.sync.set({
                     myUniversityTimetable: timetableData,
                 });
+                displayCurrentCourse(); // 現在受講中のコース表示も更新
                 return true;
             }
         } catch (error) {
@@ -350,7 +353,7 @@ function calculateCourseProgress(courseIndex) {
     let now = new Date();
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start);
+    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start) +10; // 休憩時間の10分を加算
     let endMinutes = timeToMinutes(timetable_origin[courseIndex].end);
     let currentMinutes = hours * 60 + minutes;
     let progress = ((currentMinutes - startMinutes) / (endMinutes - startMinutes)) * 100;
