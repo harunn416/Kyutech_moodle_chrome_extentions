@@ -1,5 +1,5 @@
 {
   "matches": ["https://ict-i.el.kyutech.ac.jp/my/"],
   "displayName": "タイムラインオープナー",
-  "description": "タイムラインの活動をすべて開きます。"
+  "description": "ダッシュボードのタイムラインの活動をすべて開きます。(「更に活動を表示する」ボタンがない場合はすべて開かれないことがあります。)"
 }
