@@ -89,7 +89,7 @@ async function main() {
     createPageEditPopup();
     observer_courses.observe(targetNode, config);
 
-    // 毎分現在の時間を更新
+    // 30秒ごとに現在の時間を更新
     displayCurrentCourse();
     setInterval(displayCurrentCourse, 30000);
 }
