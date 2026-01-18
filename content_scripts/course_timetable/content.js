@@ -41,11 +41,11 @@ import { createPageEditPopup, showEditPopup } from "./timetableEditPopup.js"; //
 // 時間割の各時限の開始・終了時間を定義
 const timetable_origin = [
     { label: "1限目", start: "08:50", end: "10:20" },
-    { label: "2限目", start: "10:20", end: "12:00" },
+    { label: "2限目", start: "10:30", end: "12:00" },
     { label: "3限目", start: "13:00", end: "14:30" },
-    { label: "4限目", start: "14:30", end: "16:10" },
-    { label: "5限目", start: "16:10", end: "17:50" },
-    { label: "6限目", start: "17:50", end: "19:30" },
+    { label: "4限目", start: "14:40", end: "16:10" },
+    { label: "5限目", start: "16:20", end: "17:50" },
+    { label: "6限目", start: "18:00", end: "19:30" },
 ];
 
 /** main function */
@@ -326,7 +326,7 @@ function timeToMinutes(timeStr) {
 }
 
 /** 現在の時刻から現在受講中のコースインデックスを取得する関数
- * @returns {Number|null} 現在受講中のコースインデックス、受講中でなければnull
+ * @return {Object|null} {index: コースインデックス, isBreakTime: 休憩時間かどうか} または null (授業なし)
  */
 export function getCurrentCourseIndex() {
     let now = new Date();
@@ -341,7 +341,10 @@ export function getCurrentCourseIndex() {
         let endMinutes = timeToMinutes(timetable_origin[i].end);
         let currentMinutes = hours * 60 + minutes;
         if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-            return i;
+            return {"index": i, "isBreakTime": false};
+        }
+        if (startMinutes -10 <= currentMinutes && currentMinutes < startMinutes) {
+            return {"index": i, "isBreakTime": true};
         }
     }
     // 現在受講中のコースが見つからなかった場合
@@ -353,10 +356,21 @@ function calculateCourseProgress(courseIndex) {
     let now = new Date();
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start) +10; // 休憩時間の10分を加算
+    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start);
     let endMinutes = timeToMinutes(timetable_origin[courseIndex].end);
     let currentMinutes = hours * 60 + minutes;
     let progress = ((currentMinutes - startMinutes) / (endMinutes - startMinutes)) * 100;
+    return Math.min(Math.max(progress, 0), 100); // 0から100の範囲に制限
+}
+
+/* 休憩時間の何％が経過したかを計算する関数 */
+function calculateBreakTimeProgress(courseIndex) {
+    let now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let startMinutes = timeToMinutes(timetable_origin[courseIndex].start);
+    let currentMinutes = hours * 60 + minutes;
+    let progress = ((currentMinutes - (startMinutes - 10)) / 10) * 100;
     return Math.min(Math.max(progress, 0), 100); // 0から100の範囲に制限
 }
 
@@ -364,7 +378,7 @@ function calculateCourseProgress(courseIndex) {
 async function displayCurrentCourse() {
     console.log("現在のコースを表示します。");
     chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
-        const courseIndex = await getCurrentCourseIndex();
+        const courseIndexObj = await getCurrentCourseIndex();
         let now = new Date();
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
         if (currentCourseDisplay === null) throw new Error("currentCourseDisplay element not found");
@@ -374,26 +388,30 @@ async function displayCurrentCourse() {
             console.log("時間割データを読み込めませんでした。");
             return;
         }
-        if (courseIndex === null) {
+        if (courseIndexObj === null) {
             currentCourseDisplay.style.display = "none";
             return;
         }
         const dayOfWeek = now.getDay();
         const day = dayIndexToDay[dayOfWeek];
-        const courseTimeStr = `${timetable_origin[courseIndex].label} (${timetable_origin[courseIndex].start}〜${timetable_origin[courseIndex].end})`;
-        const courseName = timetableData[day][courseIndex + 1]["name"];
-        const courseLink = timetableData[day][courseIndex + 1]["link"];
+        const courseTimeStr = `${timetable_origin[courseIndexObj.index].label} (${timetable_origin[courseIndexObj.index].start}〜${timetable_origin[courseIndexObj.index].end})`;
+        const courseName = timetableData[day][courseIndexObj.index + 1]["name"];
+        const courseLink = timetableData[day][courseIndexObj.index + 1]["link"];
         if (courseName === "") {
             currentCourseDisplay.style.display = "none";
             return;
         }
-        // 安全なDOM操作で現在のコースを表示（innerHTMLは使用しない）
+        // 表示内容をクリア
         while (currentCourseDisplay.firstChild) {
             currentCourseDisplay.removeChild(currentCourseDisplay.firstChild);
         }
 
         const nobr = document.createElement("nobr");
-        nobr.textContent = `現在受講中のコース: ${courseTimeStr} - `;
+        if (courseIndexObj.isBreakTime) {
+            nobr.textContent = `次のコース（休憩時間中）: ${courseTimeStr} - `;
+        } else {
+            nobr.textContent = `現在受講中のコース: ${courseTimeStr} - `;
+        }
 
         const linkElement = document.createElement("a");
         // courseLink を検証し、安全な URL のみ href に設定する
@@ -416,7 +434,11 @@ async function displayCurrentCourse() {
         currentCourseDisplay.appendChild(nobr);
         currentCourseDisplay.appendChild(linkElement);
         currentCourseDisplay.style.display = "block";
-        currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndex)}%`);
+        if (courseIndexObj.isBreakTime) {
+            currentCourseDisplay.style.setProperty("--progress", `${calculateBreakTimeProgress(courseIndexObj.index)}%`);
+        } else {
+            currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndexObj.index)}%`);
+        }
     });
 }
 
