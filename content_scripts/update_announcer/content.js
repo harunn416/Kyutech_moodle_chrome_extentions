@@ -72,7 +72,7 @@ function createUpdatePopup(storedVersion, currentVersion) {
     changeVersion.textContent = `v${versionInfoArray[storedIndex].version} → v${versionInfoArray[0].version}`
     changeVersion.style.textAlign = 'center';
     // アップデートの重要度に応じて色を変える
-    console.log(storedVersionDivided, latestVersionDivided);
+    // console.log(storedVersionDivided, latestVersionDivided);
     if ( storedVersionDivided[1] !== latestVersionDivided[1] ) {
         changeVersion.style.color = '#a30064ff';
     } else {
