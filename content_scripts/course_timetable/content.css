@@ -1,3 +1,9 @@
+@property --progress {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
 .customiseTimetable .class_time {
     font-size: 14px;
 }
@@ -55,6 +61,16 @@ input.checkboxTimeschedule {
     height: 20px;
 }
 
+#currentCourseDisplay{
+    text-align: center;
+    font-size: 22px;
+    /* progress% までは薄灰色、そこから先は透明(transparent) */
+    background: linear-gradient(to right, #e8e8e8 var(--progress, 0%), transparent var(--progress, 0%));
+    border: #676767 solid 2px;
+    border-radius: 10px;
+    padding: 5px;
+    transition: --progress 0.3s ease;
+}
 
 
 #div_TT .timetableEditButtonDiv{

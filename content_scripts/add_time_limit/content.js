@@ -67,6 +67,8 @@ function addTimeLimit(SubmitsDivElement) {
         } else { // 提出物要素
             Array.from(divElement.children).forEach(divSubmission => {
                 const submitDiv = divSubmission.querySelector("div.timeline-name");
+                // 提出物のdiv要素が見つからなかった場合はスキップ
+                if (!submitDiv) return;
                 const timeLimit = submitDiv.querySelector("small").innerHTML;
                 const timeMatch = timeLimit.match(/(\d{2}):(\d{2})/);
                 if (timeMatch) { // 提出時間が取得できたかどうか。
