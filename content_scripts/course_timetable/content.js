@@ -378,8 +378,10 @@ function calculateBreakTimeProgress(courseIndex) {
 async function displayCurrentCourse() {
     console.log("現在のコースを表示します。");
     chrome.storage.sync.get("myUniversityTimetable").then(async (result) => {
+        // 現在のコースインデックスを取得
         const courseIndexObj = await getCurrentCourseIndex();
-        let now = new Date();
+
+        // 現在のコースを表示する要素を取得
         const currentCourseDisplay = document.getElementById("currentCourseDisplay");
         if (currentCourseDisplay === null) throw new Error("currentCourseDisplay element not found");
 
@@ -388,10 +390,15 @@ async function displayCurrentCourse() {
             console.log("時間割データを読み込めませんでした。");
             return;
         }
+
+        // 時間外の場合は非表示にする
         if (courseIndexObj === null) {
             currentCourseDisplay.style.display = "none";
             return;
         }
+
+        // 各種表示情報を作成
+        let now = new Date();
         const dayOfWeek = now.getDay();
         const day = dayIndexToDay[dayOfWeek];
         const courseTimeStr = `${timetable_origin[courseIndexObj.index].label} (${timetable_origin[courseIndexObj.index].start}〜${timetable_origin[courseIndexObj.index].end})`;
@@ -406,6 +413,7 @@ async function displayCurrentCourse() {
             currentCourseDisplay.removeChild(currentCourseDisplay.firstChild);
         }
 
+        // 挿入する要素を作成
         const nobr = document.createElement("nobr");
         if (courseIndexObj.isBreakTime) {
             nobr.textContent = `次のコース（休憩時間中）: ${courseTimeStr} - `;
@@ -434,9 +442,9 @@ async function displayCurrentCourse() {
         currentCourseDisplay.appendChild(nobr);
         currentCourseDisplay.appendChild(linkElement);
         currentCourseDisplay.style.display = "block";
-        if (courseIndexObj.isBreakTime) {
+        if (courseIndexObj.isBreakTime) { // 休憩時間中
             currentCourseDisplay.style.setProperty("--progress", `${calculateBreakTimeProgress(courseIndexObj.index)}%`);
-        } else {
+        } else { // 授業時間中
             currentCourseDisplay.style.setProperty("--progress", `${calculateCourseProgress(courseIndexObj.index)}%`);
         }
     });
