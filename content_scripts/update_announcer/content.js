@@ -72,7 +72,8 @@ function createUpdatePopup(storedVersion, currentVersion) {
     changeVersion.textContent = `v${versionInfoArray[storedIndex].version} → v${versionInfoArray[0].version}`
     changeVersion.style.textAlign = 'center';
     // アップデートの重要度に応じて色を変える
-    if ( storedVersionDivided[1] !== secondVersionDivided[1] ) {
+    console.log(storedVersionDivided, latestVersionDivided);
+    if ( storedVersionDivided[1] !== latestVersionDivided[1] ) {
         changeVersion.style.color = '#a30064ff';
     } else {
         changeVersion.style.color = '#00427f';
@@ -80,9 +81,9 @@ function createUpdatePopup(storedVersion, currentVersion) {
     popup.appendChild(changeVersion);
 
     const title = document.createElement('h3');
-    if ( storedVersionDivided[0] !== secondVersionDivided[0] ) {
+    if ( storedVersionDivided[0] !== latestVersionDivided[0] ) {
         title.textContent = `大型アップデートが来ました!!`;
-    }else if ( storedVersionDivided[1] !== secondVersionDivided[1] ) {
+    }else if ( storedVersionDivided[1] !== latestVersionDivided[1] ) {
         title.textContent = `大きな更新がありました！`;
     } else {
         title.textContent = `軽微な更新がありました！`;
