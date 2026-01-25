@@ -1,0 +1,39 @@
+import { observeElementAppearance } from "../../util/mutationObserver.js";
+import { openCourseLink } from "./open_link.js";
+
+/** ダッシュボードのタイムラインにコースを開くテキストを追加する関数 */
+export function editDomToAddCourseLink() {
+    const assignmentElementSelector = 'div#page div#page-content div.pb-2[data-region="event-list-wrapper"] div.timeline-event-list-item';
+    observeElementAppearance( assignmentElementSelector, async () => {
+        console.log("コールバック関数実行");
+
+        document.querySelectorAll(assignmentElementSelector).forEach( async (assignmentElement) => {
+            // すでに追加済みなら何もしない
+            if (assignmentElement.dataset.courseLinkAdded === "true") return;
+
+            // 課題IDと課題リンクを取得
+            const assignmentLinkElement = assignmentElement.querySelector('div.timeline-name div.event-name-container a');
+            let assignmentURL = "";
+            let assignmentID = "";
+            if (assignmentLinkElement) {
+                assignmentURL = assignmentLinkElement.getAttribute("href");
+                const url = new URL(assignmentURL);
+                assignmentID = url.searchParams.get("id");
+            }
+            
+            // リンクdivを作成
+            const linkDiv = document.createElement("div");
+            linkDiv.className = "to-course-link-div standby";
+            linkDiv.textContent = "コースを開く";
+
+            // クリックイベントを追加
+            linkDiv.addEventListener("click", () => { openCourseLink(assignmentID, assignmentURL); });
+
+            // divを追加
+            assignmentElement.querySelector("div.event-name-container").appendChild(linkDiv);
+            
+            assignmentElement.dataset.courseLinkAdded = "true";
+        });
+        
+    }, document.body, true, true);
+}
