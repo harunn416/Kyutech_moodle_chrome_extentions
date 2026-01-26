@@ -21,6 +21,11 @@ export function editDomToAddCourseLink() {
                 assignmentID = url.searchParams.get("id");
             }
             
+            if (!assignmentURL) {
+                console.warn("課題リンクが取得できませんでした。");
+                return;
+            }
+
             // リンクdivを作成
             const linkDiv = document.createElement("div");
             linkDiv.className = "to-course-link-div standby";
@@ -35,5 +40,5 @@ export function editDomToAddCourseLink() {
             assignmentElement.dataset.courseLinkAdded = "true";
         });
         
-    }, document.body, true, true);
+    }, document.body, false, true);
 }

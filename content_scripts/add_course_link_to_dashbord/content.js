@@ -29,7 +29,13 @@ async function shouldRun() {
 import "./content.css";
 import { getCourseLink } from "./get_courseLink.js";
 import { editDomToAddCourseLink } from "./edit_dom.js";
+import { maintainCacheSizeLimit } from "./operate_storage_local.js";
+
+
 // ブラウザ読み込み時にメイン関数を実行。
 async function main(){
+    // キャッシュサイズ制限を維持
+    maintainCacheSizeLimit();
+    // DOM編集関数を実行
     editDomToAddCourseLink();
 }
