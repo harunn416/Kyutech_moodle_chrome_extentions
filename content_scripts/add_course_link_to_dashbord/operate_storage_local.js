@@ -1,6 +1,6 @@
 // キャッシュを保存するストレージのキー
 const STORAGE_KEY = 'COURSE_LINKS_CACHE';
-const MAX_CACHE_SIZE = 2;
+const MAX_CACHE_SIZE = 1000;
 
 /** キャッシュを保存する関数
  * @param {string} assignmentID - 課題ID

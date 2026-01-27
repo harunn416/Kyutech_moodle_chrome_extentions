@@ -3,6 +3,9 @@
  * @returns {Promise<string|null>} - コースリンクのURLまたはnull
 */
 export async function getCourseLink(URL) {
+    // 課題リンクがコースリンクの場合はそのまま返す
+    if (URL.includes("/course/view.php")) return URL;
+
     const response = await fetch(URL);
 
     // ステータスコードの確認

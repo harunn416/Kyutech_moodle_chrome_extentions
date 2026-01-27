@@ -4,10 +4,10 @@ import { openCourseLink } from "./open_link.js";
 /** ダッシュボードのタイムラインにコースを開くテキストを追加する関数 */
 export function editDomToAddCourseLink() {
     const assignmentElementSelector = 'div#page div#page-content div.pb-2[data-region="event-list-wrapper"] div.timeline-event-list-item';
-    observeElementAppearance( assignmentElementSelector, async () => {
+    observeElementAppearance(assignmentElementSelector, async () => {
         console.log("コールバック関数実行");
 
-        document.querySelectorAll(assignmentElementSelector).forEach( async (assignmentElement) => {
+        document.querySelectorAll(assignmentElementSelector).forEach(async (assignmentElement) => {
             // すでに追加済みなら何もしない
             if (assignmentElement.dataset.courseLinkAdded === "true") return;
 
@@ -20,7 +20,7 @@ export function editDomToAddCourseLink() {
                 const url = new URL(assignmentURL);
                 assignmentID = url.searchParams.get("id");
             }
-            
+
             if (!assignmentURL) {
                 console.warn("課題リンクが取得できませんでした。");
                 return;
@@ -32,13 +32,33 @@ export function editDomToAddCourseLink() {
             linkDiv.textContent = "コースを開く";
 
             // クリックイベントを追加
-            linkDiv.addEventListener("click", () => { openCourseLink(assignmentID, assignmentURL); });
+            linkDiv.addEventListener("click", (e) => { openCourseLink(assignmentID, assignmentURL, e.target); });
 
             // divを追加
             assignmentElement.querySelector("div.event-name-container").appendChild(linkDiv);
-            
+
             assignmentElement.dataset.courseLinkAdded = "true";
         });
-        
+
     }, document.body, false, true);
 }
+
+/** ボタンのデザインを変える関数 
+ * @param {HTMLElement} buttonElement 対象のボタン要素
+ * @param {string} caseType デザインのケース ( "standby" , "loading" , "error" )
+ */
+export function changeButtonDesign(buttonElement, caseType) {
+    buttonElement.classList.remove("standby", "loading", "error");
+    if (caseType === "loading") {
+        buttonElement.classList.add("loading");
+        buttonElement.textContent = "読み込み中...";
+    } else if (caseType === "error") {
+        buttonElement.classList.add("error");
+        buttonElement.textContent = "エラー発生";
+    } else {
+        buttonElement.classList.add("standby");
+        buttonElement.textContent = "コースを開く";
+    }
+}
+
+
