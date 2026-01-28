@@ -5,18 +5,18 @@
 */
 export async function getCourseLink(assignmentID, URL, onErrorCallback = null) {
     const response = await fetch(URL);
-    
+
     // ステータスコードの確認
     if (!response.ok) {
         if (onErrorCallback) onErrorCallback();
         throw new Error(`HTTPエラー! ステータス: ${response.status}`);
     }
-    
+
     // HTMLコンテンツの取得とパース
     const htmlText = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlText, 'text/html');
-    
+
     // リダイレクトされたDOMがコースの場合、そのURLを返す
     if (doc.body.id.includes('course-view')) return response.url + `#module-${assignmentID}`;
 

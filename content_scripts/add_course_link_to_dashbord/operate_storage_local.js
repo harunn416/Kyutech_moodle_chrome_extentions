@@ -17,7 +17,7 @@ export async function saveCourseLinkToLocalStorage(assignmentID, courseLink) {
 
         // 更新されたキャッシュを保存;
         await chrome.storage.local.set({ [STORAGE_KEY]: Array.from(courseLinksCache.entries()) });
-        console.log(`コースリンクが保存されました: ${assignmentID} -> ${courseLink}`);
+        console.log(`コースリンクがキャッシュに保存されました: ${assignmentID} -> ${courseLink}`);
     } catch (error) {
         console.error('コースリンクの保存に失敗しました:', error);
     }

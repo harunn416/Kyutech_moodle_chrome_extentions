@@ -5,8 +5,6 @@ import { openCourseLink } from "./open_link.js";
 export function editDomToAddCourseLink() {
     const assignmentElementSelector = 'div#page div#page-content div.pb-2[data-region="event-list-wrapper"] div.timeline-event-list-item';
     observeElementAppearance(assignmentElementSelector, async () => {
-        console.log("コールバック関数実行");
-
         document.querySelectorAll(assignmentElementSelector).forEach(async (assignmentElement) => {
             // すでに追加済みなら何もしない
             if (assignmentElement.dataset.courseLinkAdded === "true") return;
