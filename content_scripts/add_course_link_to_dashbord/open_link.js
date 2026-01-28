@@ -27,5 +27,4 @@ export async function openCourseLink(assignmentId, assignmentLink, buttonElement
         changeButtonDesign(buttonElement, "standby");
         window.open(courseLink, '_blank');
     }
-    
 }

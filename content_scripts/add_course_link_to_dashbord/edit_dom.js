@@ -43,11 +43,11 @@ export function editDomToAddCourseLink() {
     }, document.body, false, true);
 }
 
-/** ボタンのデザインを変える関数 
+/** ボタンのデザインを変える関数
  * @param {HTMLElement} buttonElement 対象のボタン要素
  * @param {string} caseType デザインのケース ( "standby" , "loading" , "error" )
  */
-export function changeButtonDesign(buttonElement, caseType) {
+export function changeButtonDesign(buttonElement, caseType = "standby") {
     buttonElement.classList.remove("standby", "loading", "error");
     if (caseType === "loading") {
         buttonElement.classList.add("loading");

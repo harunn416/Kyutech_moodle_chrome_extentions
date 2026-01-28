@@ -1,3 +1,7 @@
+import "./content.css";
+import { editDomToAddCourseLink } from "./edit_dom.js";
+import { maintainCacheSizeLimit } from "./operate_storage_local.js";
+
 /* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
 // この機能に対応するキー名を定義
 // キー名はバンドル時に置換される
@@ -25,11 +29,6 @@ async function shouldRun() {
     }
 })();
 /********************************************************************************/
-
-import "./content.css";
-import { getCourseLink } from "./get_courseLink.js";
-import { editDomToAddCourseLink } from "./edit_dom.js";
-import { maintainCacheSizeLimit } from "./operate_storage_local.js";
 
 
 // ブラウザ読み込み時にメイン関数を実行。
