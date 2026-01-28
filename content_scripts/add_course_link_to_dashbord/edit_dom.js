@@ -54,7 +54,7 @@ export function changeButtonDesign(buttonElement, caseType = "standby") {
         buttonElement.textContent = "読み込み中...";
     } else if (caseType === "error") {
         buttonElement.classList.add("error");
-        buttonElement.textContent = "エラー発生";
+        buttonElement.textContent = "エラー";
     } else {
         buttonElement.classList.add("standby");
         buttonElement.textContent = "コースを開く";

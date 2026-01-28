@@ -8,7 +8,7 @@
 }
 
 .to-course-link-div.standby{
-    --standby-color: #0041b9;
+    --standby-color: #0050b9;
     color: var(--standby-color)
 }
 .to-course-link-div.standby:hover{
@@ -16,7 +16,7 @@
 }
 
 .to-course-link-div.error{
-    --error-color: #b90000;
+    --error-color: #cf1d00;
     color: var(--error-color)
 }
 .to-course-link-div.error:hover{

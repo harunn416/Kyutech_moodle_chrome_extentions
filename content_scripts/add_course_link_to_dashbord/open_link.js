@@ -16,7 +16,7 @@ export async function openCourseLink(assignmentId, assignmentLink, buttonElement
     } else {
         console.log("キャッシュに存在しないため、新たに取得します。");
         changeButtonDesign(buttonElement, "loading");
-        const courseLink = await getCourseLink(assignmentLink);
+        const courseLink = await getCourseLink(assignmentId, assignmentLink, () => {changeButtonDesign(buttonElement, "error");});
         if (!courseLink) {
             console.error("コースリンクの取得に失敗しました。");
             changeButtonDesign(buttonElement, "error");
