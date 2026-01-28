@@ -9,6 +9,12 @@ import { changeButtonDesign } from "./edit_dom.js";
 export async function openCourseLink(assignmentId, assignmentLink, buttonElement) {
     // console.log(`コースID: ${assignmentId} のコースリンクを開きます。`);
 
+    // ボタンが読み込み中の場合は何もしない
+    if (buttonElement.dataset.isLoading === "true") {
+        console.log("現在読み込み中です。しばらくお待ちください。");
+        return;
+    }
+
     // キャッシュからコースリンクを取得
     let courseLink = await getCourseLinkFromLocalStorage(assignmentId);
     if (courseLink) {

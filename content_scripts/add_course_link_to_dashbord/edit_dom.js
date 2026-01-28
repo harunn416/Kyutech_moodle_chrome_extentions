@@ -5,7 +5,7 @@ import { openCourseLink } from "./open_link.js";
 export function editDomToAddCourseLink() {
     const assignmentElementSelector = 'div#page div#page-content div.pb-2[data-region="event-list-wrapper"] div.timeline-event-list-item';
     observeElementAppearance(assignmentElementSelector, async () => {
-        document.querySelectorAll(assignmentElementSelector).forEach(async (assignmentElement) => {
+        document.querySelectorAll(assignmentElementSelector).forEach((assignmentElement) => {
             // すでに追加済みなら何もしない
             if (assignmentElement.dataset.courseLinkAdded === "true") return;
 
@@ -28,6 +28,7 @@ export function editDomToAddCourseLink() {
             const linkDiv = document.createElement("div");
             linkDiv.className = "to-course-link-div standby";
             linkDiv.textContent = "コースを開く";
+            linkDiv.dataset.isLoading = "false";
 
             // クリックイベントを追加
             linkDiv.addEventListener("click", (e) => { openCourseLink(assignmentID, assignmentURL, e.target); });
@@ -50,12 +51,14 @@ export function changeButtonDesign(buttonElement, caseType = "standby") {
     if (caseType === "loading") {
         buttonElement.classList.add("loading");
         buttonElement.textContent = "読み込み中...";
+        buttonElement.dataset.isLoading = "true";
     } else if (caseType === "error") {
         buttonElement.classList.add("error");
         buttonElement.textContent = "エラー";
     } else {
         buttonElement.classList.add("standby");
         buttonElement.textContent = "コースを開く";
+        buttonElement.dataset.isLoading = "false";
     }
 }
 
