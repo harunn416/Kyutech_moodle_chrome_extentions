@@ -13,12 +13,6 @@
     "lib": ["es6", "dom"],
     "types": ["chrome"]
   },
-  "include": [
-    "content_scripts/**/*",
-    "util/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["content_scripts/**/*", "util/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
