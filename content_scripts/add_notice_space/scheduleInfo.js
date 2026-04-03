@@ -7,12 +7,6 @@ const scheduleInfo = [
     link: "https://www.iizuka.kyutech.ac.jp/faculty/educational-info",
   },
   {
-    title: "オリエンテーション",
-    description: "各学年・学科等のガイダンス",
-    start: "2026-04-08",
-    link: "https://www.iizuka.kyutech.ac.jp/faculty/educational-info",
-  },
-  {
     title: "前期 履修登録期間",
     description: "通常科目の履修登録（最終日は23:55まで）",
     start: "2026-04-09",

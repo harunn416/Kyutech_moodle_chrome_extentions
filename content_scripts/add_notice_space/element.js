@@ -1,4 +1,4 @@
-import scheduleInfoArr from "./noticeInfo.js";
+import scheduleInfoArr from "./scheduleInfo";
 // 何日前の予定まで表示するかを指定する定数 (後でlocalStorageから取得するように変更予定)
 const displayBeforeDay = 7;
 
