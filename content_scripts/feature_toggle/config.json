@@ -1,5 +1,8 @@
 {
-  "matches": ["https://ict-i.el.kyutech.ac.jp/*"],
+  "matches": [
+    "https://im10.el.kyutech.ac.jp/2026/*",
+    "https://ict-i.el.kyutech.ac.jp/*"
+  ],
   "displayName": "機能選択",
   "description": "拡張機能のオンオフを管理します。",
   "ForceExecution": true

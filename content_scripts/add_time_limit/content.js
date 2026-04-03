@@ -29,7 +29,7 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
-// https://ict-i.el.kyutech.ac.jp/my/ で反応するようにする。
+// https://im10.el.kyutech.ac.jp/2026/my/ で反応するようにする。
 // つまり、「ダッシュボード」ページで反応してもらう。
 
 import "./content.css";
