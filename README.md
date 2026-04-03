@@ -162,7 +162,7 @@ const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 
 ```json
 {
-  "matches": ["https://*ict-i.el.kyutech.ac.jp/*"],
+  "matches": [ "https://im10.el.kyutech.ac.jp/2026/*" ], // 2026年度からmoodleサイトが変更
   "displayName": "[機能表示名]",
   "description": "[ここに機能の説明を記述。簡潔に10~40字程度で。]",
   "ForceExecution": false, //省略可
@@ -174,13 +174,13 @@ const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 > `matches`の部分は JS ファイルが動いてほしい URL を記述する部分です。`*`は任意の文字列となっています。なので、
 >
 > ```
-> https://*ict-i.el.kyutech.ac.jp/*
+> https://*im10.el.kyutech.ac.jp/2026/*
 > ```
 >
 > は moodle のすべてのサイトで実行され、
 >
 > ```
-> https://*ict-i.el.kyutech.ac.jp/my/courses.php*
+> https://*im10.el.kyutech.ac.jp/2026/my/courses.php*
 > ```
 >
 > は`マイコース`タブでしか実行されません。
@@ -189,6 +189,12 @@ const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 > [!IMPORTANT]
 > `ForceExecution`を`true`にすると、ユーザーはその機能のオンオフを選択できず、強制的にその機能をオンにすることができます。
 > `initialState`を`false`にすると、初期状態で機能が無効化した状態になります。
+
+> [!NOTE]
+> 2026年度から moodle サイトは変更になりました。  
+> ~2026: `https://ict-i.el.kyutech.ac.jp/`  
+> 2026~: `https://im10.el.kyutech.ac.jp/2026/`  
+> 以後は後者のURLを使用してください。
 
 ### 開発ブランチにマージ
 
