@@ -37,7 +37,8 @@ function main() {
   // 予定通知要素を作成
   const noticeElement = createNoticeElement();
   if (!noticeElement) {
-    throw new Error("予定通知要素の作成に失敗しました。");
+    console.log("予定通知要素が作成されませんでした。");
+    return;
   }
 
   // 予定通知要素をマイコースページの上部に挿入
