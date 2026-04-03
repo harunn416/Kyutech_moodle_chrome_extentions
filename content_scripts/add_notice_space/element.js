@@ -1,6 +1,25 @@
-import noticeInfo from "./noticeInfo.js";
+import scheduleInfoArr from "./noticeInfo.js";
 // 何日前の予定まで表示するかを指定する定数 (後でlocalStorageから取得するように変更予定)
 const displayBeforeDay = 7;
+
+function formatDateWithWeekday(date, includeTime) {
+  const dateString = date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  });
+
+  if (!includeTime) {
+    return dateString;
+  }
+
+  const timeString = date.toLocaleTimeString("ja-JP", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${dateString} ${timeString}`;
+}
 
 /** 通知要素を作成して返す関数
  * @return {HTMLElement} noticeElement - 予定通知を表示するためのHTML要素
@@ -22,7 +41,7 @@ export function createNoticeElement() {
   noticeParentElement.style.color = "#333";
 
   // 通知情報をループして、表示する予定を作成
-  noticeInfo.forEach((notice) => {
+  scheduleInfoArr.forEach((notice) => {
     // バリデーション: タイトルと開始日時が必須
     if (!notice.title || !notice.start) {
       console.warn("予定通知の情報が不完全です:", notice);
@@ -95,14 +114,8 @@ export function createNoticeElement() {
 
       const datetimeElement = document.createElement("p");
       // 時間が指定されていない場合は、日付のみ表示する
-      let startTimeString = startDate.toLocaleString();
-      let endTimeString = endDate.toLocaleString();
-      if (!startHasTime) {
-        startTimeString = startDate.toLocaleDateString();
-      }
-      if (!endHasTime) {
-        endTimeString = endDate.toLocaleDateString();
-      }
+      const startTimeString = formatDateWithWeekday(startDate, startHasTime);
+      const endTimeString = formatDateWithWeekday(endDate, endHasTime);
       datetimeElement.textContent = `期間: ${startTimeString} ~ ${endTimeString}`;
       if (!hasEnd && !startHasTime) {
         datetimeElement.textContent = `日時: ${startTimeString}`;
@@ -131,6 +144,24 @@ export function createNoticeElement() {
   if (!hasNotice) {
     return null;
   }
+
+  const officialLinkElement = document.createElement("a");
+  officialLinkElement.href =
+    "https://www.iizuka.kyutech.ac.jp/faculty/educational-info";
+  officialLinkElement.target = "_blank";
+  officialLinkElement.rel = "noreferrer noopener";
+  officialLinkElement.textContent = "公式ページ";
+
+  const cautionElement = document.createElement("p");
+  cautionElement.append(
+    "※予定は事前に取得した情報のため、変更されている可能性があります。最新情報は",
+  );
+  cautionElement.appendChild(officialLinkElement);
+  cautionElement.append("で確認してください。");
+  cautionElement.style.margin = "2px 0 0";
+  cautionElement.style.fontSize = "12px";
+  cautionElement.style.color = "#777777";
+  noticeParentElement.appendChild(cautionElement);
 
   return noticeParentElement;
 }
