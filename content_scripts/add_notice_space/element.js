@@ -10,11 +10,14 @@ export function createNoticeElement() {
   // 通知要素の親コンテナを作成
   const noticeParentElement = document.createElement("div");
   noticeParentElement.setAttribute("id", "noticeElement");
-  noticeParentElement.style.backgroundColor = "#f0f0f0";
-  noticeParentElement.style.padding = "10px";
+  noticeParentElement.style.backgroundColor = "#f5f5f5";
+  noticeParentElement.style.padding = "14px";
   noticeParentElement.style.margin = "20px 0";
-  noticeParentElement.style.borderRadius = "5px";
-  noticeParentElement.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+  noticeParentElement.style.borderRadius = "8px";
+  noticeParentElement.style.border = "1px solid #d0d0d0";
+  noticeParentElement.style.display = "flex";
+  noticeParentElement.style.flexDirection = "column";
+  noticeParentElement.style.rowGap = "12px";
   noticeParentElement.style.fontSize = "15px";
   noticeParentElement.style.color = "#333";
 
@@ -54,24 +57,29 @@ export function createNoticeElement() {
 
       // 予定要素を作成
       const noticeElement = document.createElement("div");
-      noticeElement.style.marginBottom = "10px";
+      noticeElement.style.padding = "10px 12px";
+      noticeElement.style.backgroundColor = "#fff";
+      noticeElement.style.borderRadius = "6px";
+      noticeElement.style.border = "1px solid #dddddd";
 
       const titleElement = document.createElement("h3");
+      titleElement.style.margin = "0 0 6px";
+      titleElement.style.fontSize = "20px";
+      titleElement.style.lineHeight = "1.5";
       if (diffDays > 0) {
-        titleElement.style.color = "#292929";
+        titleElement.style.color = "#2f2f2f";
       } else if (dedDiffDays > 0) {
-        titleElement.style.color = "#0119a1";
+        titleElement.style.color = "#2457b2";
       } else {
-        titleElement.style.color = "#a10101";
+        titleElement.style.color = "#a23a3a";
       }
       titleElement.textContent = notice.title;
       if (diffDays <= 0) {
         const dedlineElement = document.createElement("span");
         dedlineElement.textContent = `締切まであと${dedDiffDays}日`;
-        dedlineElement.style.fontSize = "14px";
-        dedlineElement.style.color = "#707070";
-        dedlineElement.style.marginLeft = "10px";
-        dedlineElement.style.marginBottom = "5px";
+        dedlineElement.style.fontSize = "12px";
+        dedlineElement.style.color = "#666666";
+        dedlineElement.style.marginLeft = "8px";
         titleElement.appendChild(dedlineElement);
       }
       noticeElement.appendChild(titleElement);
@@ -79,7 +87,9 @@ export function createNoticeElement() {
       if (notice.description) {
         const descriptionElement = document.createElement("p");
         descriptionElement.textContent = notice.description;
-        descriptionElement.style.marginBottom = "5px";
+        descriptionElement.style.margin = "0 0 6px";
+        descriptionElement.style.color = "#4d4d4d";
+        descriptionElement.style.lineHeight = "1.5";
         noticeElement.appendChild(descriptionElement);
       }
 
@@ -93,19 +103,25 @@ export function createNoticeElement() {
       if (!endHasTime) {
         endTimeString = endDate.toLocaleDateString();
       }
-      datetimeElement.textContent = `日時: ${startTimeString} ~ ${endTimeString}`;
+      datetimeElement.textContent = `期間: ${startTimeString} ~ ${endTimeString}`;
       if (!hasEnd && !startHasTime) {
         datetimeElement.textContent = `日時: ${startTimeString}`;
       }
-      datetimeElement.style.marginBottom = "5px";
+      datetimeElement.style.margin = "0 0 8px";
+      datetimeElement.style.color = "#666666";
+      datetimeElement.style.fontSize = "13px";
       noticeElement.appendChild(datetimeElement);
 
       if (notice.link) {
         const linkElement = document.createElement("a");
-        linkElement.style.marginBottom = "5px";
         linkElement.href = notice.link;
         linkElement.target = "_blank";
+        linkElement.rel = "noreferrer noopener";
         linkElement.textContent = "詳細を見る";
+        linkElement.style.display = "inline-block";
+        linkElement.style.color = "#2457b2";
+        linkElement.style.textDecoration = "underline";
+        linkElement.style.fontSize = "13px";
         noticeElement.appendChild(linkElement);
       }
 
