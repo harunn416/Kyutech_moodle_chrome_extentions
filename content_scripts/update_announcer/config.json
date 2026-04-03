@@ -1,5 +1,8 @@
 {
-  "matches": ["https://ict-i.el.kyutech.ac.jp/my/*"],
+  "matches": [
+    "https://im10.el.kyutech.ac.jp/2026/my/*",
+    "https://ict-i.el.kyutech.ac.jp/my/*"
+  ],
   "displayName": "アップデート内容を告知する機能",
   "description": "拡張機能が更新された際に、アップデート内容をユーザーに告知します。",
   "ForceExecution": true,
