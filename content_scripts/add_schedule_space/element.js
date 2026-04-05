@@ -42,36 +42,42 @@ export function createNoticeElement() {
 
   // 通知情報をループして、表示する予定を作成
   scheduleInfoArr.forEach((notice) => {
+    hasNotice = true;
     // バリデーション: タイトルと開始日時が必須
     if (!notice.title || !notice.start) {
       console.warn("予定通知の情報が不完全です:", notice);
       return; // タイトルまたは開始日時がない場合はスキップ
     }
 
-    hasNotice = true;
     // 終了日時が指定されていない場合は、開始日時の23:59を終了日時とする
     let hasEnd = true;
     if (!notice.end) {
       hasEnd = false;
-      notice.end = `${notice.start} 23:59`;
+      notice.end = `${notice.start} 23:59:59`;
     }
-    // 時間が指定されていない場合は、開始日時を00:00、終了日時を23:59に設定
+
+    // 時間が指定されていない場合は、開始日時を00:00、終了日時を23:59:59に設定
     const startHasTime = /\d{1,2}:\d{2}/.test(notice.start);
     if (!startHasTime) {
       notice.start = `${notice.start} 00:00`;
     }
     const endHasTime = /\d{1,2}:\d{2}/.test(notice.end);
     if (!endHasTime) {
-      notice.end = `${notice.end} 23:59`;
+      notice.end = `${notice.end} 23:59:59`;
     }
+
     const startDate = new Date(notice.start);
+    const startDateZero = new Date(notice.start);
+    startDateZero.setHours(0, 0, 0, 0);
     const endDate = new Date(notice.end);
+    const endDateEnd = new Date(notice.end);
+    endDateEnd.setHours(23, 59, 59, 999);
     const now = new Date();
-    const diffTime = startDate.getTime() - now.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // あと何日か計算
+    const diffTime = startDateZero.getTime() - now.getTime(); // 開始日の0時までを基準に時間差を計算
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 開始日まであと何日か計算 (当日を0日)
     if (diffDays <= displayBeforeDay && now <= endDate) {
-      // 締切まであと何日か計算
-      const dedDiffTime = endDate.getTime() - now.getTime();
+      // 締切まであと何日か計算 (当日を0日)
+      const dedDiffTime = endDateEnd.getTime() - now.getTime();
       const dedDiffDays = Math.floor(dedDiffTime / (1000 * 60 * 60 * 24));
 
       // 予定要素を作成
