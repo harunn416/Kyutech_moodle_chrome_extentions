@@ -53,16 +53,16 @@ export function createNoticeElement() {
     let hasEnd = true;
     if (!notice.end) {
       hasEnd = false;
-      notice.end = notice.start + " 23:59";
+      notice.end = `${notice.start} 23:59`;
     }
     // 時間が指定されていない場合は、開始日時を00:00、終了日時を23:59に設定
     const startHasTime = /\d{1,2}:\d{2}/.test(notice.start);
     if (!startHasTime) {
-      notice.start = notice.start + " 00:00";
+      notice.start = `${notice.start} 00:00`;
     }
     const endHasTime = /\d{1,2}:\d{2}/.test(notice.end);
     if (!endHasTime) {
-      notice.end = notice.end + " 23:59";
+      notice.end = `${notice.end} 23:59`;
     }
     const startDate = new Date(notice.start);
     const endDate = new Date(notice.end);
@@ -93,14 +93,19 @@ export function createNoticeElement() {
         titleElement.style.color = "#a23a3a";
       }
       titleElement.textContent = notice.title;
-      if (diffDays <= 0) {
-        const dedlineElement = document.createElement("span");
+      const dedlineElement = document.createElement("span");
+      dedlineElement.style.fontSize = "12px";
+      dedlineElement.style.marginLeft = "8px";
+      if (diffDays > 0) {
+        // 期間開始前
+        dedlineElement.textContent = `${diffDays}日後`;
+        dedlineElement.style.color = "#919191";
+      } else {
         dedlineElement.textContent = `締切まであと${dedDiffDays}日`;
-        dedlineElement.style.fontSize = "12px";
         dedlineElement.style.color = "#666666";
-        dedlineElement.style.marginLeft = "8px";
         titleElement.appendChild(dedlineElement);
       }
+      titleElement.appendChild(dedlineElement);
       noticeElement.appendChild(titleElement);
 
       if (notice.description) {
