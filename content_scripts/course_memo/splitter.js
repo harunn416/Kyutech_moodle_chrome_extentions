@@ -4,9 +4,9 @@
  */
 export function initializeSplitter() {
   // 1. 操作対象の要素を全て取得
-  const parent = document.querySelector('#course-memo-wrapper');
-  const secondChild = document.querySelector('#course-memo-sidebar');
-  const splitter = document.querySelector('#course-memo-separator');
+  const parent = document.querySelector("#course-memo-wrapper");
+  const secondChild = document.querySelector("#course-memo-sidebar");
+  const splitter = document.querySelector("#course-memo-separator");
 
   // 要素が存在しない場合は何もしない
   if (!parent || !secondChild || !splitter) {
@@ -17,7 +17,7 @@ export function initializeSplitter() {
   let isDragging = false;
 
   // --- ステップ1: ドラッグ開始 の処理 ---
-  splitter.addEventListener('mousedown', (e) => {
+  splitter.addEventListener("mousedown", (e) => {
     isDragging = true;
     const parentRect = parent.getBoundingClientRect();
 
@@ -47,21 +47,21 @@ export function initializeSplitter() {
         isDragging = false;
 
         // イベントリスナーの解除
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
 
         // スタイルの解除
-        parent.style.userSelect = '';
-        parent.style.pointerEvents = '';
+        parent.style.userSelect = "";
+        parent.style.pointerEvents = "";
       }
     }
 
     // document全体にイベントを登録
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
 
     // テキスト選択などを防ぐ
-    parent.style.userSelect = 'none';
-    parent.style.pointerEvents = 'none';
+    parent.style.userSelect = "none";
+    parent.style.pointerEvents = "none";
   });
 }

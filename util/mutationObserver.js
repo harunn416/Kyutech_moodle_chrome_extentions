@@ -7,53 +7,65 @@
  * @param {boolean} [continueObserving=false] - コールバック実行後も監視を続けるかどうか（デフォルトはfalseで監視を停止）
  */
 export function observeElementAppearance(
-    targetSelector,
-    callback,
-    rootElement = document.body,
-    logToggle = false,
-    continueObserving = false
+  targetSelector,
+  callback,
+  rootElement = document.body,
+  logToggle = false,
+  continueObserving = false,
 ) {
-    if (typeof targetSelector !== "string" || !targetSelector) {
-        throw new Error("observeElementAppearance: 有効な targetSelector を指定してください。");
-    }
+  if (typeof targetSelector !== "string" || !targetSelector) {
+    throw new Error(
+      "observeElementAppearance: 有効な targetSelector を指定してください。",
+    );
+  }
 
-    if (typeof callback !== "function") {
-        throw new Error("observeElementAppearance: callback は関数である必要があります。");
-    }
+  if (typeof callback !== "function") {
+    throw new Error(
+      "observeElementAppearance: callback は関数である必要があります。",
+    );
+  }
 
-    // 1. 監視対象の要素がすでに出現しているかを確認
-    const existingElement = rootElement.querySelector(targetSelector);
-    if (existingElement) {
-        callback(existingElement);
-        // すでに存在する場合は、continueObservingがfalseならここで終了
-        if (logToggle) console.log(`observeElementAppearance: ${targetSelector} はすでに存在しています。`);
-        if (!continueObserving) return;
-    }
+  // 1. 監視対象の要素がすでに出現しているかを確認
+  const existingElement = rootElement.querySelector(targetSelector);
+  if (existingElement) {
+    callback(existingElement);
+    // すでに存在する場合は、continueObservingがfalseならここで終了
+    if (logToggle)
+      console.log(
+        `observeElementAppearance: ${targetSelector} はすでに存在しています。`,
+      );
+    if (!continueObserving) return;
+  }
 
-    // 2. DOMの変更を監視するObserverを作成
-    const observer = new MutationObserver((mutationsList, observer) => {
-        // 変更リストをループして、追加されたノードの中に目的の要素があるかを確認
-        for (const mutation of mutationsList) {
-            if (mutation.type !== "childList") continue;
+  // 2. DOMの変更を監視するObserverを作成
+  const observer = new MutationObserver((mutationsList, observer) => {
+    // 変更リストをループして、追加されたノードの中に目的の要素があるかを確認
+    for (const mutation of mutationsList) {
+      if (mutation.type !== "childList") continue;
 
-            // 追加されたノードすべてに対して処理を行う
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType !== 1) return; // 要素ノードでない場合はスキップ
+      // 追加されたノードすべてに対して処理を行う
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return; // 要素ノードでない場合はスキップ
 
-                // node自体か、その子孫にターゲットがあるか確認
-                const targetElement = node.matches(targetSelector) ? node : node.querySelector(targetSelector);
+        // node自体か、その子孫にターゲットがあるか確認
+        const targetElement = node.matches(targetSelector)
+          ? node
+          : node.querySelector(targetSelector);
 
-                if (targetElement) {
-                    if (!continueObserving) observer.disconnect();
-                    callback(targetElement);
-                    if (logToggle) console.log(`observeElementAppearance: ${targetSelector} が出現しました。`);
-                    return;
-                }
-            });
+        if (targetElement) {
+          if (!continueObserving) observer.disconnect();
+          callback(targetElement);
+          if (logToggle)
+            console.log(
+              `observeElementAppearance: ${targetSelector} が出現しました。`,
+            );
+          return;
         }
-    });
+      });
+    }
+  });
 
-    // 3. 監視を開始
-    const config = { childList: true, subtree: true };
-    observer.observe(rootElement, config);
+  // 3. 監視を開始
+  const config = { childList: true, subtree: true };
+  observer.observe(rootElement, config);
 }

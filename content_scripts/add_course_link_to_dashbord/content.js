@@ -1,3 +1,7 @@
+import "./content.css";
+import { editDomToAddCourseLink } from "./edit_dom.js";
+import { maintainCacheSizeLimit } from "./operate_storage_local.js";
+
 /* ストレージから機能のオンオフを読み込んで実行するか判断する部分 *********************/
 // この機能に対応するキー名を定義
 // キー名はバンドル時に置換される
@@ -29,12 +33,10 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
-function main() {
-  if (document.querySelector("h1.h2").innerHTML == "マイコース") {
-    document.querySelector("h1.h2").innerHTML = "マイコ～ス";
-  }
-  let helloHeader = document.querySelector("header#page-header h1.h2");
-  if (helloHeader.textContent.includes("こんにちは")) {
-    helloHeader.textContent = "やあ、久しぶりだね！👋";
-  }
+// ブラウザ読み込み時にメイン関数を実行。
+async function main() {
+  // キャッシュサイズ制限を維持
+  maintainCacheSizeLimit();
+  // DOM編集関数を実行
+  editDomToAddCourseLink();
 }

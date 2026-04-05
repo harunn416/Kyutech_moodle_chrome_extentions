@@ -1,5 +1,5 @@
 // 永続化ストレージのキー
-const FLAG_STORAGE_KEY = 'first_view_popup_flags';
+const FLAG_STORAGE_KEY = "first_view_popup_flags";
 
 // 機能ごとのデフォルトフラグ（初回はすべてfalse = ポップアップを表示する）
 // ここに新しいフラグが追加されるたびに更新します。
@@ -11,19 +11,19 @@ const DEFAULT_FLAGS = {};
  * @returns {Promise<object>} 現在の設定フラグ全体
  */
 export async function getFlags() {
-    return new Promise((resolve) => {
-        // chrome.storage.sync.get にキーを渡して取得
-        chrome.storage.sync.get(FLAG_STORAGE_KEY, (data) => {
-            // ストレージに保存されているデータ、または空のオブジェクト
-            const savedFlags = data[FLAG_STORAGE_KEY] || {};
-            
-            // デフォルト値と保存値をマージする
-            // 既に保存されているフラグはそのまま使い、存在しないキー（新機能）にはデフォルトのfalseが入る
-            const mergedFlags = { ...DEFAULT_FLAGS, ...savedFlags };
-            
-            resolve(mergedFlags);
-        });
+  return new Promise((resolve) => {
+    // chrome.storage.sync.get にキーを渡して取得
+    chrome.storage.sync.get(FLAG_STORAGE_KEY, (data) => {
+      // ストレージに保存されているデータ、または空のオブジェクト
+      const savedFlags = data[FLAG_STORAGE_KEY] || {};
+
+      // デフォルト値と保存値をマージする
+      // 既に保存されているフラグはそのまま使い、存在しないキー（新機能）にはデフォルトのfalseが入る
+      const mergedFlags = { ...DEFAULT_FLAGS, ...savedFlags };
+
+      resolve(mergedFlags);
     });
+  });
 }
 
 /**
@@ -32,9 +32,9 @@ export async function getFlags() {
  * @returns {Promise<boolean>} ポップアップを表示すべきなら true、そうでなければ false
  */
 export async function shouldShowPopup(flagKey) {
-    const flags = await getFlags();
-    // フラグが false (または undefined でデフォルト値が false) なら true を返す
-    return flags[flagKey] === false || flags[flagKey] === undefined;
+  const flags = await getFlags();
+  // フラグが false (または undefined でデフォルト値が false) なら true を返す
+  return flags[flagKey] === false || flags[flagKey] === undefined;
 }
 
 /**
@@ -44,29 +44,28 @@ export async function shouldShowPopup(flagKey) {
  * @returns {Promise<void>}
  */
 export async function setFlag(flagKey, value) {
-    try {
-        // 1. 現在の設定フラグ全体を取得
-        const currentFlags = await getFlags();
-        
-        // 2. 変更したいフラグを更新
-        currentFlags[flagKey] = value;
-        
-        // 3. オブジェクト全体を単一キーで保存
-        const dataToSave = {};
-        dataToSave[FLAG_STORAGE_KEY] = currentFlags;
+  try {
+    // 1. 現在の設定フラグ全体を取得
+    const currentFlags = await getFlags();
 
-        await new Promise((resolve, reject) => {
-            chrome.storage.sync.set(dataToSave, () => {
-                if (chrome.runtime.lastError) {
-                    return reject(chrome.runtime.lastError);
-                }
-                resolve();
-            });
-        });
-        
-    } catch (error) {
-        console.error(`フラグ ${flagKey} の保存に失敗しました:`, error);
-        // ここでエラーを再スローするか、無視するかはアプリケーションの要件による
-        throw error;
-    }
+    // 2. 変更したいフラグを更新
+    currentFlags[flagKey] = value;
+
+    // 3. オブジェクト全体を単一キーで保存
+    const dataToSave = {};
+    dataToSave[FLAG_STORAGE_KEY] = currentFlags;
+
+    await new Promise((resolve, reject) => {
+      chrome.storage.sync.set(dataToSave, () => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+        resolve();
+      });
+    });
+  } catch (error) {
+    console.error(`フラグ ${flagKey} の保存に失敗しました:`, error);
+    // ここでエラーを再スローするか、無視するかはアプリケーションの要件による
+    throw error;
+  }
 }

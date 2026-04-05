@@ -29,12 +29,26 @@ async function shouldRun() {
 })();
 /********************************************************************************/
 
+import { createNoticeElement } from "./element.js";
+
+// ブラウザ読み込み時にメイン関数を実行。
 function main() {
-  if (document.querySelector("h1.h2").innerHTML == "マイコース") {
-    document.querySelector("h1.h2").innerHTML = "マイコ～ス";
+  console.log("予定通知機能を実行します。");
+  // 予定通知要素を作成
+  const noticeElement = createNoticeElement();
+  if (!noticeElement) {
+    console.log("予定通知要素が作成されませんでした。");
+    return;
   }
-  let helloHeader = document.querySelector("header#page-header h1.h2");
-  if (helloHeader.textContent.includes("こんにちは")) {
-    helloHeader.textContent = "やあ、久しぶりだね！👋";
+
+  // 予定通知要素をマイコースページの上部に挿入
+  const parentContainer = document.querySelector("#instance-5-header");
+  const timetableElement = parentContainer.querySelector("#div_TT");
+  // 時間割要素が存在する場合はその前に、存在しない場合は親コンテナの最後に挿入
+  if (timetableElement) {
+    parentContainer.insertBefore(noticeElement, timetableElement);
+  } else {
+    // 時間割要素が見つからない場合は親コンテナの最後に挿入
+    parentContainer.appendChild(noticeElement);
   }
 }

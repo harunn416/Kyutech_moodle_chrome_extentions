@@ -1,0 +1,8 @@
+{
+  "matches": [
+    "https://im10.el.kyutech.ac.jp/2026/my/",
+    "https://ict-i.el.kyutech.ac.jp/my/"
+  ],
+  "displayName": "コースリンク挿入機能",
+  "description": "コースリンクへのリンクをダッシュボードに挿入します。"
+}

@@ -1,0 +1,38 @@
+.to-course-link-div {
+  cursor: pointer;
+  font-size: 13px;
+  text-align: end;
+  text-decoration: underline;
+}
+
+.to-course-link-div.standby {
+  --standby-color: #0050b9;
+  color: var(--standby-color);
+}
+.to-course-link-div.standby:hover {
+  color: color-mix(in srgb, var(--standby-color) 80%, black 20%);
+}
+
+.to-course-link-div.error {
+  --error-color: #cf1d00;
+  color: var(--error-color);
+}
+.to-course-link-div.error:hover {
+  color: color-mix(in srgb, var(--error-color) 80%, black 20%);
+}
+
+.to-course-link-div.loading {
+  --loading-color: #4700b9;
+  color: var(--loading-color);
+}
+.to-course-link-div.loading:hover {
+  color: color-mix(in srgb, var(--loading-color) 80%, black 20%);
+}
+
+div#page
+  div#page-content
+  div.pb-2[data-region="event-list-wrapper"]
+  div.timeline-event-list-item
+  div.timeline-name {
+  width: 100%;
+}
