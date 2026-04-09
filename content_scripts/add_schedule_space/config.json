@@ -3,6 +3,6 @@
     "https://im10.el.kyutech.ac.jp/2026/my/courses.php*",
     "https://ict-i.el.kyutech.ac.jp/my/courses.php*"
   ],
-  "displayName": "予定通知機能",
-  "description": "マイコースページの上部で予定を通知します。"
+  "displayName": "スケジュール表示機能",
+  "description": "マイコースページの上部でスケジュールを表示します。"
 }
