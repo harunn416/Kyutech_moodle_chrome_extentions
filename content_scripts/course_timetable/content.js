@@ -632,9 +632,7 @@ function searchElementList() {
 
 /** コースカードの要素を検索して時間割登録ボタンを追加する関数 */
 function searchElementCard() {
-  let target = document.querySelector(
-    "[id^='page-container-'] div.dashboard-card-deck",
-  );
+  let target = document.querySelector("[id^='page-container-'] div.card-grid");
 
   if (target) {
     console.log("コースカードが見つかりました。");
@@ -719,7 +717,7 @@ function create_custombutton(targetElements, domType) {
     /* リンク検索 */
     let courseLink = courseElem.querySelector("a").getAttribute("href");
 
-    let courseButtonLi = courseElem.querySelector(".ml-auto .dropdown-menu");
+    let courseButtonLi = courseElem.querySelector(".dropdown-menu");
     /* 追加ボタン作成 */
     let setTimetableButton = document.createElement("button");
     setTimetableButton.setAttribute(
