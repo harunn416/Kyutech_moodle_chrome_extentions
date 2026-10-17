@@ -68,7 +68,7 @@ function addTimeLimit(SubmitsDivElement) {
     if (divElement.getAttribute("data-region") == "event-list-content-date") {
       // 日付要素
       // 日付文字列を取得しdate要素に変換
-      let dayString = divElement.querySelector("h5").innerHTML;
+      let dayString = divElement.querySelector("h4").innerHTML;
       timeLimitDate = parseJapaneseDateString(dayString);
     } else {
       // 提出物要素

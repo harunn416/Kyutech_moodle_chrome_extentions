@@ -187,7 +187,7 @@ module.exports = {
 
       // JavaScriptのトランスパイル (例: Babelを使用する場合)
       // ES6+ の新しいJS構文を古いブラウザでも動くように変換する
-      // `npm install --save-dev babel-loader @babel/core @babel/preset-env` が必要
+      // `pnpm add -D babel-loader @babel/core @babel/preset-env` が必要
       // {
       //   test: /\.js$/,
       //   exclude: /node_modules/, // node_modules 以下のファイルは対象外
