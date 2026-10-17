@@ -8,6 +8,7 @@
 九州工業大学の moodle 専用の拡張機能です。便利機能を随時追加していく予定です。
 
 ## インストール方法
+
 [インストールリンク](https://chromewebstore.google.com/detail/九工大moodle便利ツール/hhbkgambgapnagjlbgmcaebcndlodlje?authuser=0&hl=ja)  
 
 上のリンクから拡張機能をインストールしてください。
@@ -26,6 +27,7 @@ moodle のコース一覧を時間割形式で素早くアクセスできます�
 提出物一覧に残り時間を追加し、提出までの猶予を確認しやすくできます。
 
 ### 簡易メモ機能 **new**(ver1.2 実装)
+
 コースごとに簡易的なメモを残すことができます。  
 ※メモはデバイス間で同期できません。インポート・エクスポート機能を活用してください。(将来的には外部サーバーを使って同期可能にする予定です。)
 
@@ -69,6 +71,7 @@ Moodle Helper Extension に実装してほしい機能のアイデアがあり�
 1. npm で必要なライブラリを取得。`npm i`をターミナルで実行。これにより必要なライブラリが取得できる。
 1. dist ファイルを出力しビルド(バンドル)する。`npm run dev`をターミナルで実行。本番用の出力は`npm run build`を実行。
 1. ブラウザの拡張機能タブの`パッケージ化されていない拡張機能を読み込む`から`dist`フォルダを読み込む。
+
 > [!important]
 > 拡張機能はルートディレクトリを読み込むのではなく、必ず`dist`フォルダを読み込んでください。`manifest.json`が読み込まれません。
 
@@ -135,15 +138,17 @@ function main(){}
 > → [MDN MutationObserver](https://developer.mozilla.org/ja/docs/Web/API/MutationObserver)
 
 #### プレースホルダー
+
 現在 ``content.js`` で利用可能なプレースホルダーは以下の2つです
+
 1. ``__FEATURE_KEY_PLACEHOLDER__`` … ``content.js``が格納されているフォルダ名(機能名)を取得できます。
 2. ``__CURRENT_VERSION_PLACEHOLDER__`` … 現在の拡張機能のバージョン(package.jsonのバージョン)を取得できます。
 
 使う際は、以下のように文字列として代入してください。また、変数名にこれらを利用すると想定する動作は保証されません。
+
 ```JS
 const CurrenVersion = '__CURRENT_VERSION_PLACEHOLDER__';
 ```
-
 
 ### css
 
@@ -269,8 +274,9 @@ URLでLCUにマッチしないようにサブドメインを追加。
 # 開発者
 
 ### Harukomugi (はるこむぎ)
+
 ### けいたん
 
 # 参加
 
-Discord のサーバーリンク : https://discord.gg/A8P3VnXbM9
+Discord のサーバーリンク : <https://discord.gg/A8P3VnXbM9>
