@@ -51,12 +51,12 @@ Moodle Helper Extension に実装してほしい機能のアイデアがあり�
 # 開発者向け
 
 > [!IMPORTANT]  
-> `Webpack`を使っています。`Node.js` `npm`のインストールを推奨します。  
+> `Webpack`を使っています。`Node.js`と`pnpm`のインストールを推奨します。
 > なるべく`README`を参考に開発をしてください。
 
 > [!WARNING]  
-> ~~webpack でバンドルする際は`developmet`ではなく`production`を使用してください。拡張機能では`eval`が使用できないからです。コンソールで`npm run build`を実行すればいいようになってます。~~  
-> 現在は`development`でも読み込むようになっています。`npm run dev`でもビルド(バンドル)可能です。
+> ~~webpack でバンドルする際は`developmet`ではなく`production`を使用してください。拡張機能では`eval`が使用できないからです。コンソールで`pnpm build`を実行すればいいようになってます。~~
+> 現在は`development`でも読み込むようになっています。`pnpm dev`でもビルド(バンドル)可能です。
 
 > [!CAUTION]
 > **悪意のあるスクリプトを絶対に入れないでください！**  
@@ -68,8 +68,8 @@ Moodle Helper Extension に実装してほしい機能のアイデアがあり�
 ## 導入
 
 1. git ファイルのコピー。`git clone [URL]`をターミナルで実行。URL はこのページの一番上の緑色の`code`から取得可能。
-1. npm で必要なライブラリを取得。`npm i`をターミナルで実行。これにより必要なライブラリが取得できる。
-1. dist ファイルを出力しビルド(バンドル)する。`npm run dev`をターミナルで実行。本番用の出力は`npm run build`を実行。
+1. pnpm で必要なライブラリを取得。`pnpm install`をターミナルで実行。これにより必要なライブラリが取得できる。
+1. dist ファイルを出力しビルド(バンドル)する。`pnpm dev`をターミナルで実行。本番用の出力は`pnpm build`を実行。
 1. ブラウザの拡張機能タブの`パッケージ化されていない拡張機能を読み込む`から`dist`フォルダを読み込む。
 
 > [!important]
