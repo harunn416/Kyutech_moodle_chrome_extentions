@@ -1,5 +1,9 @@
 [
   {
+    "version": "1.5.2",
+    "update_content": ["ダッシュボードの残り時間表示の不具合を修正"]
+  },
+  {
     "version": "1.5.0",
     "update_content": [
       "moodle4.5 に対応 (一部機能は未対応)",
